@@ -28,7 +28,7 @@ namespace Spell.Graph
         private readonly static Vector2 s_nodeShadowOffset = new Vector2(5, 5);
 
         private readonly static float s_connectionWidth = 3;
-        private readonly static float s_selectedConnectionWidth = 5;
+        private readonly static float s_selectedConnectionWidth = 4;
         private readonly static float s_connectionSelectionDistance = 5.0f;
 
         // ----------------------------------------------------------------------------------------
@@ -374,13 +374,15 @@ namespace Spell.Graph
                         var end = fieldValue.rectPosition + new Vector2(0, 10);
 
                         // Handle connection selection.
-                        if (isMouseDown && IsNearConnection(e.mousePosition, start, end))
+                        if (m_draggedPin == null && isMouseDown && IsNearConnection(e.mousePosition, start, end))
                         {
                             m_selectedConnection = pin;
                             e.Use();
                         }
 
-                        DrawConnection(start, end, pin.color, m_selectedConnection == pin ? s_selectedConnectionWidth : s_connectionWidth);
+                        var color = m_selectedConnection == pin ? pin.color.SetAlpha(1.0f) : pin.color.SetAlpha(0.75f); 
+                        var width = m_selectedConnection == pin ? s_selectedConnectionWidth : s_connectionWidth;
+                        DrawConnection(start, end, color, width);
                     }
                 }
             }

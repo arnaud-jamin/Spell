@@ -13,5 +13,10 @@ namespace Spell
             _v = Mathf.Clamp01(_v + v);
             return Color.HSVToRGB(_h, _s, _v);
         }
+
+        public static Color SetAlpha(this Color color, float a)
+        {
+            return new Color(color.r, color.g, color.b, a);
+        }
     }
 }
