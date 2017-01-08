@@ -2,7 +2,7 @@
 
 namespace Spell.Graph
 {
-    [NodeMenuItem("Shape/Circle")]
+    [NodeMenuItem("Shape")]
     public class Circle : Shape
     {
         public Expression<float> Radius = new FixedFloat(1);

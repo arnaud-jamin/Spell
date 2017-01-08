@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
-    [NodeMenuItem("Action/Summon")]
+    [NodeMenuItem("Action")]
     public class Summon : Action
     {
         public Expression<ObjectNode> Object = new FixedObject();

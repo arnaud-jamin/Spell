@@ -2,7 +2,7 @@
 
 namespace Spell.Graph
 {
-    [NodeMenuItem("Shape/Box")]
+    [NodeMenuItem("Shape")]
     public class Box : Shape
     {
         public Expression<float> Width = new FixedFloat(1);

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
-    [NodeMenuItem("Object/Field/BoxField")]
+    [NodeMenuItem("Object/Field")]
     public class BoxField : Field
     {
         public Expression<float> Width = new FixedFloat();

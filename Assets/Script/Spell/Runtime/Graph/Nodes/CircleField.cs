@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
-    [NodeMenuItem("Object/Field/CircleField")]
+    [NodeMenuItem("Object/Field")]
     public class CircleField : Field
     {
         public Expression<float> Radius = new FixedFloat();

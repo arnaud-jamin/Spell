@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
-    public abstract class Graph : ScriptableObject
+    public abstract class Graph : ScriptableObject, IGraph
     {
         // ----------------------------------------------------------------------------------------
         [fsIgnore]
@@ -16,7 +16,7 @@ namespace Spell.Graph
         protected string m_json;
 
         [SerializeField]
-        protected List<Node> m_nodes = new List<Node>();
+        protected List<INode> m_nodes = new List<INode>();
 
         [SerializeField]
         private Vector2 m_viewOffset = new Vector2(0, 0);
@@ -25,17 +25,34 @@ namespace Spell.Graph
         private float m_viewZoom = 1.0f;
 
         // ----------------------------------------------------------------------------------------
-        public List<Node> Nodes { get { return m_nodes; } }
+        public List<INode> Nodes { get { return m_nodes; } }
         public Vector2 ViewOffset { get { return m_viewOffset; } set { m_viewOffset = value; } }
         public float ViewZoom { get { return m_viewZoom; } set { m_viewZoom = value; } }
 
         // ----------------------------------------------------------------------------------------
-        public Node CreateNode(Type type)
+        public INode CreateNode(Type type)
         {
-            var node = Activator.CreateInstance(type) as Node;
-            node.rectPosition = m_viewOffset + new Vector2(200, 200);
-            m_nodes.Add(node);
+            var node = Activator.CreateInstance(type) as INode;
+            FinishCreateNode(node);
             return node;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public INode CreateFixedValue(Type valueType)
+        {
+            var fixedExpressionType = typeof(FixedValue<>);
+            Type[] typeArgs = { valueType };
+            var genericType = fixedExpressionType.MakeGenericType(typeArgs);
+            var node = Activator.CreateInstance(genericType) as INode;
+            FinishCreateNode(node);
+            return node;
+        }
+        
+        // ----------------------------------------------------------------------------------------
+        public void FinishCreateNode(INode node)
+        {
+            node.GraphPosition = m_viewOffset + new Vector2(200, 200);
+            m_nodes.Add(node);
         }
 
         // ----------------------------------------------------------------------------------------

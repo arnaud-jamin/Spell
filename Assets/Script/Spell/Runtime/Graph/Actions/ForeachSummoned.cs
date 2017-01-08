@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
-    [NodeMenuItem("Action/Composite/For Each Summoned")]
+    [NodeMenuItem("Action/Composite")]
     public class ForeachSummoned : Action
     {
         public Expression<GameObject> Source = new FixedGameObject();

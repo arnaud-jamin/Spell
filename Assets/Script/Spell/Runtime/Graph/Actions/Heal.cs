@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
-    [NodeMenuItem("Action/Heal")]
+    [NodeMenuItem("Action")]
     public class Heal : Action
     {
         public Expression<float> Amount = new FixedFloat();

@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
-    [NodeMenuItem("Action/Composite/For Each In Area")]
+    [NodeMenuItem("Action/Composite")]
     public class ForeachInArea : Action
     {
         private static Collider[] s_colliders = new Collider[256];

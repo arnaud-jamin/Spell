@@ -24,4 +24,14 @@ namespace Spell
             Color = new Color(r, g, b);
         }
     }
+
+    public class NameAttribute : Attribute
+    {
+        public string Name;
+
+        public NameAttribute(string name)
+        {
+            Name = name;
+        }
+    }
 }
