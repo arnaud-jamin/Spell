@@ -1,6 +1,7 @@
 ﻿using FullSerializer;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace Spell.Graph
@@ -13,6 +14,9 @@ namespace Spell.Graph
 
         INode CreateNode(Type type);
         INode CreateFixedValue(Type valueType);
+        void DestroyNode(INode node);
+        INode DisconnectField(INode node, FieldInfo field);
+
         void Clear();
         void Save();
         void Load();

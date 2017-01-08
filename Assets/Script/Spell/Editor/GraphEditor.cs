@@ -44,6 +44,7 @@ namespace Spell.Graph
         private Matrix4x4 m_backupGuiMatrix;
         private bool m_forceRepaint;
         private NodePin? m_draggedPin;
+        private INode m_selectedNode;
         private NodePin? m_selectedConnection;
         private List<NodeInfo> m_nodeInfos = new List<NodeInfo>();
 
@@ -154,8 +155,6 @@ namespace Spell.Graph
 
             var e = Event.current;
 
-            HandleEvents(e);
-
             m_screenRect = new Rect(s_leftMargin, 
                                     s_topMargin, 
                                     position.width - s_rightMargin - s_leftMargin, 
@@ -177,6 +176,8 @@ namespace Spell.Graph
             DrawScrollBars();
 
             DrawMenu();
+
+            HandleEvents(e);
 
             if (m_forceRepaint || e.type == EventType.MouseMove)
             {
@@ -211,6 +212,24 @@ namespace Spell.Graph
             {
                 ViewOffset -= e.delta / ViewZoom;
                 e.Use();
+            }
+
+            if (e.type == EventType.KeyUp)
+            {
+                if (e.keyCode == KeyCode.Delete)
+                {
+                    if (m_selectedNode != null)
+                    {
+                        m_graph.DestroyNode(m_selectedNode);
+                        m_selectedNode = null;
+                    }
+                    else if (m_selectedConnection != null)
+                    {
+                        m_graph.DisconnectField(m_selectedConnection.Value.node, m_selectedConnection.Value.field);
+                        m_selectedConnection = null;
+                        e.Use();
+                    }
+                }
             }
         }
 
@@ -272,16 +291,16 @@ namespace Spell.Graph
             for (var i = 0; i < m_graph.Nodes.Count; ++i)
             {
                 var node = m_graph.Nodes[i];
+                var nodeInfo = new NodeInfo(node);
+                m_nodeInfos.Add(nodeInfo);
+
                 if (node.IsAttached)
                     continue;
 
-                var nodeInfo = new NodeInfo(node);
                 var nodeSize = ComputeNodeSize(node);
                 nodeInfo.globalRect = new Rect(node.GraphPosition, nodeSize);
                 nodeInfo.localBackgroundRect = node.IsFixedValue ? new Rect(Vector2.zero, nodeSize) : new Rect(0, 0, s_nodePinOffset.x, nodeSize.y);
                 nodeInfo.globalBackgroundRect = new Rect(node.GraphPosition, nodeInfo.localBackgroundRect.size);
-
-                m_nodeInfos.Add(nodeInfo);
 
                 var offset = node.IsFixedValue ? s_valueShadowOffset : s_nodeShadowOffset;
                 var style = node.IsFixedValue ? "ValueShadow" : "NodeShadow";
@@ -371,7 +390,12 @@ namespace Spell.Graph
             var nodeInfo = m_nodeInfos[id];
             var node = nodeInfo.node;
             var nodeRect = nodeInfo.globalRect;
-            var nodeType = node.GetType();
+
+            if (e.type == EventType.MouseDown && e.button == 0)
+            {
+                m_selectedNode = node;
+                m_selectedConnection = null;
+            }
 
             GUI.color = Color.white;
             GUI.backgroundColor = Color.white;
@@ -405,11 +429,10 @@ namespace Spell.Graph
 
                 // Node Fields
                 nodeInfo.pins.Clear();
-                var fields = nodeType.GetFields(BindingFlags.Instance | BindingFlags.Public);
-                for (int i = 0; i < fields.Length; ++i)
+                var fields = node.GetFields();
+                for (int i = 0; i < fields.Count; ++i)
                 {
                     var field = fields[i];
-                    if (typeof(INode).IsAssignableFrom(field.FieldType))
                     {
                         var fieldInfo = NodeTypeInfo.Get(field.FieldType);
 
@@ -505,36 +528,13 @@ namespace Spell.Graph
                         if (handleMouseDown && m_draggedPin == null && (isMouseOverBlock == false) && IsNearConnection(e.mousePosition, start, end))
                         {
                             m_selectedConnection = pin;
+                            m_selectedNode = null;
                             e.Use();
                         }
 
                         var color = m_selectedConnection == pin ? pin.color.SetAlpha(1.0f) : pin.color.SetAlpha(0.75f); 
                         var width = m_selectedConnection == pin ? s_selectedConnectionWidth : s_connectionWidth;
                         DrawConnection(start, end, color, width);
-                    }
-                }
-            }
-
-            if (e.type == EventType.KeyUp)
-            {
-                if (e.keyCode == KeyCode.Delete)
-                {
-                    if (m_selectedConnection != null)
-                    {
-                        var field = m_selectedConnection.Value.field;
-                        var fieldValue = field.GetValue(m_selectedConnection.Value.node) as INode;
-
-                        if (fieldValue.ValueType != null)
-                        {
-                            var newFixedNode = m_graph.CreateFixedValue(fieldValue.ValueType);
-                            field.SetValue(m_selectedConnection.Value.node, newFixedNode);
-                            newFixedNode.GraphPosition = m_selectedConnection.Value.center;
-                        }
-                        else
-                        {
-                            field.SetValue(m_selectedConnection.Value.node, null);
-                        }
-                        e.Use();
                     }
                 }
             }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace Spell.Graph
@@ -10,5 +12,6 @@ namespace Spell.Graph
         bool IsAttached { get; set; }
         Type ValueType { get; }
         object BoxedValue { get; set; }
+        List<FieldInfo> GetFields();
     }
 }
