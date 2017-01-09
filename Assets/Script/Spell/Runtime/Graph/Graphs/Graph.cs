@@ -65,7 +65,7 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         public INode CreateFixedValue(Type valueType)
         {
-            var fixedExpressionType = typeof(FixedValue<>);
+            var fixedExpressionType = typeof(ExpressionValue<>);
             Type[] typeArgs = { valueType };
             var genericType = fixedExpressionType.MakeGenericType(typeArgs);
             var node = Activator.CreateInstance(genericType) as INode;

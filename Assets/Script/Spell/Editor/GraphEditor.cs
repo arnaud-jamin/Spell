@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -380,6 +381,10 @@ namespace Spell.Graph
             {
                 return new Vector2(100, 16);
             }
+            else if (type.IsEnum)
+            {
+                return new Vector2(75, 16);
+            }
             else
             {
                 return new Vector2(100, 16);
@@ -461,7 +466,7 @@ namespace Spell.Graph
             }
             else if (node.ValueType == typeof(float))
             {
-                node.BoxedValue = EditorGUI.FloatField(rect, GUIContent.none, (float)node.BoxedValue);
+                node.BoxedValue = EditorGUI.FloatField(rect, GUIContent.none, (float)node.BoxedValue, "NodeFieldValue");
             }
             else if (node.ValueType == typeof(Vector2))
             {
@@ -469,7 +474,7 @@ namespace Spell.Graph
             }
             else if (node.ValueType == typeof(Vector3))
             {
-                node.BoxedValue = EditorGUI.Vector3Field(rect, GUIContent.none, (Vector3)node.BoxedValue);
+                node.BoxedValue = Vector3Field(rect, (Vector3)node.BoxedValue, "NodeFieldValue");
             }
             else if (node.ValueType == typeof(Color))
             {
@@ -485,11 +490,11 @@ namespace Spell.Graph
             {
                 if (node.ValueType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0)
                 {
-                    node.BoxedValue = EditorGUI.MaskField(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType));
+                    node.BoxedValue = EditorGUI.MaskField(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType), "NodeFieldValue");
                 }
                 else
                 {
-                    node.BoxedValue = EditorGUI.Popup(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType));
+                    node.BoxedValue = EditorGUI.Popup(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType), "NodeFieldValue");
                 }
             }
             else if (typeof(UnityEngine.Object).IsAssignableFrom(node.ValueType))
@@ -497,7 +502,36 @@ namespace Spell.Graph
                 node.BoxedValue = EditorGUI.ObjectField(rect, (UnityEngine.Object)node.BoxedValue, node.ValueType, false);
             }
         }
-        
+
+        // ----------------------------------------------------------------------------------------
+        public static Vector3 Vector3Field(Rect rect, Vector3 value, GUIStyle style)
+        {
+            var labelWidth = 15;
+            rect.width -= labelWidth * 3;
+            var fieldWidth = Mathf.RoundToInt(rect.width / 3.0f);
+
+            var x = rect.x;
+            EditorGUI.LabelField(new Rect(x + 2, rect.y, labelWidth, rect.height), "X:", new GUIStyle("NodeFieldNameLeft"));
+            x += labelWidth;
+
+            value.x = EditorGUI.FloatField(new Rect(x, rect.y, fieldWidth, rect.height), GUIContent.none, value.x, "NodeFieldValue");
+            x += fieldWidth;
+
+            EditorGUI.LabelField(new Rect(x + 2, rect.y, labelWidth, rect.height), "Y:", new GUIStyle("NodeFieldNameLeft"));
+            x += labelWidth;
+
+            value.y = EditorGUI.FloatField(new Rect(x, rect.y, fieldWidth, rect.height), GUIContent.none, value.y, "NodeFieldValue");
+            x += fieldWidth;
+
+            EditorGUI.LabelField(new Rect(x + 2, rect.y, labelWidth, rect.height), "Z:", new GUIStyle("NodeFieldNameLeft"));
+            x += labelWidth;
+
+            value.z = EditorGUI.FloatField(new Rect(x, rect.y, fieldWidth, rect.height), GUIContent.none, value.z, "NodeFieldValue");
+            x += fieldWidth;
+
+            return value;
+        }
+
         // ----------------------------------------------------------------------------------------
         void DrawNode(int id)
         {
@@ -531,7 +565,7 @@ namespace Spell.Graph
                 GUI.backgroundColor = nodeInfo.baseTypeInfo.color;
                 var style = nodeInfo.baseTypeInfo.side == NodeSide.Right ? "ValueHandleLeft" : "ValueHandleRight";
                 var handleRect = nodeInfo.baseTypeInfo.side == NodeSide.Right ? new Rect(0, 0, s_nodeHandleWidth, nodeInfo.rect.size.y) 
-                                                                          : new Rect(nodeInfo.rect.size.x - s_nodeHandleWidth, 0, s_nodeHandleWidth, nodeInfo.rect.size.y);
+                                                                              : new Rect(nodeInfo.rect.size.x - s_nodeHandleWidth, 0, s_nodeHandleWidth, nodeInfo.rect.size.y);
                 GUI.Box(handleRect, GUIContent.none, style);
                 GUI.backgroundColor = Color.white;
 
@@ -539,7 +573,7 @@ namespace Spell.Graph
                 // Node Input
                 //-------------------------
                 var inputRect = nodeInfo.baseTypeInfo.side == NodeSide.Right ? new Rect(handleRect.size.x, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2)
-                                                                         : new Rect(1, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2);
+                                                                             : new Rect(1, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2);
                 DrawFixedValue(node, inputRect);
             }
             //-------------------------
@@ -911,29 +945,25 @@ namespace Spell.Graph
             var menu = new GenericMenu();
             if (m_graph != null)
             {
-                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-                for (var i = 0; i < assemblies.Length; ++i)
+                var assembly = Assembly.GetAssembly(typeof(INode));
+                var types = assembly.GetTypes();
+                for (var j = 0; j < types.Length; ++j)
                 {
-                    var assembly = assemblies[i];
-                    var types = assembly.GetTypes();
-                    for (var j = 0; j < types.Length; ++j)
-                    {
-                        var nodeType = types[j];
-                        if (baseType.IsAssignableFrom(nodeType) == false || nodeType.IsAbstract || nodeType.IsInterface)
-                            continue;
+                    var nodeType = types[j];
+                    if (baseType.IsAssignableFrom(nodeType) == false || nodeType.IsAbstract || nodeType.IsInterface)
+                        continue;
 
-                        var nodeInfo = NodeTypeInfo.GetNodeInfo(nodeType);
-                        menu.AddItem(new GUIContent(nodeInfo.menuPath), false, (n) => 
+                    var nodeInfo = NodeTypeInfo.GetNodeInfo(nodeType);
+                    menu.AddItem(new GUIContent(nodeInfo.menuPath), false, (n) => 
+                    {
+                        var node = m_graph.CreateNode(n as Type);
+                        node.GraphPosition = MathHelper.Step(nodeWorldPosition, Vector2.one);
+                        node.VariableName = "pouet";
+                        if (onNodeCreated != null)
                         {
-                            var node = m_graph.CreateNode(n as Type);
-                            node.GraphPosition = MathHelper.Step(nodeWorldPosition, Vector2.one);
-                            node.VariableName = "pouet";
-                            if (onNodeCreated != null)
-                            {
-                                onNodeCreated(node);
-                            }
-                        }, nodeType);
-                    }
+                            onNodeCreated(node);
+                        }
+                    }, nodeType);
                 }
             }
             menu.ShowAsContext();

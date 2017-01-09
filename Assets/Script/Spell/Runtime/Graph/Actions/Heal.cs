@@ -6,9 +6,8 @@ namespace Spell.Graph
     [NodeMenuItem("Action")]
     public class Heal : Action
     {
-        public Expression<float> Amount = new FixedFloat();
-        public Expression<GameObject> Target = new FixedGameObject();
-        public Expression<Color> Color = new FixedColor();
+        public Expression<float> Amount = new FloatValue();
+        public Expression<GameObject> Target = new GameObjectValue();
 
         public override void Execute()
         {

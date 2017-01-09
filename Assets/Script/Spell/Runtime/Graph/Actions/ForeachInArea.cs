@@ -11,7 +11,7 @@ namespace Spell.Graph
 
         public Shape Shape = null;
         public Action Action = null;
-        public FixedGameObject Selection = new FixedGameObject();
+        public GameObjectValue Selection = new GameObjectValue();
 
         public override void Execute()
         {

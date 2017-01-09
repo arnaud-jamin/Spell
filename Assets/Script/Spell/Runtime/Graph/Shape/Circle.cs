@@ -5,7 +5,7 @@ namespace Spell.Graph
     [NodeMenuItem("Shape")]
     public class Circle : Shape
     {
-        public Expression<float> Radius = new FixedFloat(1);
+        public Expression<float> Radius = new FloatValue(1);
 
         public override int GetTouchingColliders(Collider[] colliders, int mask, QueryTriggerInteraction queryTriggerInteraction)
         {

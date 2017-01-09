@@ -7,9 +7,9 @@ namespace Spell.Graph
     [NodeMenuItem("Action/Composite")]
     public class ForeachSummoned : Action
     {
-        public Expression<GameObject> Source = new FixedGameObject();
+        public Expression<GameObject> Source = new GameObjectValue();
         public Action Action = null;
-        public FixedGameObject Selection = new FixedGameObject();
+        public GameObjectValue Selection = new GameObjectValue();
 
         public override void Execute()
         {

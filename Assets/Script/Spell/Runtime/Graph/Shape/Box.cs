@@ -5,8 +5,8 @@ namespace Spell.Graph
     [NodeMenuItem("Shape")]
     public class Box : Shape
     {
-        public Expression<float> Width = new FixedFloat(1);
-        public Expression<float> Height = new FixedFloat(1);
+        public Expression<float> Width = new FloatValue(1);
+        public Expression<float> Height = new FloatValue(1);
 
         public override int GetTouchingColliders(Collider[] colliders, int mask, QueryTriggerInteraction queryTriggerInteraction)
         {

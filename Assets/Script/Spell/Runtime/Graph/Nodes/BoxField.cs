@@ -7,7 +7,7 @@ namespace Spell.Graph
     [NodeMenuItem("Object/Field")]
     public class BoxField : Field
     {
-        public Expression<float> Width = new FixedFloat();
-        public Expression<float> Height = new FixedFloat();
+        public Expression<float> Width = new FloatValue();
+        public Expression<float> Height = new FloatValue();
     }
 }
