@@ -6,7 +6,6 @@ namespace Spell.Graph
     public class FixedValue<T> : Expression<T>
     {
         public T Value;
-        public bool isAttached = true;
 
         public FixedValue()
         {
@@ -24,8 +23,6 @@ namespace Spell.Graph
         }
 
         public override bool IsFixedValue { get { return true; } }
-
-        public override bool IsAttached { get { return isAttached; } set { isAttached = value; } }
 
         public override object BoxedValue
         {
@@ -98,6 +95,13 @@ namespace Spell.Graph
     {
         public FixedFloat() : base() {}
         public FixedFloat(float value) : base(value) {}
+    }
+
+    [NodeMenuItem("Expression")]
+    public class FixedColor : FixedValue<Color>
+    {
+        public FixedColor() : base() { }
+        public FixedColor(Color value) : base(value) { }
     }
 
     [NodeMenuItem("Expression")]

@@ -8,8 +8,8 @@ namespace Spell.Graph
     public interface INode
     {
         Vector2 GraphPosition { get; set; }
+        string VariableName { get; set; }
         bool IsFixedValue { get; }
-        bool IsAttached { get; set; }
         Type ValueType { get; }
         object BoxedValue { get; set; }
         List<FieldInfo> GetFields();

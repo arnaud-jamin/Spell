@@ -8,16 +8,19 @@ namespace Spell.Graph
     public class NodeInfo
     {
         public INode node;
-        public Rect globalRect;
-        public Rect localBackgroundRect;
-        internal Rect globalBackgroundRect;
+        public Rect rect;
         public List<NodePin> pins = new List<NodePin>();
-        public NodeTypeInfo typeInfo;
+        public NodeTypeInfo derivedTypeInfo;
+        public BaseTypeInfo baseTypeInfo;
+        public Vector2 connectionPosition;
+        public float fieldValueMaxWidth;
+        public float fieldNameMaxWidth;
+        public bool isMultiSided;
 
         public NodeInfo(INode node)
         {
             this.node = node;
-            typeInfo = NodeTypeInfo.Get(node.GetType());
+            derivedTypeInfo = NodeTypeInfo.GetNodeInfo(node.GetType());
         }
     }
 }

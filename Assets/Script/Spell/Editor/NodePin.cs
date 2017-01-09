@@ -7,13 +7,15 @@ namespace Spell.Graph
 {
     public struct NodePin
     {
-        public int index;
         public INode node;
+        public INode parentNode;
+        public int indexInParent;
+        public FieldInfo field;
+        public BaseTypeInfo baseTypeInfo;
+        public bool isAttached;
+        public NodeInfo detachedNodeInfo;
         public Vector2 center;
         public Rect rect;
-        public Color color;
-        public FieldInfo field;
-        internal INode connectedNode;
 
         public override bool Equals(object obj)
         {
@@ -23,17 +25,17 @@ namespace Spell.Graph
 
         public override int GetHashCode()
         {
-            return index;
+            return indexInParent;
         }
 
         public static bool operator ==(NodePin a, NodePin b)
         {
-            return a.index == b.index && a.node == b.node;
+            return a.node == b.node;
         }
 
         public static bool operator !=(NodePin a, NodePin b)
         {
-            return a.index != b.index || a.node != b.node;
+            return a.node != b.node;
         }
     }
 }

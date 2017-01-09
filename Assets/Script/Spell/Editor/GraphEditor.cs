@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -23,11 +22,15 @@ namespace Spell.Graph
         private readonly static Color s_gridLineColor = new Color(0, 0, 0, 0.2f);
         private readonly static Color s_gridLineLightColor = new Color(0, 0, 0, 0.1f);
 
-        private readonly static int s_nodeTitleHeight = 20;
-        private readonly static Vector2 s_nodePinOffset = new Vector2(100, 6);
-        private readonly static Vector2 s_nodeFixedValueOffset = new Vector2(110, 3);
+        private readonly static int s_nodeHeaderHeight = 20;
+        private readonly static int s_nodeFooterHeight = 5;
+        private readonly static int s_nodeHandleWidth = 15;
+        private readonly static int s_nodeFieldVerticalSpacing = 2;
+        private readonly static int s_controlMargin = 5;
+        private readonly static int s_selectionBorder = 2;
+        private readonly static int s_nodePinVerticalOffset = 3;
         private readonly static Vector2 s_nodeShadowOffset = new Vector2(5, 5);
-        private readonly static Vector2 s_valueShadowOffset = new Vector2(2, 2);
+        private readonly static Vector2 s_nodePinSize = new Vector2(10, 10);
 
         private readonly static float s_connectionWidth = 3;
         private readonly static float s_selectedConnectionWidth = 4;
@@ -37,6 +40,7 @@ namespace Spell.Graph
         private IGraph m_graph;
         private GUISkin m_darkSkin;
         private GUISkin m_lightSkin;
+        private GUISkin m_skin;
         private Rect m_screenRect; 
         private Rect m_zoomRect; 
         private Rect m_viewRect;
@@ -47,6 +51,7 @@ namespace Spell.Graph
         private INode m_selectedNode;
         private NodePin? m_selectedConnection;
         private List<NodeInfo> m_nodeInfos = new List<NodeInfo>();
+        private GUIStyle m_fieldNameStyle = null;
 
         // ----------------------------------------------------------------------------------------
         private float ViewZoom
@@ -82,6 +87,13 @@ namespace Spell.Graph
         {
             get { return EditorPrefs.GetBool("SpellEditor.DarkSkin"); }
             set { EditorPrefs.SetBool("SpellEditor.DarkSkin", value); }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public bool ShowShadow
+        {
+            get { return EditorPrefs.GetBool("SpellEditor.ShowShadow"); }
+            set { EditorPrefs.SetBool("SpellEditor.ShowShadow", value); }
         }
 
         // ----------------------------------------------------------------------------------------
@@ -145,15 +157,25 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         void OnGUI()
         {
+            var e = Event.current;
+
             if (m_graph == null)
             {
-                EditorGUILayout.HelpBox("Please select a graph asset", MessageType.Info, true);
-                return;
+                m_graph = Selection.activeObject as Graph;
+                if (m_graph != null)
+                {
+                    m_graph.Load();
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("Please select a graph asset", MessageType.Info, true);
+                    return;
+                }
             }
 
-            GUI.skin = UseDarkSkin ? m_darkSkin : m_lightSkin;
-
-            var e = Event.current;
+            m_skin = UseDarkSkin ? m_darkSkin : m_lightSkin;
+            GUI.skin = m_skin;
+            m_fieldNameStyle = m_skin.GetStyle("NodeFieldNameLeft");
 
             m_screenRect = new Rect(s_leftMargin, 
                                     s_topMargin, 
@@ -214,6 +236,12 @@ namespace Spell.Graph
                 e.Use();
             }
 
+            if (e.type == EventType.MouseDown && e.button == 0)
+            {
+                m_selectedNode = null;
+                m_selectedConnection = null;
+            }
+
             if (e.type == EventType.KeyUp)
             {
                 if (e.keyCode == KeyCode.Delete)
@@ -225,7 +253,7 @@ namespace Spell.Graph
                     }
                     else if (m_selectedConnection != null)
                     {
-                        m_graph.DisconnectField(m_selectedConnection.Value.node, m_selectedConnection.Value.field);
+                        m_graph.DisconnectField(m_selectedConnection.Value.parentNode, m_selectedConnection.Value.field);
                         m_selectedConnection = null;
                         e.Use();
                     }
@@ -292,23 +320,40 @@ namespace Spell.Graph
             {
                 var node = m_graph.Nodes[i];
                 var nodeInfo = new NodeInfo(node);
+                nodeInfo.baseTypeInfo = m_graph.GetBaseTypeInfo(node.GetType());
                 m_nodeInfos.Add(nodeInfo);
 
-                if (node.IsAttached)
-                    continue;
+                Vector2 nodeSize;
+                ComputeNodeSize(node, out nodeSize, out nodeInfo.fieldValueMaxWidth, out nodeInfo.fieldNameMaxWidth, out nodeInfo.isMultiSided);
+                nodeInfo.rect = new Rect(node.GraphPosition, nodeSize);
+                nodeInfo.connectionPosition = nodeInfo.baseTypeInfo.side == NodeSide.Right ? node.GraphPosition + new Vector2(5, s_nodeHeaderHeight * 0.5f) 
+                                                                                           : node.GraphPosition + new Vector2(nodeSize.x - 5, s_nodeHeaderHeight * 0.5f);
 
-                var nodeSize = ComputeNodeSize(node);
-                nodeInfo.globalRect = new Rect(node.GraphPosition, nodeSize);
-                nodeInfo.localBackgroundRect = node.IsFixedValue ? new Rect(Vector2.zero, nodeSize) : new Rect(0, 0, s_nodePinOffset.x, nodeSize.y);
-                nodeInfo.globalBackgroundRect = new Rect(node.GraphPosition, nodeInfo.localBackgroundRect.size);
+                //--------------
+                // Shadow
+                //--------------
+                if (ShowShadow)
+                { 
+                    GUI.Box(new Rect(nodeInfo.rect.position, nodeInfo.rect.size + s_nodeShadowOffset), GUIContent.none, "NodeShadow");
+                }
 
-                var offset = node.IsFixedValue ? s_valueShadowOffset : s_nodeShadowOffset;
-                var style = node.IsFixedValue ? "ValueShadow" : "NodeShadow";
-                GUI.Box(new Rect(nodeInfo.globalRect.position + offset, nodeInfo.localBackgroundRect.size), GUIContent.none, style);
+                //--------------
+                // Selection
+                //--------------
+                if (node == m_selectedNode)
+                {
+                    GUI.Box(new Rect(nodeInfo.rect.position - new Vector2(s_selectionBorder, s_selectionBorder), 
+                                     nodeInfo.rect.size + new Vector2(s_selectionBorder * 2, s_selectionBorder * 2)), 
+                                     GUIContent.none, "NodeSelection");
+                }
 
+                //--------------
+                // Window
+                //--------------
                 GUI.SetNextControlName("Node" + i);
-                nodeInfo.globalRect = GUI.Window(i, nodeInfo.globalRect, DrawNode, string.Empty, "Window");
-                node.GraphPosition = MathHelper.Step(nodeInfo.globalRect.position, Vector2.one);
+                GUI.color = new Color(1, 1, 1, 0.8f);
+                nodeInfo.rect = GUI.Window(i, nodeInfo.rect, DrawNode, string.Empty, node.IsFixedValue ? "ValueWindow" : "NodeWindow");
+                node.GraphPosition = MathHelper.Step(nodeInfo.rect.position, Vector2.one);
             }
             EndWindows();
 
@@ -317,35 +362,86 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        Vector2 ComputeNodeSize(INode node)
+        Vector2 ComputeFieldSize(Type type)
         {
-            // One Parameter Node
-            if (node.IsFixedValue)
+            if (type == typeof(float))
             {
-                if (node.ValueType == typeof(float))
-                {
-                    return new Vector2(75, 16);
-                }
-                else if (node.ValueType == typeof(bool))
-                {
-                    return new Vector2(30, 16);
-                }
-                else if (node.ValueType == typeof(Vector3))
-                {
-                    return new Vector2(200, 16);
-                }
-                else if (node.ValueType == typeof(GameObject))
-                {
-                    return new Vector2(150, 16);
-                }
-                else
-                {
-                    return new Vector2(200, 16);
-                }
+                return new Vector2(75, 16);
+            }
+            else if (type == typeof(bool))
+            {
+                return new Vector2(75, 16);
+            }
+            else if (type == typeof(Vector3))
+            {
+                return new Vector2(150, 16);
+            }
+            else if (type == typeof(GameObject))
+            {
+                return new Vector2(100, 16);
             }
             else
             {
-                return new Vector2(300, 200);
+                return new Vector2(100, 16);
+            }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        void ComputeNodeSize(INode node, out Vector2 nodeSize, out float fieldValueMaxWidth, out float fieldNameMaxWidth, out bool isMultisided)
+        {
+            fieldNameMaxWidth = 0;
+            fieldValueMaxWidth = 0;
+            nodeSize = Vector2.zero;
+            isMultisided = false;
+
+            NodeSide? side = null;
+
+            if (node.IsFixedValue)
+            {
+                nodeSize = ComputeFieldSize(node.ValueType) + new Vector2(2, 2);
+            }
+            else
+            {
+                var fields = node.GetFields();
+
+                for (int i = 0; i < fields.Count; ++i)
+                {
+                    var field = fields[i];
+
+                    float minWidth, maxWidth = 0;
+                    m_fieldNameStyle.CalcMinMaxWidth(new GUIContent(field.Name), out minWidth, out maxWidth);
+                    fieldNameMaxWidth = Mathf.Max(fieldNameMaxWidth, maxWidth);
+
+                    var value = field.GetValue(node) as INode;
+                    var type = (value != null) ? value.ValueType : field.FieldType;
+                    var fieldSize = ComputeFieldSize(type);
+                    fieldValueMaxWidth = Mathf.Max(fieldValueMaxWidth, fieldSize.x);
+                    nodeSize.y += fieldSize.y + s_nodeFieldVerticalSpacing;
+
+                    var fieldSide = m_graph.GetBaseTypeInfo(field.FieldType).side;
+                    if (side.HasValue)
+                    {
+                        if (fieldSide != side.Value)
+                        {
+                            isMultisided = true;
+                        }
+                    }
+                    else
+                    {
+                        side = fieldSide;
+                    }
+                }
+
+                if (isMultisided)
+                {
+                    nodeSize.x = fieldValueMaxWidth + fieldNameMaxWidth + s_nodePinSize.x * 2 + s_controlMargin * 5;
+                }
+                else
+                {
+                    nodeSize.x = fieldValueMaxWidth + fieldNameMaxWidth + s_nodePinSize.x * 1 + s_controlMargin * 4;
+                }
+
+                nodeSize.y += s_nodeHeaderHeight + s_nodeFooterHeight;
             }
         }
 
@@ -353,29 +449,52 @@ namespace Spell.Graph
         private void DrawFixedValue(INode node, Rect containerRect)
         {
             GUI.color = Color.white;
+            var rect = new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height);
 
-            var rect = new Rect(containerRect.position.x, containerRect.position.y, containerRect.width - 20, containerRect.height);
-            if (typeof(UnityEngine.Object).IsAssignableFrom(node.ValueType))
+            if (node.ValueType == typeof(bool))
             {
-                //node.BoxedValue = EditorGUI.ObjectField(rect, (UnityEngine.Object)node.BoxedValue, node.ValueType, false);
+                node.BoxedValue = EditorGUI.Toggle(rect, (bool)node.BoxedValue, "Toggle");
             }
-            else if (node.ValueType.IsValueType)
+            else if (node.ValueType == typeof(int))
             {
-                if (node.ValueType == typeof(float))
+                node.BoxedValue = EditorGUI.IntField(rect, GUIContent.none, (int)node.BoxedValue);
+            }
+            else if (node.ValueType == typeof(float))
+            {
+                node.BoxedValue = EditorGUI.FloatField(rect, GUIContent.none, (float)node.BoxedValue);
+            }
+            else if (node.ValueType == typeof(Vector2))
+            {
+                node.BoxedValue = EditorGUI.Vector2Field(rect, GUIContent.none, (Vector2)node.BoxedValue);
+            }
+            else if (node.ValueType == typeof(Vector3))
+            {
+                node.BoxedValue = EditorGUI.Vector3Field(rect, GUIContent.none, (Vector3)node.BoxedValue);
+            }
+            else if (node.ValueType == typeof(Color))
+            {
+                GUI.skin = null;
+                node.BoxedValue = EditorGUI.ColorField(rect, GUIContent.none, (Color)node.BoxedValue, false, true, false, new ColorPickerHDRConfig(0, 0, 0, 0));
+                GUI.skin = m_skin;
+            }
+            if (node.ValueType == typeof(string))
+            {
+                node.BoxedValue = EditorGUI.TextField(rect, (string)node.BoxedValue);
+            }
+            else if (node.ValueType.IsEnum)
+            {
+                if (node.ValueType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0)
                 {
-                    var labelWidthBackup = EditorGUIUtility.labelWidth;
-                    EditorGUIUtility.labelWidth = 1;
-                    node.BoxedValue = EditorGUI.FloatField(rect, "|", (float)node.BoxedValue, "NodeFieldValue");
-                    EditorGUIUtility.labelWidth = labelWidthBackup;
+                    node.BoxedValue = EditorGUI.MaskField(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType));
                 }
-                else if (node.ValueType == typeof(bool))
+                else
                 {
-                    node.BoxedValue = EditorGUI.Toggle(rect, (bool)node.BoxedValue, "Toggle");
+                    node.BoxedValue = EditorGUI.Popup(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType));
                 }
-                else if (node.ValueType == typeof(Vector3))
-                {
-                    node.BoxedValue = EditorGUI.Vector3Field(rect, GUIContent.none, (Vector3)node.BoxedValue);
-                }
+            }
+            else if (typeof(UnityEngine.Object).IsAssignableFrom(node.ValueType))
+            {
+                node.BoxedValue = EditorGUI.ObjectField(rect, (UnityEngine.Object)node.BoxedValue, node.ValueType, false);
             }
         }
         
@@ -389,7 +508,7 @@ namespace Spell.Graph
 
             var nodeInfo = m_nodeInfos[id];
             var node = nodeInfo.node;
-            var nodeRect = nodeInfo.globalRect;
+            var nodeRect = nodeInfo.rect;
 
             if (e.type == EventType.MouseDown && e.button == 0)
             {
@@ -400,32 +519,38 @@ namespace Spell.Graph
             GUI.color = Color.white;
             GUI.backgroundColor = Color.white;
 
+            //-------------------------
             // One Parameter Node
-            var fieldsPosition = new Vector2(0, s_nodeTitleHeight);
+            //-------------------------
+            var fieldPosition = new Vector2(0, s_nodeHeaderHeight);
             if (node.IsFixedValue)
             {
-                // Node Background
-                GUI.Box(nodeInfo.localBackgroundRect, GUIContent.none, "ValueWindow");
-
+                //-------------------------
                 // Node Handle
-                GUI.backgroundColor = nodeInfo.typeInfo.color;
-                GUI.Box(new Rect(0, 0, 16, 16), GUIContent.none, "ValueHandle");
+                //-------------------------
+                GUI.backgroundColor = nodeInfo.baseTypeInfo.color;
+                var style = nodeInfo.baseTypeInfo.side == NodeSide.Right ? "ValueHandleLeft" : "ValueHandleRight";
+                var handleRect = nodeInfo.baseTypeInfo.side == NodeSide.Right ? new Rect(0, 0, s_nodeHandleWidth, nodeInfo.rect.size.y) 
+                                                                          : new Rect(nodeInfo.rect.size.x - s_nodeHandleWidth, 0, s_nodeHandleWidth, nodeInfo.rect.size.y);
+                GUI.Box(handleRect, GUIContent.none, style);
                 GUI.backgroundColor = Color.white;
 
-                DrawFixedValue(node, new Rect(new Vector2(15, 0), nodeInfo.localBackgroundRect.size));
+                //-------------------------
+                // Node Input
+                //-------------------------
+                var inputRect = nodeInfo.baseTypeInfo.side == NodeSide.Right ? new Rect(handleRect.size.x, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2)
+                                                                         : new Rect(1, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2);
+                DrawFixedValue(node, inputRect);
             }
+            //-------------------------
+            // Multi Parameter Node
+            //-------------------------
             else
             {
-                // Node Background
-                GUI.Box(nodeInfo.localBackgroundRect, GUIContent.none, "NodeWindow");
-
                 // Node Title
-                GUI.backgroundColor = nodeInfo.typeInfo.color;
-                GUI.Box(new Rect(0, 0, s_nodePinOffset.x, 16), nodeInfo.typeInfo.name, "NodeTitle");
+                GUI.backgroundColor = nodeInfo.baseTypeInfo.color;
+                GUI.Box(new Rect(0, 0, nodeRect.size.x, 16), nodeInfo.derivedTypeInfo.name, "NodeTitle");
                 GUI.backgroundColor = Color.white;
-
-                // End window group to be able to draw pins outside
-                GUI.BeginGroup(new Rect(Vector2.zero, nodeRect.size));
 
                 // Node Fields
                 nodeInfo.pins.Clear();
@@ -433,47 +558,66 @@ namespace Spell.Graph
                 for (int i = 0; i < fields.Count; ++i)
                 {
                     var field = fields[i];
+                    var fieldValue = field.GetValue(node) as INode;
+                    var baseTypeInfo = m_graph.GetBaseTypeInfo(field.FieldType);
+                    var fieldValueNodeIndex = m_graph.Nodes.IndexOf(fieldValue);
+                    var isAttached = fieldValueNodeIndex == -1;
+
+                    var pinX = baseTypeInfo.side == NodeSide.Left ? s_controlMargin : nodeRect.size.x - s_nodePinVerticalOffset - s_nodePinSize.x;
+                    var pinRect = new Rect(pinX, fieldPosition.y + s_nodePinVerticalOffset, s_nodePinSize.x, s_nodePinSize.y);
+
+                    var pin = new NodePin
                     {
-                        var fieldInfo = NodeTypeInfo.Get(field.FieldType);
+                        indexInParent = i,
+                        parentNode = node,
+                        field = field,
+                        node = fieldValue,
+                        baseTypeInfo = baseTypeInfo,
+                        isAttached = isAttached,
+                        detachedNodeInfo = isAttached == false ? m_nodeInfos[fieldValueNodeIndex] : null,
+                        rect = new Rect(nodeRect.position + pinRect.position, pinRect.size),
+                        center = nodeRect.position + pinRect.position + pinRect.size * 0.5f,
+                    };
 
-                        // Field Name
-                        GUI.Label(new Rect(0, fieldsPosition.y, s_nodePinOffset.x, s_nodeTitleHeight), field.Name, "NodeParameter");
+                    //---------------------
+                    // Field Pin
+                    //---------------------
+                    GUI.backgroundColor = baseTypeInfo.color;
+                    GUI.Box(pinRect, GUIContent.none, "NodePin");
+                    EditorGUIUtility.AddCursorRect(pinRect, MouseCursor.ArrowPlus);
 
-                        // Field Pin
-                        var pinRect = new Rect(s_nodePinOffset.x - 5, fieldsPosition.y + s_nodePinOffset.y, 10, 10);
-                        GUI.backgroundColor = fieldInfo.color;
-                        GUI.Box(pinRect, GUIContent.none, "NodePin");
-                        EditorGUIUtility.AddCursorRect(pinRect, MouseCursor.ArrowPlus);
-
-                        var pin = new NodePin
-                        {
-                            index = i,
-                            node = node,
-                            rect = new Rect(nodeRect.position + pinRect.position, pinRect.size),
-                            center = nodeRect.position + pinRect.position + pinRect.size * 0.5f,
-                            color = fieldInfo.color,
-                            field = field,
-                            connectedNode = field.GetValue(node) as INode,
-                        };
-
-                        GUI.color = Color.white;
-                        GUI.backgroundColor = Color.white;
-                        if (pin.connectedNode != null && pin.connectedNode.IsAttached)
-                        {
-                            var size = ComputeNodeSize(pin.connectedNode);
-                            DrawFixedValue(pin.connectedNode, new Rect(s_nodeFixedValueOffset.x, fieldsPosition.y + s_nodeFixedValueOffset.y, size.x, size.y));
-                        }
-
-                        nodeInfo.pins.Add(pin);
-
-                        fieldsPosition.y += s_nodeTitleHeight;
+                    //---------------------
+                    // Field Value
+                    //---------------------
+                    GUI.color = Color.white;
+                    GUI.backgroundColor = Color.white;
+                    var fieldSize = ComputeFieldSize(pin.node != null ? pin.node.ValueType : field.FieldType);
+                    var fieldValueRect = new Rect(0, fieldPosition.y, 0, 0);
+                    var hasFieldValue = false;
+                    if (fieldValue != null && pin.isAttached)
+                    {
+                        fieldValueRect = baseTypeInfo.side == NodeSide.Left ? new Rect(pinRect.xMax + nodeInfo.fieldNameMaxWidth + s_controlMargin * 2, fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y)
+                                                                            : new Rect(pinRect.xMin - s_controlMargin - nodeInfo.fieldValueMaxWidth, fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y);
+                        DrawFixedValue(fieldValue, fieldValueRect);
+                        hasFieldValue = true;
                     }
-                }
 
-                GUI.EndGroup();
+                    //---------------------
+                    // Field Name
+                    //---------------------
+                    var fieldWidth = hasFieldValue ? nodeInfo.fieldValueMaxWidth + s_controlMargin : 0;
+                    var nodeFieldNameStyle = baseTypeInfo.side == NodeSide.Left ? "NodeFieldNameLeft" : "NodeFieldNameRight";
+                    var nodeFieldNameRect  = baseTypeInfo.side == NodeSide.Left ? new Rect(pinRect.xMax + s_controlMargin, fieldPosition.y, nodeInfo.fieldNameMaxWidth, fieldSize.y)
+                                                                                : new Rect(pinRect.xMin - s_controlMargin - nodeInfo.fieldNameMaxWidth - fieldWidth, fieldPosition.y, nodeInfo.fieldNameMaxWidth, fieldSize.y);
+                    GUI.Label(nodeFieldNameRect, field.Name, nodeFieldNameStyle);
+
+
+                    nodeInfo.pins.Add(pin);
+                    fieldPosition.y += fieldSize.y + s_nodeFieldVerticalSpacing;
+                }
             }
 
-            GUI.DragWindow(nodeInfo.localBackgroundRect);
+            GUI.DragWindow();
         }
 
         // ----------------------------------------------------------------------------------------
@@ -492,7 +636,7 @@ namespace Spell.Graph
             for (int i = 0; i < m_nodeInfos.Count; ++i)
             {
                 var nodeInfo = m_nodeInfos[i];
-                if (nodeInfo.globalBackgroundRect.Contains(e.mousePosition))
+                if (nodeInfo.rect.Contains(e.mousePosition))
                 {
                     isMouseOverBlock = true;
                     break;
@@ -518,23 +662,18 @@ namespace Spell.Graph
                         }
                     }
 
-                    if (pin.connectedNode != null && pin.connectedNode.IsAttached == false)
+                    if (pin.node != null && pin.isAttached == false)
                     {
-                        var start = pin.center;
-                        var end = pin.connectedNode.GraphPosition + new Vector2(0, 10);
+                        DrawConnection(pin, pin.detachedNodeInfo.connectionPosition);
 
                         // Handle connection selection.
                         // Check if the mouse is over a node to prevent selecting a connection if below a block. Otherwise can't move the block
-                        if (handleMouseDown && m_draggedPin == null && (isMouseOverBlock == false) && IsNearConnection(e.mousePosition, start, end))
+                        if (handleMouseDown && m_draggedPin == null && (isMouseOverBlock == false) && IsNearConnection(e.mousePosition, pin))
                         {
                             m_selectedConnection = pin;
                             m_selectedNode = null;
                             e.Use();
                         }
-
-                        var color = m_selectedConnection == pin ? pin.color.SetAlpha(1.0f) : pin.color.SetAlpha(0.75f); 
-                        var width = m_selectedConnection == pin ? s_selectedConnectionWidth : s_connectionWidth;
-                        DrawConnection(start, end, color, width);
                     }
                 }
             }
@@ -546,7 +685,7 @@ namespace Spell.Graph
                 {
                     if (m_draggedPin.Value.field.FieldType.IsAssignableFrom(nodeAtCursor.GetType()))
                     {
-                        m_draggedPin.Value.field.SetValue(m_draggedPin.Value.node, nodeAtCursor);
+                        m_draggedPin.Value.field.SetValue(m_draggedPin.Value.parentNode, nodeAtCursor);
                         m_draggedPin = null;
                         e.Use();
                     }
@@ -560,7 +699,7 @@ namespace Spell.Graph
                     var selectedPin = m_draggedPin;
                     CreateNodeMenu(m_draggedPin.Value.field.FieldType, e.mousePosition, (newNode) =>
                     {
-                        selectedPin.Value.field.SetValue(selectedPin.Value.node, newNode);
+                        selectedPin.Value.field.SetValue(selectedPin.Value.parentNode, newNode);
                     });
                     m_draggedPin = null;
                 }
@@ -568,7 +707,7 @@ namespace Spell.Graph
 
             if (m_draggedPin != null)
             {
-                DrawConnection(m_draggedPin.Value.center, e.mousePosition, m_draggedPin.Value.color, s_connectionWidth);
+                DrawConnection(m_draggedPin.Value, e.mousePosition);
             }
         }
 
@@ -578,7 +717,7 @@ namespace Spell.Graph
             for (int i = 0; i < m_nodeInfos.Count; ++i)
             {
                 var nodeInfo = m_nodeInfos[i];
-                if (nodeInfo.globalBackgroundRect.Contains(position))
+                if (nodeInfo.rect.Contains(position))
                 {
                     return nodeInfo.node;
                 }
@@ -596,12 +735,35 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        bool IsNearConnection(Vector2 cursor, Vector2 start, Vector2 end)
+        bool IsNearConnection(Vector2 cursor, NodePin pin)
         {
+            var start = pin.center;
+            var end = pin.detachedNodeInfo.connectionPosition;
+
+            if (pin.baseTypeInfo.side == NodeSide.Left)
+            {
+                Utils.Swap(ref start, ref end);
+            }
+
             Vector2 startTangent, endTangent;
             GetConnectionTangents(start, end, out startTangent, out endTangent);
             var distance = HandleUtility.DistancePointBezier(cursor, start, end, startTangent, endTangent);
             return (distance <= s_connectionSelectionDistance);
+        }
+
+        // ----------------------------------------------------------------------------------------
+        void DrawConnection(NodePin pin, Vector2 end)
+        {
+            var start = pin.center;
+
+            if (pin.baseTypeInfo.side == NodeSide.Left)
+            {
+                Utils.Swap(ref start, ref end);
+            }
+
+            var color = m_selectedConnection == pin ? pin.baseTypeInfo.color.SetAlpha(1.0f) : pin.baseTypeInfo.color.SetAlpha(0.75f);
+            var width = m_selectedConnection == pin ? s_selectedConnectionWidth : s_connectionWidth;
+            DrawConnection(start, end, color, width);
         }
         
         // ----------------------------------------------------------------------------------------
@@ -717,7 +879,8 @@ namespace Spell.Graph
             if (GUILayout.Button("Options", EditorStyles.toolbarDropDown))
             {
                 var menu = new GenericMenu();
-				menu.AddItem (new GUIContent ("Dark Skin"), UseDarkSkin, ()=> { UseDarkSkin = !UseDarkSkin; });
+				menu.AddItem(new GUIContent("Dark Skin"), UseDarkSkin, ()=> { UseDarkSkin = !UseDarkSkin; });
+				menu.AddItem(new GUIContent("Show Shadow"), ShowShadow, ()=> { ShowShadow = !ShowShadow; });
                 menu.ShowAsContext();
             }
 
@@ -759,12 +922,12 @@ namespace Spell.Graph
                         if (baseType.IsAssignableFrom(nodeType) == false || nodeType.IsAbstract || nodeType.IsInterface)
                             continue;
 
-                        var nodeInfo = NodeTypeInfo.Get(nodeType);
+                        var nodeInfo = NodeTypeInfo.GetNodeInfo(nodeType);
                         menu.AddItem(new GUIContent(nodeInfo.menuPath), false, (n) => 
                         {
                             var node = m_graph.CreateNode(n as Type);
                             node.GraphPosition = MathHelper.Step(nodeWorldPosition, Vector2.one);
-                            node.IsAttached = false;
+                            node.VariableName = "pouet";
                             if (onNodeCreated != null)
                             {
                                 onNodeCreated(node);

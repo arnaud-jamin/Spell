@@ -31,10 +31,34 @@ namespace Spell.Graph
         public float ViewZoom { get { return m_viewZoom; } set { m_viewZoom = value; } }
 
         // ----------------------------------------------------------------------------------------
+        public BaseTypeInfo GetBaseTypeInfo(Type type)
+        {
+            if (typeof(Expression<float>).IsAssignableFrom(type))
+            {
+                return new BaseTypeInfo() { color = new Color(0.2f, 0.2f, 0.5f), side = NodeSide.Right };
+            }
+            else if (typeof(Expression<int>).IsAssignableFrom(type))
+            {
+                return new BaseTypeInfo() { color = new Color(0.8f, 0.8f, 0.0f), side = NodeSide.Right };
+            }
+            else if (typeof(Action).IsAssignableFrom(type))
+            {
+                return new BaseTypeInfo() { color = new Color(0.5f, 0.2f, 0.2f), side = NodeSide.Right };
+            }
+            else if (typeof(Shape).IsAssignableFrom(type))
+            {
+                return new BaseTypeInfo() { color = new Color(0.2f, 0.5f, 0.2f), side = NodeSide.Right };
+            }
+
+            return new BaseTypeInfo() { color = new Color(0.2f, 0.2f, 0.2f), side = NodeSide.Right };
+        }
+
+        // ----------------------------------------------------------------------------------------
         public INode CreateNode(Type type)
         {
             var node = Activator.CreateInstance(type) as INode;
-            FinishCreateNode(node);
+            node.GraphPosition = m_viewOffset + new Vector2(200, 200);
+            m_nodes.Add(node);
             return node;
         }
 
@@ -45,15 +69,7 @@ namespace Spell.Graph
             Type[] typeArgs = { valueType };
             var genericType = fixedExpressionType.MakeGenericType(typeArgs);
             var node = Activator.CreateInstance(genericType) as INode;
-            FinishCreateNode(node);
             return node;
-        }
-
-        // ----------------------------------------------------------------------------------------
-        public void FinishCreateNode(INode node)
-        {
-            node.GraphPosition = m_viewOffset + new Vector2(200, 200);
-            m_nodes.Add(node);
         }
 
         // ----------------------------------------------------------------------------------------

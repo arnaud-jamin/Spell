@@ -8,6 +8,7 @@ namespace Spell.Graph
     {
         public Expression<float> Amount = new FixedFloat();
         public Expression<GameObject> Target = new FixedGameObject();
+        public Expression<Color> Color = new FixedColor();
 
         public override void Execute()
         {

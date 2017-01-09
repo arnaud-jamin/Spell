@@ -2,7 +2,6 @@
 
 namespace Spell.Graph
 {
-    [NodeColor(0.2f, 0.2f, 0.5f)]
     public abstract class Expression : Node
     {
     }

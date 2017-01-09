@@ -9,6 +9,7 @@ namespace Spell.Graph
         public Expression<float> Amount = new FixedFloat();
         public Expression<DamageType> DamageType = new FixedDamageType();
         public Expression<GameObject> Target = new FixedGameObject();
+        public Expression<int> csackopasc = new FixedInt();
 
         public override void Execute()
         {
