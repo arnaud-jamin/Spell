@@ -17,6 +17,9 @@ namespace Spell.Graph
         protected string m_json;
 
         [SerializeField]
+        protected INode m_root = null;
+
+        [SerializeField]
         protected List<INode> m_nodes = new List<INode>();
 
         [SerializeField]
@@ -26,10 +29,14 @@ namespace Spell.Graph
         private float m_viewZoom = 1.0f;
 
         // ----------------------------------------------------------------------------------------
+
+        // ----------------------------------------------------------------------------------------
+        public INode Root { get { return m_root; } set { m_root = value; } }
         public List<INode> Nodes { get { return m_nodes; } }
         public Vector2 ViewOffset { get { return m_viewOffset; } set { m_viewOffset = value; } }
         public float ViewZoom { get { return m_viewZoom; } set { m_viewZoom = value; } }
-
+        public virtual Type RootType { get { return null; } }
+            
         // ----------------------------------------------------------------------------------------
         public BaseTypeInfo GetBaseTypeInfo(Type type)
         {
@@ -138,8 +145,18 @@ namespace Spell.Graph
         protected abstract void OnDeserialized(object deserialized);
     } 
 
-    public abstract class Graph<T> : Graph where T : class
+    public abstract class Graph<T> : Graph where T : Node, new()
     {
+        // ----------------------------------------------------------------------------------------
+        public override Type RootType { get { return typeof(T); } }
+
+        // ----------------------------------------------------------------------------------------
+        public Graph()
+        {
+            m_root = new T();
+            m_nodes.Add(m_root);
+        }
+
         // ----------------------------------------------------------------------------------------
         protected override void OnDeserialized(object deserialized)
         {
@@ -147,6 +164,6 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        protected abstract void OnDeserialized(T deserialized);
+        protected virtual void OnDeserialized(T deserialized) { }
     }
 }

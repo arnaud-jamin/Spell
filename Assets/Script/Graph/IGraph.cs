@@ -20,6 +20,8 @@ namespace Spell.Graph
 
     public interface IGraph 
     {
+        INode Root { get; set; }
+        Type RootType { get; }
         List<INode> Nodes { get; }
         Vector2 ViewOffset { get; set; }
         float ViewZoom { get; set; }

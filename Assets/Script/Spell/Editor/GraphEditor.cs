@@ -200,7 +200,7 @@ namespace Spell.Graph
 
             DrawMenu();
 
-            HandleEvents(e);
+            HandleGraphEvents(e);
 
             if (m_forceRepaint || e.type == EventType.MouseMove)
             {
@@ -214,7 +214,7 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        void HandleEvents(Event e)
+        void HandleGraphEvents(Event e)
         {
             if (mouseOverWindow == this && (e.isMouse || e.isKey))
             {
@@ -237,28 +237,93 @@ namespace Spell.Graph
                 e.Use();
             }
 
-            if (e.type == EventType.MouseDown && e.button == 0)
+            if (e.type == EventType.MouseDown)
             {
-                m_selectedNode = null;
-                m_selectedConnection = null;
+                if (e.button == 0)
+                {
+                    m_selectedNode = null;
+                    m_selectedConnection = null;
+                }
+                else if (e.button == 1)
+                {
+                    if (m_zoomRect.Contains(Event.current.mousePosition))
+                    {
+                        CreateNodeMenu(typeof(INode), ScreenToWorld(Event.current.mousePosition));
+                    }
+                }
             }
 
             if (e.type == EventType.KeyUp)
             {
                 if (e.keyCode == KeyCode.Delete)
                 {
-                    if (m_selectedNode != null)
-                    {
-                        m_graph.DestroyNode(m_selectedNode);
-                        m_selectedNode = null;
-                    }
-                    else if (m_selectedConnection != null)
-                    {
-                        m_graph.DisconnectField(m_selectedConnection.Value.parentNode, m_selectedConnection.Value.field);
-                        m_selectedConnection = null;
-                        e.Use();
-                    }
+                    DeleteSelection();
+                    e.Use();
                 }
+            }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        void HandleNodeEvents(INode node, Event e)
+        {
+            if (e.type == EventType.MouseDown)
+            {
+                if (e.button == 0)
+                {
+                    m_selectedNode = node;
+                    m_selectedConnection = null;
+                }
+                else if (e.button == 1)
+                {
+                    CreateNodeContextMenu(node);
+                }
+            }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private void DeleteSelection()
+        {
+            if (m_selectedNode != null)
+            {
+                DeleteNode(m_selectedNode);
+            }
+            else if (m_selectedConnection != null)
+            {
+                DeleteConnection(m_selectedConnection.Value);
+            }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private void DeleteConnection(NodePin connection)
+        {
+            m_graph.DisconnectField(connection.parentNode, connection.field);
+            if (m_selectedConnection == connection)
+            {
+                m_selectedConnection = null;
+            }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private void DeleteNode(INode node)
+        {
+            if (node == m_graph.Root)
+                return;
+
+            m_graph.DestroyNode(node);
+
+            if (node == m_selectedNode)
+            {
+                m_selectedNode = null;
+            }
+            return;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private void SetAsRoot(INode node)
+        {
+            if (m_graph.RootType.IsAssignableFrom(node.GetType()))
+            {
+                m_graph.Root = node;
             }
         }
 
@@ -355,6 +420,14 @@ namespace Spell.Graph
                 GUI.color = new Color(1, 1, 1, 0.8f);
                 nodeInfo.rect = GUI.Window(i, nodeInfo.rect, DrawNode, string.Empty, node.IsFixedValue ? "ValueWindow" : "NodeWindow");
                 node.GraphPosition = MathHelper.Step(nodeInfo.rect.position, Vector2.one);
+
+                //--------------
+                // Root Text
+                //--------------
+                if (node == m_graph.Root)
+                {
+                    GUI.Box(new Rect(nodeInfo.rect.position.x, nodeInfo.rect.position.y - 20, nodeInfo.rect.size.x, 20), "Root", "RootNode");
+                }
             }
             EndWindows();
 
@@ -544,11 +617,7 @@ namespace Spell.Graph
             var node = nodeInfo.node;
             var nodeRect = nodeInfo.rect;
 
-            if (e.type == EventType.MouseDown && e.button == 0)
-            {
-                m_selectedNode = node;
-                m_selectedConnection = null;
-            }
+            HandleNodeEvents(node, e);
 
             GUI.color = Color.white;
             GUI.backgroundColor = Color.white;
@@ -929,14 +998,18 @@ namespace Spell.Graph
             }
 
             GUILayout.EndHorizontal();
+        }
 
-            if (Event.current.type == EventType.MouseDown && Event.current.button == 1)
+        // ----------------------------------------------------------------------------------------
+        private GenericMenu CreateNodeContextMenu(INode node)
+        {
+            var menu = new GenericMenu();
+            if (m_graph != null)
             {
-                if (m_zoomRect.Contains(Event.current.mousePosition))
-                {
-                    CreateNodeMenu(typeof(INode), ScreenToWorld(Event.current.mousePosition));
-                }
+                menu.AddItem(new GUIContent("Set as root"), false, () => { SetAsRoot(node); });
             }
+            menu.ShowAsContext();
+            return menu;
         }
 
         // ----------------------------------------------------------------------------------------

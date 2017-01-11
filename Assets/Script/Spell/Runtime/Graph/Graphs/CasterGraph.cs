@@ -5,13 +5,7 @@ using UnityEngine;
 namespace Spell.Graph
 {
     [CreateAssetMenu(fileName = "Caster", menuName = "Spell/Caster")]
-    public class CasterGraph : Graph<CasterGraph>
+    public class CasterGraph : Graph<Caster>
     {
-        public Caster Caster = new Caster();
-
-        protected override void OnDeserialized(CasterGraph graph)
-        {
-            Caster = graph.Caster;
-        }
     }
 }
