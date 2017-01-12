@@ -25,6 +25,14 @@ namespace Spell.Graph
                 {
                     fields.Add(field);
                 }
+                else if (field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof(List<>))
+                {
+                    var listItemType = field.FieldType.GetGenericArguments()[0];
+                    if (typeof(INode).IsAssignableFrom(listItemType))
+                    {
+                        fields.Add(field);
+                    }
+                }
             }
 
             return fields;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -7,13 +8,13 @@ namespace Spell.Graph
 {
     public struct NodePin
     {
-        public INode node;
-        public INode parentNode;
-        public int indexInParent;
+        public INode valueNode;
+        public INode ownerNode;
+        public int indexInOwner;
         public FieldInfo field;
         public BaseTypeInfo baseTypeInfo;
         public bool isAttached;
-        public NodeInfo detachedNodeInfo;
+        public List<NodeInfo> connectedNodes;
         public Vector2 center;
         public Rect rect;
 
@@ -25,17 +26,17 @@ namespace Spell.Graph
 
         public override int GetHashCode()
         {
-            return indexInParent;
+            return indexInOwner;
         }
 
         public static bool operator ==(NodePin a, NodePin b)
         {
-            return a.node == b.node;
+            return a.valueNode == b.valueNode;
         }
 
         public static bool operator !=(NodePin a, NodePin b)
         {
-            return a.node != b.node;
+            return a.valueNode != b.valueNode;
         }
     }
 }

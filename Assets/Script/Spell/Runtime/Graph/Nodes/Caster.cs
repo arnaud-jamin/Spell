@@ -7,6 +7,6 @@ namespace Spell.Graph
     [NodeMenuItem("Object")]
     public class Caster : ObjectNode
     {
-        public List<Spell.Ability> Abilities = new List<Spell.Ability>();
+        public List<Ability> Abilities = new List<Ability>();
     }
 }

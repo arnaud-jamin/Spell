@@ -42,19 +42,6 @@ namespace Spell
         }
 
         //-----------------------------------------------------------------------------------------
-        public static Type GetListItemType(this Type potentialListType)
-        {
-            if (potentialListType.IsGenericType && potentialListType.GetGenericTypeDefinition() == typeof(List<>))
-            {
-                return potentialListType.GetGenericArguments()[0];
-            }
-            else
-            {
-                return potentialListType;
-            }
-        }
-
-        //-----------------------------------------------------------------------------------------
         public static string FormatTime(float time)
         {
             int totalSeconds = (int)time;
