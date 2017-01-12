@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -665,7 +666,8 @@ namespace Spell.Graph
                     var fieldValue = field.GetValue(node) as INode;
                     var baseTypeInfo = m_graph.GetBaseTypeInfo(field.FieldType);
                     var fieldValueNodeIndex = m_graph.Nodes.IndexOf(fieldValue);
-                    var isAttached = fieldValueNodeIndex == -1;
+                    var isFieldList = field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof(List<>);
+                    var isFieldAttached = fieldValueNodeIndex == -1;
 
                     var pinX = baseTypeInfo.side == NodeSide.Left ? s_controlMargin : nodeRect.size.x - s_nodePinVerticalOffset - s_nodePinSize.x;
                     var pinRect = new Rect(pinX, fieldPosition.y + s_nodePinVerticalOffset, s_nodePinSize.x, s_nodePinSize.y);
@@ -677,20 +679,22 @@ namespace Spell.Graph
                         field = field,
                         valueNode = fieldValue,
                         baseTypeInfo = baseTypeInfo,
-                        isAttached = isAttached,
-                        connectedNodes = new List<NodeInfo>(),
+                        isList = isFieldList,
+                        isAttached = isFieldAttached && isFieldList == false,
+                        connectedNodesInfos = new List<NodeInfo>(),
                         rect = new Rect(nodeRect.position + pinRect.position, pinRect.size),
                         center = nodeRect.position + pinRect.position + pinRect.size * 0.5f,
                     };
 
-
-                    if (field.FieldType.IsAssignableFrom(typeof(INode)))
-                    {
-                        pin.connectedNodes.Add(m_nodeInfos[fieldValueNodeIndex]);
-                    }
-                    else if (field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof(List<>))
+                    if (isFieldList)
                     {
                         var connectedNodes = field.GetValue(node) as IList;
+                        if (connectedNodes == null)
+                        {
+                            connectedNodes = Activator.CreateInstance(field.FieldType) as IList;
+                            field.SetValue(node, connectedNodes);
+                        }
+
                         for (var j = 0; j < connectedNodes.Count; ++j)
                         {
                             var connectedNode = connectedNodes[j] as INode;
@@ -698,9 +702,13 @@ namespace Spell.Graph
                             if (connectedNodeIndex != -1)
                             {
                                 var connectedNodeInfo = m_nodeInfos[connectedNodeIndex];
-                                pin.connectedNodes.Add(connectedNodeInfo);
+                                pin.connectedNodesInfos.Add(connectedNodeInfo);
                             }
                         }
+                    }
+                    else if (pin.isAttached == false)
+                    {
+                        pin.connectedNodesInfos.Add(m_nodeInfos[fieldValueNodeIndex]);
                     }
 
                     //---------------------
@@ -708,6 +716,8 @@ namespace Spell.Graph
                     //---------------------
                     GUI.backgroundColor = baseTypeInfo.color;
                     GUI.Box(pinRect, GUIContent.none, "NodePin");
+                    GUI.backgroundColor = Color.white;
+                    GUI.Box(pinRect, GUIContent.none, "NodePinBorder");
                     EditorGUIUtility.AddCursorRect(pinRect, MouseCursor.ArrowPlus);
 
                     //---------------------
@@ -786,11 +796,11 @@ namespace Spell.Graph
                         }
                     }
 
-                    if (pin.valueNode != null && pin.isAttached == false)
+                    if (pin.isAttached == false)
                     {
-                        for (var k = 0; k < pin.connectedNodes.Count; ++k)
+                        for (var k = 0; k < pin.connectedNodesInfos.Count; ++k)
                         {
-                            var connectedNodeInfo = pin.connectedNodes[k];
+                            var connectedNodeInfo = pin.connectedNodesInfos[k];
                             DrawConnection(pin, connectedNodeInfo.connectionPosition);
 
                             // Handle connection selection.
@@ -1059,24 +1069,37 @@ namespace Spell.Graph
             if (m_graph != null)
             {
                 var assembly = Assembly.GetAssembly(typeof(INode));
-                var types = assembly.GetTypes();
-                for (var j = 0; j < types.Length; ++j)
-                {
-                    var nodeType = types[j];
-                    if (nodeType.IsAbstract || nodeType.IsInterface || baseType.IsAssignableFrom(nodeType) == false)
-                        continue;
+                var allTypes = assembly.GetTypes();
+                var nodeInfos = allTypes.Where(t => baseType.IsAssignableFrom(t) && t.IsAbstract == false && t.IsInterface == false)
+                                        .Select(t => NodeTypeInfo.GetNodeInfo(t))
+                                        .Where(t => t.excludeFromMenu == false)
+                                        .OrderBy(t => t.menuPath + "/" + t.name)
+                                        .GroupBy(t => t.menuPath)
+                                        .ToList();
 
-                    var nodeInfo = NodeTypeInfo.GetNodeInfo(nodeType);
-                    menu.AddItem(new GUIContent(nodeInfo.menuPath), false, (n) => 
+                foreach (var menuPathGroup in nodeInfos)
+                {
+                    var menuPath = menuPathGroup.Key;
+
+                    // If we have only one category, we collapse the items to the root category.
+                    if (nodeInfos.Count == 1)
                     {
-                        var node = m_graph.CreateNode(n as Type);
-                        node.GraphPosition = MathHelper.Step(nodeWorldPosition, Vector2.one);
-                        node.VariableName = "pouet";
-                        if (onNodeCreated != null)
+                        menuPath = string.Empty;
+                    }
+
+                    foreach (var nodeInfo in menuPathGroup)
+                    {
+                        var path = menuPath != string.Empty ? menuPath + "/" + nodeInfo.name : nodeInfo.name;
+                        menu.AddItem(new GUIContent(path), false, (n) =>
                         {
-                            onNodeCreated(node);
-                        }
-                    }, nodeType);
+                            var node = m_graph.CreateNode(n as Type);
+                            node.GraphPosition = MathHelper.Step(nodeWorldPosition, Vector2.one);
+                            if (onNodeCreated != null)
+                            {
+                                onNodeCreated(node);
+                            }
+                        }, nodeInfo.type);
+                    }
                 }
             }
             menu.ShowAsContext();

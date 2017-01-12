@@ -13,8 +13,9 @@ namespace Spell.Graph
         public int indexInOwner;
         public FieldInfo field;
         public BaseTypeInfo baseTypeInfo;
+        public bool isList;
         public bool isAttached;
-        public List<NodeInfo> connectedNodes;
+        public List<NodeInfo> connectedNodesInfos;
         public Vector2 center;
         public Rect rect;
 

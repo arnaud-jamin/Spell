@@ -3,6 +3,10 @@ using UnityEngine;
 
 namespace Spell
 {
+    public class ExcludeFromMenuAttribute : Attribute
+    {
+    }
+
     [AttributeUsage(AttributeTargets.Class)]
     public class NodeMenuItemAttribute : Attribute
     {
