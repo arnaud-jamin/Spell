@@ -80,44 +80,6 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        public void DestroyNode(INode node)
-        {
-            m_nodes.Remove(node);
-
-            for (int i = 0; i < m_nodes.Count; ++i)
-            {
-                var n = m_nodes[i];
-                var fields = n.GetFields();
-                for (int j = 0; j < fields.Count; ++j)
-                {
-                    var field = fields[j];
-                    if (field.GetValue(n) == node)
-                    {
-                        DisconnectField(n, field);
-                    }
-                }
-            }
-        }
-
-        // ----------------------------------------------------------------------------------------
-        public INode DisconnectField(INode node, FieldInfo field)
-        {
-            var fieldValue = field.GetValue(node) as INode;
-
-            if (fieldValue.ValueType != null)
-            {
-                var newValue = CreateFixedValue(fieldValue.ValueType);
-                field.SetValue(node, newValue);
-                return newValue;
-            }
-            else
-            {
-                field.SetValue(node, null);
-                return null;
-            }
-        }
-
-        // ----------------------------------------------------------------------------------------
         public void Clear()
         {
             m_nodes.Clear();

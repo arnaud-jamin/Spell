@@ -31,7 +31,7 @@ namespace Spell.Graph
             var nodeMenuItemAttribute = Attribute.GetCustomAttribute(type, typeof(NodeMenuItemAttribute), true) as NodeMenuItemAttribute;
             info.menuPath = nodeMenuItemAttribute != null ? nodeMenuItemAttribute.MenuPath : string.Empty;
 
-            var excludeFromMenuAttribute = Attribute.GetCustomAttribute(type, typeof(ExcludeFromMenuAttribute), true) as ExcludeFromMenuAttribute;
+            var excludeFromMenuAttribute = Attribute.GetCustomAttribute(type, typeof(ExcludeFromMenuAttribute), false) as ExcludeFromMenuAttribute;
             info.excludeFromMenu = excludeFromMenuAttribute != null;
 
             s_cache[type] = info;

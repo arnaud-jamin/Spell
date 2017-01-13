@@ -29,8 +29,6 @@ namespace Spell.Graph
         BaseTypeInfo GetBaseTypeInfo(Type type);
         INode CreateNode(Type type);
         INode CreateFixedValue(Type valueType);
-        void DestroyNode(INode node);
-        INode DisconnectField(INode node, FieldInfo field);
 
         void Clear();
         void Save();

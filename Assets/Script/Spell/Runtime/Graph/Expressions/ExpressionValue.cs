@@ -3,7 +3,8 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
-    public abstract class ExpressionValue<T> : Expression<T>
+    [ExcludeFromMenu]
+    public class ExpressionValue<T> : Expression<T>
     {
         public T Value;
 

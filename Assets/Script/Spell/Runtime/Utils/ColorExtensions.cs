@@ -14,7 +14,7 @@ namespace Spell
             return Color.HSVToRGB(_h, _s, _v);
         }
 
-        public static Color SetAlpha(this Color color, float a)
+        public static Color NewAlpha(this Color color, float a)
         {
             return new Color(color.r, color.g, color.b, a);
         }
