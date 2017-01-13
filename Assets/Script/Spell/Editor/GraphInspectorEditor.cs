@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
-    [CustomEditor(typeof(AbilityGraph))]
+    [CustomEditor(typeof(Graph))]
     public class GraphInspectorEditor : Editor
     {
         Vector2 m_scroll;

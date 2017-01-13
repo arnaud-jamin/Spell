@@ -3,9 +3,7 @@ using UnityEngine;
 
 namespace Spell
 {
-
-    [CreateAssetMenu(fileName = "Settings", menuName = "Spell/Settings")]
-    public class Settings : ScriptableObject
+    public class Settings 
     {
     }
 }

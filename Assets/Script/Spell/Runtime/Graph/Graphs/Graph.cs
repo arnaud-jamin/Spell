@@ -2,12 +2,16 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using UnityEditor;
 using UnityEngine;
 
 namespace Spell.Graph
 {
-    public abstract class Graph : ScriptableObject, IGraph
+    public class Graph : ScriptableObject, IGraph
     {
+        // ----------------------------------------------------------------------------------------
+        private Type m_rootType = null;
+
         // ----------------------------------------------------------------------------------------
         [fsIgnore]
         private fsSerializer m_serializer = new fsSerializer();
@@ -27,16 +31,27 @@ namespace Spell.Graph
 
         [SerializeField]
         private float m_viewZoom = 1.0f;
-
-        // ----------------------------------------------------------------------------------------
-
+        
         // ----------------------------------------------------------------------------------------
         public INode Root { get { return m_root; } set { m_root = value; } }
         public List<INode> Nodes { get { return m_nodes; } }
         public Vector2 ViewOffset { get { return m_viewOffset; } set { m_viewOffset = value; } }
         public float ViewZoom { get { return m_viewZoom; } set { m_viewZoom = value; } }
-        public virtual Type RootType { get { return null; } }
-            
+        public virtual Type RootType { get { return m_rootType; } set { m_rootType = value; } }
+
+        // ----------------------------------------------------------------------------------------
+        [MenuItem("Assets/Spell/Ability")]
+        public static void CreateAbilityGraph()
+        {
+            var asset = CreateInstance<Graph>();
+            asset.RootType = typeof(Ability);
+
+            AssetDatabase.CreateAsset(asset, "Assets/NewScripableObject.asset");
+            AssetDatabase.SaveAssets();
+            EditorUtility.FocusProjectWindow();
+            Selection.activeObject = asset;
+        }
+
         // ----------------------------------------------------------------------------------------
         public BaseTypeInfo GetBaseTypeInfo(Type type)
         {
@@ -102,30 +117,5 @@ namespace Spell.Graph
             var obj = (object)this;
             m_serializer.TryDeserialize(data, GetType(), ref obj).AssertSuccessWithoutWarnings();
         }
-
-        // ----------------------------------------------------------------------------------------
-        protected abstract void OnDeserialized(object deserialized);
-    } 
-
-    public abstract class Graph<T> : Graph where T : Node, new()
-    {
-        // ----------------------------------------------------------------------------------------
-        public override Type RootType { get { return typeof(T); } }
-
-        // ----------------------------------------------------------------------------------------
-        public Graph()
-        {
-            m_root = new T();
-            m_nodes.Add(m_root);
-        }
-
-        // ----------------------------------------------------------------------------------------
-        protected override void OnDeserialized(object deserialized)
-        {
-            OnDeserialized(deserialized as T);
-        }
-
-        // ----------------------------------------------------------------------------------------
-        protected virtual void OnDeserialized(T deserialized) { }
     }
 }

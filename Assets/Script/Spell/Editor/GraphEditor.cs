@@ -164,7 +164,7 @@ namespace Spell.Graph
 
             if (m_graph == null)
             {
-                m_graph = Selection.activeObject as Graph;
+                m_graph = Selection.activeObject as IGraph;
                 if (m_graph != null)
                 {
                     m_graph.Load();
