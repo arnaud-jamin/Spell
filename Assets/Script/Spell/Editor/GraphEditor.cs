@@ -38,6 +38,7 @@ namespace Spell.Graph
         private readonly static float s_connectionWidth = 3;
         private readonly static float s_selectedConnectionWidth = 4;
         private readonly static float s_connectionSelectionDistance = 5.0f;
+        private readonly static Vector2 s_connectionIndexPadding = new Vector2(4, 2);
 
         // ----------------------------------------------------------------------------------------
         private IGraph m_graph;
@@ -55,6 +56,7 @@ namespace Spell.Graph
         private NodeConnection? m_selectedConnection;
         private List<NodeInfo> m_nodeInfos = new List<NodeInfo>();
         private GUIStyle m_fieldNameStyle = null;
+        private GUIStyle m_connectionIndexStyle = null;
 
         // ----------------------------------------------------------------------------------------
         private float ViewZoom
@@ -179,6 +181,7 @@ namespace Spell.Graph
             m_skin = UseDarkSkin ? m_darkSkin : m_lightSkin;
             GUI.skin = m_skin;
             m_fieldNameStyle = m_skin.GetStyle("NodeFieldNameLeft");
+            m_connectionIndexStyle = m_skin.GetStyle("ConnectionIndex");
 
             m_screenRect = new Rect(s_leftMargin, 
                                     s_topMargin, 
@@ -869,10 +872,11 @@ namespace Spell.Graph
                             var connection = new NodeConnection()
                             {
                                 pin = pin,
-                                connectedNode = connectedNodeInfo.node
+                                index = k,
+                                connectedNode = connectedNodeInfo.node,
                             };
 
-                            DrawConnection(connection, connectedNodeInfo.connectionPosition);
+                            DrawConnection(connection, connectedNodeInfo.connectionPosition, pin.isList);
 
                             // Handle connection selection.
                             // Check if the mouse is over a node to prevent selecting a connection if below a block. Otherwise can't move the block
@@ -977,7 +981,7 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        void DrawConnection(NodeConnection connection, Vector2 end)
+        void DrawConnection(NodeConnection connection, Vector2 end, bool drawIndex = false)
         {
             var start = connection.pin.pinGlobalRect.center;
 
@@ -989,6 +993,17 @@ namespace Spell.Graph
             var color = m_selectedConnection == connection ? connection.pin.typeInfo.color.NewAlpha(1.0f) : connection.pin.typeInfo.color.NewAlpha(0.75f);
             var width = m_selectedConnection == connection ? s_selectedConnectionWidth : s_connectionWidth;
             DrawConnection(start, end, color, width);
+
+            if (drawIndex)
+            {
+                var content = new GUIContent(connection.index.ToString());
+                float minWidth, maxWidth;
+                m_connectionIndexStyle.CalcMinMaxWidth(content, out minWidth, out maxWidth);
+                var height = m_connectionIndexStyle.CalcHeight(content, maxWidth);
+                var size = new Vector2(maxWidth, height) + s_connectionIndexPadding * 2;
+                var position = (start + (end - start) * 0.5f) - size * 0.5f;
+                GUI.Box(new Rect(position, size), content, m_connectionIndexStyle);
+            }
         }
         
         // ----------------------------------------------------------------------------------------

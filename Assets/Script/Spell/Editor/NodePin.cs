@@ -45,6 +45,7 @@ namespace Spell.Graph
     public struct NodeConnection
     {
         public NodePin pin;
+        public int index;
         public INode connectedNode;
 
         public override bool Equals(object obj)
