@@ -10,15 +10,15 @@ namespace Spell.Graph
     public class Graph : ScriptableObject, IGraph
     {
         // ----------------------------------------------------------------------------------------
-        private Type m_rootType = null;
-
-        // ----------------------------------------------------------------------------------------
         [fsIgnore]
         private fsSerializer m_serializer = new fsSerializer();
 
         [SerializeField]
         [fsIgnore]
         protected string m_json;
+
+        [SerializeField]
+        private Type m_rootType = null;
 
         [SerializeField]
         protected INode m_root = null;
