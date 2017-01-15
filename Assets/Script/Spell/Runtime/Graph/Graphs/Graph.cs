@@ -40,19 +40,6 @@ namespace Spell.Graph
         public virtual Type RootType { get { return m_rootType; } set { m_rootType = value; } }
 
         // ----------------------------------------------------------------------------------------
-        [MenuItem("Assets/Spell/Ability")]
-        public static void CreateAbilityGraph()
-        {
-            var asset = CreateInstance<Graph>();
-            asset.RootType = typeof(Ability);
-
-            AssetDatabase.CreateAsset(asset, "Assets/NewScripableObject.asset");
-            AssetDatabase.SaveAssets();
-            EditorUtility.FocusProjectWindow();
-            Selection.activeObject = asset;
-        }
-
-        // ----------------------------------------------------------------------------------------
         public BaseTypeInfo GetBaseTypeInfo(Type type)
         {
             if (typeof(Expression<float>).IsAssignableFrom(type))

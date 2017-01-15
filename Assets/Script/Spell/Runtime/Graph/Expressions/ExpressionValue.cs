@@ -57,6 +57,22 @@ namespace Spell.Graph
     }
 
     [NodeMenuItem("Values")]
+    [Name("Text")]
+    public class TextValue : ExpressionValue<string>
+    {
+        public TextValue() : base() { }
+        public TextValue(string value) : base(value) { }
+    }
+
+    [NodeMenuItem("Values")]
+    [Name("Sprite")]
+    public class SpriteValue : ExpressionValue<Sprite>
+    {
+        public SpriteValue() : base() { }
+        public SpriteValue(Sprite value) : base(value) { }
+    }
+
+    [NodeMenuItem("Values")]
     [Name("Vector3")]
     public class Vector3Value : ExpressionValue<Vector3>
     {

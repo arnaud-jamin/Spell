@@ -614,7 +614,7 @@ namespace Spell.Graph
                 //--------------
                 GUI.SetNextControlName("Node" + i);
                 GUI.color = new Color(1, 1, 1, 0.8f);
-                nodeInfo.rect = GUI.Window(i, nodeInfo.rect, DrawNode, string.Empty, nodeInfo.node.IsFixedValue ? "ValueWindow" : "NodeWindow");
+                nodeInfo.rect = GUI.Window(i, nodeInfo.rect, DrawNode, string.Empty, "NodeWindow");
                 nodeInfo.node.GraphPosition = MathHelper.Step(nodeInfo.rect.position, Vector2.one);
 
                 //--------------
@@ -639,6 +639,10 @@ namespace Spell.Graph
                 return new Vector2(75, 16);
             }
             else if (type == typeof(bool))
+            {
+                return new Vector2(75, 16);
+            }
+            else if (type == typeof(int))
             {
                 return new Vector2(75, 16);
             }
@@ -725,7 +729,15 @@ namespace Spell.Graph
             GUI.color = Color.white;
             var rect = new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height);
 
-            if (node.BoxedValue != null)
+            if (node.ValueType == typeof(string))
+            {
+                node.BoxedValue = EditorGUI.TextField(rect, (string)node.BoxedValue);
+            }
+            else if (typeof(UnityEngine.Object).IsAssignableFrom(node.ValueType))
+            {
+                node.BoxedValue = EditorGUI.ObjectField(rect, (UnityEngine.Object)node.BoxedValue, node.ValueType, false);
+            }
+            else if (node.BoxedValue != null)
             {
                 if (node.ValueType == typeof(bool))
                 {
@@ -733,7 +745,7 @@ namespace Spell.Graph
                 }
                 else if (node.ValueType == typeof(int))
                 {
-                    node.BoxedValue = EditorGUI.IntField(rect, GUIContent.none, (int)node.BoxedValue);
+                    node.BoxedValue = EditorGUI.IntField(rect, GUIContent.none, (int)node.BoxedValue, "NodeFieldValue");
                 }
                 else if (node.ValueType == typeof(float))
                 {
@@ -741,7 +753,7 @@ namespace Spell.Graph
                 }
                 else if (node.ValueType == typeof(Vector2))
                 {
-                    node.BoxedValue = EditorGUI.Vector2Field(rect, GUIContent.none, (Vector2)node.BoxedValue);
+                    node.BoxedValue = Vector2Field(rect, (Vector2)node.BoxedValue, new GUIStyle("NodeFieldNameLeft"), new GUIStyle("NodeFieldValue"));
                 }
                 else if (node.ValueType == typeof(Vector3))
                 {
@@ -752,10 +764,6 @@ namespace Spell.Graph
                     GUI.skin = null;
                     node.BoxedValue = EditorGUI.ColorField(rect, GUIContent.none, (Color)node.BoxedValue, false, true, false, new ColorPickerHDRConfig(0, 0, 0, 0));
                     GUI.skin = m_skin;
-                }
-                if (node.ValueType == typeof(string))
-                {
-                    node.BoxedValue = EditorGUI.TextField(rect, (string)node.BoxedValue);
                 }
                 else if (node.ValueType.IsEnum)
                 {
@@ -769,10 +777,29 @@ namespace Spell.Graph
                     }
                 }
             }
-            else if (typeof(UnityEngine.Object).IsAssignableFrom(node.ValueType))
-            {
-                node.BoxedValue = EditorGUI.ObjectField(rect, (UnityEngine.Object)node.BoxedValue, node.ValueType, false);
-            }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public static Vector2 Vector2Field(Rect rect, Vector2 value, GUIStyle labelStyle, GUIStyle valueStyle)
+        {
+            var labelWidth = 15;
+            rect.width -= labelWidth * 2;
+            var fieldWidth = Mathf.RoundToInt(rect.width / 2.0f);
+
+            var x = rect.x;
+            EditorGUI.LabelField(new Rect(x + 2, rect.y, labelWidth, rect.height), "X:", labelStyle);
+            x += labelWidth;
+
+            value.x = EditorGUI.FloatField(new Rect(x, rect.y, fieldWidth, rect.height), GUIContent.none, value.x, valueStyle);
+            x += fieldWidth;
+
+            EditorGUI.LabelField(new Rect(x + 2, rect.y, labelWidth, rect.height), "Y:", labelStyle);
+            x += labelWidth;
+
+            value.y = EditorGUI.FloatField(new Rect(x, rect.y, fieldWidth, rect.height), GUIContent.none, value.y, valueStyle);
+            x += fieldWidth;
+
+            return value;
         }
 
         // ----------------------------------------------------------------------------------------
@@ -1133,6 +1160,8 @@ namespace Spell.Graph
             if (GUILayout.Button("File", EditorStyles.toolbarDropDown))
             {
                 var menu = new GenericMenu();
+                menu.AddItem(new GUIContent("New/Ability"), false, () => { ScriptableObjectHelper.CreateGraph<Ability>(); });
+                menu.AddItem(new GUIContent("New/Caster"), false, () => { ScriptableObjectHelper.CreateGraph<Caster>(); });
                 menu.AddItem(new GUIContent("Clear"), false, () => { m_graph.Clear(); });
                 menu.AddItem(new GUIContent("Load"), false, () => { m_graph.Load(); });
                 menu.AddItem(new GUIContent("Save"), false, () => { m_graph.Save(); });
@@ -1171,7 +1200,10 @@ namespace Spell.Graph
             var menu = new GenericMenu();
             if (m_graph != null)
             {
-                menu.AddItem(new GUIContent("Set as root"), false, () => { SetAsRoot(node); });
+                if (m_graph.RootType.IsAssignableFrom(node.GetType()))
+                {
+                    menu.AddItem(new GUIContent("Set as root"), false, () => { SetAsRoot(node); });
+                }
             }
             menu.ShowAsContext();
             return menu;
