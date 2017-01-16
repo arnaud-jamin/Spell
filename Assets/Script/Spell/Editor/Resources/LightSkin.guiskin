@@ -451,7 +451,7 @@ MonoBehaviour:
     m_Border:
       m_Left: 5
       m_Right: 5
-      m_Top: 18
+      m_Top: 5
       m_Bottom: 5
     m_Margin:
       m_Left: 0
@@ -1455,7 +1455,7 @@ MonoBehaviour:
     m_Border:
       m_Left: 5
       m_Right: 5
-      m_Top: 15
+      m_Top: 5
       m_Bottom: 5
     m_Margin:
       m_Left: 0

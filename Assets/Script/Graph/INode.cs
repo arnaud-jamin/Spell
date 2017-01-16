@@ -9,7 +9,6 @@ namespace Spell.Graph
     {
         Vector2 GraphPosition { get; set; }
         string VariableName { get; set; }
-        bool IsFixedValue { get; }
         Type ValueType { get; }
         object BoxedValue { get; set; }
         List<FieldInfo> GetFields();

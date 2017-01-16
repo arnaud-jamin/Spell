@@ -40,7 +40,7 @@ namespace Spell.Graph
         public virtual Type RootType { get { return m_rootType; } set { m_rootType = value; } }
 
         // ----------------------------------------------------------------------------------------
-        public BaseTypeInfo GetBaseTypeInfo(Type type)
+        public BaseTypeInfo GetTypeInfo(Type type)
         {
             if (typeof(Expression<float>).IsAssignableFrom(type))
             {

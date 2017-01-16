@@ -230,10 +230,10 @@ namespace Spell.Graph
                 nodeInfo.index = i;
                 nodeInfo.node = node;
                 nodeInfo.derivedTypeInfo = NodeTypeInfo.GetNodeInfo(node.GetType());
-                nodeInfo.baseTypeInfo = m_graph.GetBaseTypeInfo(node.GetType());
+                nodeInfo.baseTypeInfo = m_graph.GetTypeInfo(node.GetType());
 
                 Vector2 nodeSize;
-                ComputeNodeSize(node, out nodeSize, out nodeInfo.fieldValueMaxWidth, out nodeInfo.fieldNameMaxWidth, out nodeInfo.isMultiSided);
+                ComputeNodeSize(node, out nodeSize, out nodeInfo.fieldValueMaxWidth, out nodeInfo.fieldNameMaxWidth);
                 nodeInfo.rect = new Rect(node.GraphPosition, nodeSize);
                 nodeInfo.connectionPosition = nodeInfo.baseTypeInfo.side == NodeSide.Right ? node.GraphPosition + new Vector2(5, s_nodeHeaderHeight * 0.5f)
                                                                                            : node.GraphPosition + new Vector2(nodeSize.x - 5, s_nodeHeaderHeight * 0.5f);
@@ -244,9 +244,6 @@ namespace Spell.Graph
             {
                 var nodeInfo = m_nodeInfos[i];
                 var node = nodeInfo.node;
-
-                if (node.IsFixedValue)
-                    continue;
 
                 nodeInfo.pins.Clear();
                 var fields = node.GetFields();
@@ -259,7 +256,7 @@ namespace Spell.Graph
                     var fieldValueNodeIndex = m_graph.Nodes.IndexOf(fieldValue);
                     var isFieldList = field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof(List<>);
                     var fieldType = isFieldList ? field.FieldType.GetGenericArguments()[0] : field.FieldType;
-                    var fieldTypeInfo = m_graph.GetBaseTypeInfo(fieldType);
+                    var fieldTypeInfo = m_graph.GetTypeInfo(fieldType);
                     var isFieldAttached = fieldValueNodeIndex == -1;
                     var fieldSize = ComputeFieldSize(fieldType);
 
@@ -322,6 +319,71 @@ namespace Spell.Graph
                 m_selectedConnection = m_nodeInfos[m_selectedConnection.pin.nodeInfo.index].pins[m_selectedConnection.pin.index].connections[m_selectedConnection.index];
             }
         }
+
+        // ----------------------------------------------------------------------------------------
+        Vector2 ComputeFieldSize(Type type)
+        {
+            if (type == typeof(float))              { return new Vector2(75, 16); }
+            else if (type == typeof(bool))          { return new Vector2(75, 16); }
+            else if (type == typeof(int))           { return new Vector2(75, 16); }
+            else if (type == typeof(Vector3))       { return new Vector2(150, 16); }
+            else if (type == typeof(GameObject))    { return new Vector2(100, 16); }
+            else if (type.IsEnum)                   { return new Vector2(75, 16); }
+            else                                    { return new Vector2(100, 16); }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        // TODO: we don't need to request GetFields one again. See ComputeNodeInfo.
+        private void ComputeNodeSize(INode node, out Vector2 nodeSize, out float fieldValueMaxWidth, out float fieldNameMaxWidth)
+        {
+            fieldNameMaxWidth = 0;
+            fieldValueMaxWidth = 0;
+            nodeSize = Vector2.zero;
+            var sideCount = 1;
+
+            NodeSide? side = null;
+
+            var fields = node.GetFields();
+
+            if (fields.Count == 0)
+            {
+                nodeSize = ComputeFieldSize(node.ValueType) + new Vector2(2, 2);
+            }
+            else
+            {
+                for (int i = 0; i < fields.Count; ++i)
+                {
+                    var field = fields[i];
+
+                    float minWidth, maxWidth = 0;
+                    m_fieldNameStyle.CalcMinMaxWidth(new GUIContent(field.Name), out minWidth, out maxWidth);
+                    fieldNameMaxWidth = Mathf.Max(fieldNameMaxWidth, maxWidth);
+
+                    var value = field.GetValue(node) as INode;
+                    var type = (value != null && value.ValueType != null) ? value.ValueType : field.FieldType;
+                    var fieldSize = ComputeFieldSize(type);
+                    fieldValueMaxWidth = Mathf.Max(fieldValueMaxWidth, fieldSize.x);
+                    nodeSize.y += fieldSize.y + s_nodeFieldVerticalSpacing;
+
+                    var fieldSide = m_graph.GetTypeInfo(field.FieldType).side;
+                    if (side.HasValue)
+                    {
+                        if (fieldSide != side.Value)
+                        {
+                            sideCount = 2;
+                        }
+                    }
+                    else
+                    {
+                        side = fieldSide;
+                    }
+                }
+
+                nodeSize.x = fieldValueMaxWidth + fieldNameMaxWidth + s_nodePinSize.x * sideCount + s_controlMargin * (3 + sideCount);
+                nodeSize.y += s_nodeHeaderHeight + s_nodeFooterHeight;
+            }
+        }
+
 
         // ----------------------------------------------------------------------------------------
         private void HandleGraphEvents(Event e)
@@ -450,6 +512,63 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
+        private void AssignValueToPin(NodePin pin, NodeInfo newValue)
+        {
+            var node = pin.nodeInfo.node;
+            if (node == newValue)
+                return;
+
+            pin.connections.Add(new NodeConnection() { connectedNodeInfo = newValue, index = 0, pin = pin });
+            var isCreatingCycle = IsCreatingCycle(newValue, newValue);
+            pin.connections.RemoveAt(pin.connections.Count - 1);
+
+            if (isCreatingCycle)
+                return;
+
+            var fieldType = pin.field.FieldType;
+            if (fieldType.IsAssignableFrom(newValue.node.GetType()))
+            {
+                var previousValue = pin.field.GetValue(node) as INode;
+                pin.field.SetValue(node, newValue.node);
+
+                // When we create a connection we try to retain the value
+                // of the old node to the new one.
+                if (previousValue.BoxedValue != null)
+                {
+                    newValue.node.BoxedValue = previousValue.BoxedValue;
+                }
+            }
+            else if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                var listItemType = fieldType.GetGenericArguments()[0];
+                if (typeof(INode).IsAssignableFrom(listItemType))
+                {
+                    var list = pin.field.GetValue(node) as IList;
+                    list.Add(newValue.node);
+                }
+            }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private bool IsCreatingCycle(NodeInfo nodeInfo, NodeInfo value)
+        {
+            for (int i = 0; i < nodeInfo.pins.Count; ++i)
+            {
+                var nodePin = nodeInfo.pins[i];
+                for (var j = 0; j < nodePin.connections.Count; ++j)
+                {
+                    var connection = nodePin.connections[j];
+                    if (connection.connectedNodeInfo == value)
+                        return true;
+
+                    if (IsCreatingCycle(connection.connectedNodeInfo, value))
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        // ----------------------------------------------------------------------------------------
         private void DeleteSelection()
         {
             if (m_selectedNode != null)
@@ -480,6 +599,13 @@ namespace Spell.Graph
                 {
                     var newValue = m_graph.CreateFixedValue(fieldValue.ValueType);
                     pinfield.SetValue(pinNode, newValue);
+
+                    // When we delete a connection we try to retain the value
+                    // of the old node to the new one.
+                    if (fieldValue.BoxedValue != null)
+                    {
+                        newValue.BoxedValue = fieldValue.BoxedValue;
+                    }
                 }
                 else
                 {
@@ -632,98 +758,6 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        Vector2 ComputeFieldSize(Type type)
-        {
-            if (type == typeof(float))
-            {
-                return new Vector2(75, 16);
-            }
-            else if (type == typeof(bool))
-            {
-                return new Vector2(75, 16);
-            }
-            else if (type == typeof(int))
-            {
-                return new Vector2(75, 16);
-            }
-            else if (type == typeof(Vector3))
-            {
-                return new Vector2(150, 16);
-            }
-            else if (type == typeof(GameObject))
-            {
-                return new Vector2(100, 16);
-            }
-            else if (type.IsEnum)
-            {
-                return new Vector2(75, 16);
-            }
-            else
-            {
-                return new Vector2(100, 16);
-            }
-        }
-
-        // ----------------------------------------------------------------------------------------
-        private void ComputeNodeSize(INode node, out Vector2 nodeSize, out float fieldValueMaxWidth, out float fieldNameMaxWidth, out bool isMultisided)
-        {
-            fieldNameMaxWidth = 0;
-            fieldValueMaxWidth = 0;
-            nodeSize = Vector2.zero;
-            isMultisided = false;
-
-            NodeSide? side = null;
-
-            if (node.IsFixedValue)
-            {
-                nodeSize = ComputeFieldSize(node.ValueType) + new Vector2(2, 2);
-            }
-            else
-            {
-                var fields = node.GetFields();
-
-                for (int i = 0; i < fields.Count; ++i)
-                {
-                    var field = fields[i];
-
-                    float minWidth, maxWidth = 0;
-                    m_fieldNameStyle.CalcMinMaxWidth(new GUIContent(field.Name), out minWidth, out maxWidth);
-                    fieldNameMaxWidth = Mathf.Max(fieldNameMaxWidth, maxWidth);
-
-                    var value = field.GetValue(node) as INode;
-                    var type = (value != null && value.ValueType != null) ? value.ValueType : field.FieldType;
-                    var fieldSize = ComputeFieldSize(type);
-                    fieldValueMaxWidth = Mathf.Max(fieldValueMaxWidth, fieldSize.x);
-                    nodeSize.y += fieldSize.y + s_nodeFieldVerticalSpacing;
-
-                    var fieldSide = m_graph.GetBaseTypeInfo(field.FieldType).side;
-                    if (side.HasValue)
-                    {
-                        if (fieldSide != side.Value)
-                        {
-                            isMultisided = true;
-                        }
-                    }
-                    else
-                    {
-                        side = fieldSide;
-                    }
-                }
-
-                if (isMultisided)
-                {
-                    nodeSize.x = fieldValueMaxWidth + fieldNameMaxWidth + s_nodePinSize.x * 2 + s_controlMargin * 5;
-                }
-                else
-                {
-                    nodeSize.x = fieldValueMaxWidth + fieldNameMaxWidth + s_nodePinSize.x * 1 + s_controlMargin * 4;
-                }
-
-                nodeSize.y += s_nodeHeaderHeight + s_nodeFooterHeight;
-            }
-        }
-
-        // ----------------------------------------------------------------------------------------
         private void DrawFixedValue(INode node, Rect containerRect)
         {
             GUI.color = Color.white;
@@ -847,9 +881,9 @@ namespace Spell.Graph
             GUI.backgroundColor = Color.white;
 
             //-------------------------
-            // One Parameter Node
+            // No Pin Node
             //-------------------------
-            if (nodeInfo.node.IsFixedValue)
+            if (nodeInfo.pins.Count == 0)
             {
                 //-------------------------
                 // Node Handle
@@ -869,7 +903,7 @@ namespace Spell.Graph
                 DrawFixedValue(nodeInfo.node, inputRect);
             }
             //-------------------------
-            // Multi Parameter Node
+            // Multi Pin Node
             //-------------------------
             else
             {
@@ -944,55 +978,6 @@ namespace Spell.Graph
             {
                 DrawConnection(new NodeConnection { pin = m_draggedPin, connectedNodeInfo = null } , Event.current.mousePosition);
             }
-        }
-
-        // ----------------------------------------------------------------------------------------
-        private void AssignValueToPin(NodePin pin, NodeInfo value)
-        {
-            var node = pin.nodeInfo.node;
-            if (node == value)
-                return;
-
-            pin.connections.Add(new NodeConnection() { connectedNodeInfo = value, index = 0, pin = pin });
-            var isCreatingCycle = IsCreatingCycle(value, value);
-            pin.connections.RemoveAt(pin.connections.Count - 1);
-
-            if (isCreatingCycle)
-                return;
-
-            var fieldType = pin.field.FieldType;
-            if (fieldType.IsAssignableFrom(value.node.GetType()))
-            {
-                pin.field.SetValue(node, value.node);
-            }
-            else if (fieldType.IsGenericType && fieldType.GetGenericTypeDefinition() == typeof(List<>))
-            {
-                var listItemType = fieldType.GetGenericArguments()[0];
-                if (typeof(INode).IsAssignableFrom(listItemType))
-                {
-                    var list = pin.field.GetValue(node) as IList;
-                    list.Add(value.node);
-                }
-            }
-        }
-
-        // ----------------------------------------------------------------------------------------
-        private bool IsCreatingCycle(NodeInfo nodeInfo, NodeInfo value)
-        {
-            for (int i = 0; i < nodeInfo.pins.Count; ++i)
-            {
-                var nodePin = nodeInfo.pins[i];
-                for (var j = 0; j < nodePin.connections.Count; ++j)
-                {
-                    var connection = nodePin.connections[j];
-                    if (connection.connectedNodeInfo == value)
-                        return true;
-
-                    if (IsCreatingCycle(connection.connectedNodeInfo, value))
-                        return true;
-                }
-            }
-            return false;
         }
 
         // ----------------------------------------------------------------------------------------
@@ -1237,9 +1222,9 @@ namespace Spell.Graph
                     foreach (var nodeInfo in menuPathGroup)
                     {
                         var path = menuPath != string.Empty ? menuPath + "/" + nodeInfo.name : nodeInfo.name;
-                        menu.AddItem(new GUIContent(path), false, (n) =>
+                        menu.AddItem(new GUIContent(path), false, (userData) =>
                         {
-                            var node = m_graph.CreateNode(n as Type);
+                            var node = m_graph.CreateNode(userData as Type);
                             node.GraphPosition = MathHelper.Step(nodeWorldPosition, Vector2.one);
                             if (onNodeCreated != null)
                             {

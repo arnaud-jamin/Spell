@@ -26,7 +26,7 @@ namespace Spell.Graph
         Vector2 ViewOffset { get; set; }
         float ViewZoom { get; set; }
 
-        BaseTypeInfo GetBaseTypeInfo(Type type);
+        BaseTypeInfo GetTypeInfo(Type type);
         INode CreateNode(Type type);
         INode CreateFixedValue(Type valueType);
 

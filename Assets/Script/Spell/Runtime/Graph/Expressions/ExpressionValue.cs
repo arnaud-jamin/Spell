@@ -23,8 +23,6 @@ namespace Spell.Graph
             return Value;
         }
 
-        public override bool IsFixedValue { get { return true; } }
-
         public override object BoxedValue
         {
             get { return Value; }
