@@ -597,7 +597,7 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         private void CreateNodeInfos()
         {
-            var e = Event.current;
+            var worldMouse = ScreenToWorld(Event.current.mousePosition);
 
             m_nodesBounds = new Rect();
             m_nodesBounds.xMin = float.MaxValue;
@@ -638,16 +638,22 @@ namespace Spell.Graph
                 var nodeInfo = m_nodeInfos[i];
                 var node = nodeInfo.node;
 
-                nodeInfo.pins.Clear();
-                var fields = node.GetFields();
-                var fieldPosition = new Vector2(0, s_nodeHeaderHeight);
-
+                //---------------------------------------------------------------------------------
                 // Save the node where the mouse is.
-                if (nodeInfo.rect.Contains(ScreenToWorld(e.mousePosition)))
+                //---------------------------------------------------------------------------------
+                if (nodeInfo.rect.Contains(worldMouse))
                 {
                     m_nodeAtMousePosition = nodeInfo;
                 }
 
+                nodeInfo.pins.Clear();
+                var fields = node.GetFields();
+                var fieldPosition = new Vector2(0, s_nodeHeaderHeight);
+
+                //---------------------------------------------------------------------------------
+                // Compute node fields info and place them verticaly. Also compute the field 
+                // connection infos
+                //---------------------------------------------------------------------------------
                 for (int j = 0; j < fields.Count; ++j)
                 {
                     var field = fields[j];
@@ -678,13 +684,32 @@ namespace Spell.Graph
                     };
                     nodeInfo.pins.Add(pin);
 
+                    //-----------------------------------------------------------------------------
                     // Save the pin where the mouse is.
-                    if (pin.pinGlobalRect.Contains(ScreenToWorld(e.mousePosition)))
+                    //-----------------------------------------------------------------------------
+                    if (pin.pinGlobalRect.Contains(worldMouse))
                     {
                         m_pinAtMousePosition = pin;
                     }
 
-                    if (isFieldList)
+                    //-----------------------------------------------------------------------------
+                    // Compute the field connection infos. If the field is a list of Node, it can 
+                    // have multiple connection. It cannot have any if the field is attached.
+                    //-----------------------------------------------------------------------------
+                    if (pin.isAttached == false && isFieldList == false)
+                    {
+                        var connection = new NodeConnection() { connectedNodeInfo = m_nodeInfos[fieldValueNodeIndex], index = 0, pin = pin };
+                        pin.connections.Add(connection);
+
+                        //-------------------------------------------------------------------------
+                        // Save the connection where the mouse is.
+                        //-------------------------------------------------------------------------
+                        if (IsNearConnection(worldMouse, connection))
+                        {
+                            m_connectionAtMousePosition = connection;
+                        }
+                    }
+                    else if (isFieldList)
                     {
                         var connectedNodes = field.GetValue(node) as IList;
                         if (connectedNodes == null)
@@ -702,18 +727,15 @@ namespace Spell.Graph
                                 var connection = new NodeConnection() { connectedNodeInfo = m_nodeInfos[connectedNodeIndex], index = k, pin = pin };
                                 pin.connections.Add(connection);
 
+                                //-----------------------------------------------------------------
                                 // Save the connection where the mouse is.
-                                if (IsNearConnection(ScreenToWorld(e.mousePosition), connection))
+                                //-----------------------------------------------------------------
+                                if (IsNearConnection(worldMouse, connection))
                                 {
                                     m_connectionAtMousePosition = connection;
                                 }
                             }
                         }
-                    }
-                    else if (pin.isAttached == false)
-                    {
-                        var connection = new NodeConnection() { connectedNodeInfo = m_nodeInfos[fieldValueNodeIndex], index = 0, pin = pin };
-                        pin.connections.Add(connection);
                     }
 
                     fieldPosition.y += fieldSize.y + s_nodeFieldVerticalSpacing;
@@ -793,20 +815,6 @@ namespace Spell.Graph
                 nodeSize.x = fieldValueMaxWidth + fieldNameMaxWidth + s_nodePinSize.x * sideCount + s_controlMargin * (3 + sideCount);
                 nodeSize.y += s_nodeHeaderHeight + s_nodeFooterHeight;
             }
-        }
-
-        // ----------------------------------------------------------------------------------------
-        private NodeInfo GetNodeAtPosition(Vector2 position)
-        {
-            for (int i = 0; i < m_nodeInfos.Count; ++i)
-            {
-                var nodeInfo = m_nodeInfos[i];
-                if (nodeInfo.rect.Contains(position))
-                {
-                    return nodeInfo;
-                }
-            }
-            return null;
         }
 
         // ----------------------------------------------------------------------------------------
