@@ -109,6 +109,13 @@ namespace Spell.Graph
             set { EditorPrefs.SetBool("SpellEditor.ShowShadow", value); }
         }
 
+        // ----------------------------------------------------------------------------------------
+        public bool ShowDebug
+        {
+            get { return EditorPrefs.GetBool("SpellEditor.ShowDebug"); }
+            set { EditorPrefs.SetBool("SpellEditor.ShowDebug", value); }
+        }
+
         #endregion
 
         #region Unity Callbacks
@@ -216,13 +223,13 @@ namespace Spell.Graph
             EndZoom();
 
             DrawScrollBars();
-            DrawTopMenu();
+            DrawMainMenu();
 
             DrawDebug();
         }
 
         // ----------------------------------------------------------------------------------------
-        void DrawTopMenu()
+        void DrawMainMenu()
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
@@ -247,6 +254,7 @@ namespace Spell.Graph
                 var menu = new GenericMenu();
                 menu.AddItem(new GUIContent("Dark Skin"), UseDarkSkin, () => { UseDarkSkin = !UseDarkSkin; });
                 menu.AddItem(new GUIContent("Show Shadow"), ShowShadow, () => { ShowShadow = !ShowShadow; });
+                menu.AddItem(new GUIContent("Show Debug"), ShowDebug, () => { ShowDebug = !ShowDebug; });
                 menu.ShowAsContext();
             }
 
@@ -558,6 +566,9 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         void DrawDebug()
         {
+            if (ShowDebug == false)
+                return;
+
             var e = Event.current;
             var rect = new Rect(e.mousePosition, new Vector2(200, 20));
 
