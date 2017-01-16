@@ -57,7 +57,7 @@ namespace Spell.Graph
         private Matrix4x4 m_backupGuiMatrix;
         private bool m_forceRepaint;
         private NodePin m_draggedPin;
-        private INode m_selectedNode;
+        private NodeInfo m_selectedNode;
         private NodeConnection m_selectedConnection;
         private List<NodeInfo> m_nodeInfos = new List<NodeInfo>();
         private GUIStyle m_fieldNameStyle = null;
@@ -293,7 +293,7 @@ namespace Spell.Graph
                 //--------------
                 // Selection
                 //--------------
-                if (nodeInfo.node == m_selectedNode)
+                if (nodeInfo == m_selectedNode)
                 {
                     GUI.Box(new Rect(nodeInfo.rect.position - new Vector2(s_selectionBorder, s_selectionBorder),
                                      nodeInfo.rect.size + new Vector2(s_selectionBorder * 2, s_selectionBorder * 2)),
@@ -332,7 +332,7 @@ namespace Spell.Graph
 
             var nodeInfo = m_nodeInfos[id];
 
-            HandleNodeEvents(nodeInfo.node, e);
+            HandleNodeEvents(nodeInfo, e);
 
             GUI.color = Color.white;
             GUI.backgroundColor = Color.white;
@@ -869,6 +869,12 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
+        private void OnNodeDragEnd(NodeInfo nodeInfo)
+        {
+            RebuildListIndices(nodeInfo);
+        }
+
+        // ----------------------------------------------------------------------------------------
         private void HandleGraphEvents()
         {
             var e = Event.current;
@@ -919,8 +925,12 @@ namespace Spell.Graph
             else if (e.type == EventType.MouseUp)
             {
                 if (e.button == 0)
-                { 
-                    if (m_draggedPin != null)
+                {
+                    if (m_selectedNode != null)
+                    {
+
+                    }
+                    else if (m_draggedPin != null)
                     {
                         if (m_nodeAtMousePosition != null)
                         {
@@ -956,18 +966,25 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        void HandleNodeEvents(INode node, Event e)
+        void HandleNodeEvents(NodeInfo nodeInfo, Event e)
         {
             if (e.type == EventType.MouseDown)
             {
                 if (e.button == 0)
                 {
-                    m_selectedNode = node;
+                    m_selectedNode = nodeInfo;
                     m_selectedConnection = null;
                 }
                 else if (e.button == 1)
                 {
-                    CreateNodeContextMenu(node);
+                    CreateNodeContextMenu(nodeInfo);
+                }
+            }
+            else if (e.type == EventType.MouseUp)
+            {
+                if (e.button == 0)
+                {
+                    OnNodeDragEnd(nodeInfo);
                 }
             }
         }
@@ -1085,34 +1102,36 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        private void DeleteNode(INode node)
+        private void DeleteNode(NodeInfo nodeInfo)
         {
-            if (node == m_graph.Root)
+            if (nodeInfo.node == m_graph.Root)
                 return;
 
-            m_graph.Nodes.Remove(node);
+            m_graph.Nodes.Remove(nodeInfo.node);
 
-            for (var i = 0; i < m_nodeInfos.Count; ++i)
+            for (var j = 0; j < nodeInfo.pins.Count; ++j)
             {
-                var nodeInfo = m_nodeInfos[i];
-                for (var j = 0; j < nodeInfo.pins.Count; ++j)
+                var pin = nodeInfo.pins[j];
+                for (var k = 0; k < pin.connections.Count; ++k)
                 {
-                    var pin = nodeInfo.pins[j];
-                    for (var k = 0; k < pin.connections.Count; ++k)
+                    var connection = pin.connections[k];
+                    if (connection.connectedNodeInfo == nodeInfo) 
                     {
-                        var connection = pin.connections[k];
-                        if (connection.connectedNodeInfo.node == node) 
-                        {
-                            DeleteConnection(connection);
-                        }
+                        DeleteConnection(connection);
                     }
                 }
             }
 
-            if (node == m_selectedNode)
+            if (nodeInfo == m_selectedNode)
             {
                 m_selectedNode = null;
             }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private void RebuildListIndices(NodeInfo nodeInfo)
+        {
+
         }
 
         // ----------------------------------------------------------------------------------------
@@ -1206,14 +1225,14 @@ namespace Spell.Graph
         #region Context Menus
 
         // ----------------------------------------------------------------------------------------
-        private GenericMenu CreateNodeContextMenu(INode node)
+        private GenericMenu CreateNodeContextMenu(NodeInfo nodeInfo)
         {
             var menu = new GenericMenu();
             if (m_graph != null)
             {
-                if (m_graph.RootType.IsAssignableFrom(node.GetType()))
+                if (m_graph.RootType.IsAssignableFrom(nodeInfo.node.GetType()))
                 {
-                    menu.AddItem(new GUIContent("Set as root"), false, () => { SetAsRoot(node); });
+                    menu.AddItem(new GUIContent("Set as root"), false, () => { SetAsRoot(nodeInfo.node); });
                 }
             }
             menu.ShowAsContext();
