@@ -11,6 +11,8 @@ namespace Spell.Graph
     public class GraphEditor : EditorWindow
     {
         // ----------------------------------------------------------------------------------------
+        #region Settings
+        // ----------------------------------------------------------------------------------------
         private readonly static float s_closeZoom = 2.0f;
         private readonly static float s_farZoom = 0.25f;
         private readonly static float s_zoomDelta = 0.1f;
@@ -40,7 +42,10 @@ namespace Spell.Graph
         private readonly static float s_connectionSelectionDistance = 5.0f;
         private readonly static Vector2 s_connectionIndexPadding = new Vector2(4, 2);
 
+        #endregion
+
         // ----------------------------------------------------------------------------------------
+        #region Fields
         private IGraph m_graph;
         private GUISkin m_darkSkin;
         private GUISkin m_lightSkin;
@@ -48,7 +53,7 @@ namespace Spell.Graph
         private Rect m_screenRect; 
         private Rect m_zoomRect; 
         private Rect m_viewRect;
-        private Rect m_nodeBounds;
+        private Rect m_nodesBounds;
         private Matrix4x4 m_backupGuiMatrix;
         private bool m_forceRepaint;
         private NodePin m_draggedPin;
@@ -58,7 +63,12 @@ namespace Spell.Graph
         private GUIStyle m_fieldNameStyle = null;
         private GUIStyle m_connectionIndexStyle = null;
         private NodeInfo m_nodeAtMousePosition;
+        private NodePin m_pinAtMousePosition;
+        private NodeConnection m_connectionAtMousePosition;
+        #endregion Fields
 
+        // ----------------------------------------------------------------------------------------
+        #region Properties
         // ----------------------------------------------------------------------------------------
         private float ViewZoom
         {
@@ -86,9 +96,6 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        private bool IsAnyNodesOutOfView { get { return m_viewRect.center != m_nodeBounds.center; } }
-
-        // ----------------------------------------------------------------------------------------
         public bool UseDarkSkin
         {
             get { return EditorPrefs.GetBool("SpellEditor.DarkSkin"); }
@@ -102,6 +109,9 @@ namespace Spell.Graph
             set { EditorPrefs.SetBool("SpellEditor.ShowShadow", value); }
         }
 
+        #endregion
+
+        #region Unity Callbacks
         // ----------------------------------------------------------------------------------------
         [MenuItem("Window/Spell Editor")]
         public static GraphEditor ShowWindow()
@@ -141,26 +151,6 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        private void OnSelectionChanged()
-        {
-            var graph = Selection.activeObject as Graph;
-            if (graph != null)
-            {
-                var lastEditor = focusedWindow;
-                ShowWindow(graph);
-                if (lastEditor)
-                {
-                    lastEditor.Focus();
-                }
-            }
-        }
-
-        // ----------------------------------------------------------------------------------------
-        private void OnPlayModeStateChanged()
-        {
-        }
-
-        // ----------------------------------------------------------------------------------------
         void OnGUI()
         {
             var e = Event.current;
@@ -184,29 +174,7 @@ namespace Spell.Graph
             m_fieldNameStyle = m_skin.GetStyle("NodeFieldNameLeft");
             m_connectionIndexStyle = m_skin.GetStyle("ConnectionIndex");
 
-            m_screenRect = new Rect(s_leftMargin, 
-                                    s_topMargin, 
-                                    position.width - s_rightMargin - s_leftMargin, 
-                                    position.height - s_topMargin - s_bottomMargin);
-
-            GUI.SetNextControlName("Background");
-            GUI.Box(m_screenRect, m_graph.GetType().Name, "Background");
-
-            CreateNodeInfos();
-            HandleGraphEvents(e);
-
-            m_zoomRect = BeginZoom(m_screenRect);
-            {
-                m_viewRect = new Rect(ViewOffset, m_zoomRect.size);
-                m_nodeBounds = GetNodeBounds(m_graph.Nodes, m_viewRect, true);
-                DrawGrid();
-                DrawConnections();
-                DrawNodes();
-            }
-            EndZoom();
-
-            DrawScrollBars();
-            DrawMenu();
+            Draw();
 
             if (m_forceRepaint /* || e.type == EventType.MouseMove */)
             {
@@ -219,9 +187,413 @@ namespace Spell.Graph
             }
         }
 
+        #endregion
+
+        // ----------------------------------------------------------------------------------------
+        #region Drawing
+
+        // ----------------------------------------------------------------------------------------
+        void Draw()
+        {
+            m_screenRect = new Rect(s_leftMargin,
+                                    s_topMargin,
+                                    position.width - s_rightMargin - s_leftMargin,
+                                    position.height - s_topMargin - s_bottomMargin);
+
+            GUI.SetNextControlName("Background");
+            GUI.Box(m_screenRect, m_graph.GetType().Name, "Background");
+
+            CreateNodeInfos();
+            HandleGraphEvents();
+
+            m_zoomRect = BeginZoom(m_screenRect);
+            {
+                m_viewRect = new Rect(ViewOffset, m_zoomRect.size);
+                DrawGrid();
+                DrawConnections();
+                DrawNodes();
+            }
+            EndZoom();
+
+            DrawScrollBars();
+            DrawTopMenu();
+
+            DrawDebug();
+        }
+
+        // ----------------------------------------------------------------------------------------
+        void DrawTopMenu()
+        {
+            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+
+            if (GUILayout.Button("File", EditorStyles.toolbarDropDown))
+            {
+                var menu = new GenericMenu();
+                menu.AddItem(new GUIContent("New/Ability"), false, () => { ScriptableObjectHelper.CreateGraph<Ability>(); });
+                menu.AddItem(new GUIContent("New/Caster"), false, () => { ScriptableObjectHelper.CreateGraph<Caster>(); });
+                menu.AddItem(new GUIContent("Clear"), false, () => { m_graph.Clear(); });
+                menu.AddItem(new GUIContent("Load"), false, () => { m_graph.Load(); });
+                menu.AddItem(new GUIContent("Save"), false, () => { m_graph.Save(); });
+                menu.ShowAsContext();
+            }
+
+            if (GUILayout.Button("Create", EditorStyles.toolbarDropDown))
+            {
+                CreateNodeMenu(typeof(INode), ScreenToWorld(m_screenRect.size * 0.5f));
+            }
+
+            if (GUILayout.Button("Options", EditorStyles.toolbarDropDown))
+            {
+                var menu = new GenericMenu();
+                menu.AddItem(new GUIContent("Dark Skin"), UseDarkSkin, () => { UseDarkSkin = !UseDarkSkin; });
+                menu.AddItem(new GUIContent("Show Shadow"), ShowShadow, () => { ShowShadow = !ShowShadow; });
+                menu.ShowAsContext();
+            }
+
+            GUILayout.FlexibleSpace();
+
+            ViewZoom = GUILayout.HorizontalSlider(ViewZoom, s_farZoom, s_closeZoom, GUILayout.MinWidth(80));
+
+            if (GUILayout.Button("Reset", EditorStyles.toolbarButton, new GUILayoutOption[0]))
+            {
+                ViewOffset = Vector2.zero;
+                ViewZoom = 1.0f;
+            }
+
+            GUILayout.EndHorizontal();
+        }
+
+        // ----------------------------------------------------------------------------------------
+        void DrawNodes()
+        {
+            GUI.color = Color.white;
+
+            BeginWindows();
+
+            for (var i = 0; i < m_nodeInfos.Count; ++i)
+            {
+                var nodeInfo = m_nodeInfos[i];
+
+                //--------------
+                // Shadow
+                //--------------
+                if (ShowShadow)
+                {
+                    GUI.Box(new Rect(nodeInfo.rect.position, nodeInfo.rect.size + s_nodeShadowOffset), GUIContent.none, "NodeShadow");
+                }
+
+                //--------------
+                // Selection
+                //--------------
+                if (nodeInfo.node == m_selectedNode)
+                {
+                    GUI.Box(new Rect(nodeInfo.rect.position - new Vector2(s_selectionBorder, s_selectionBorder),
+                                     nodeInfo.rect.size + new Vector2(s_selectionBorder * 2, s_selectionBorder * 2)),
+                                     GUIContent.none, "NodeSelection");
+                }
+
+                //--------------
+                // Window
+                //--------------
+                GUI.SetNextControlName("Node" + i);
+                GUI.color = new Color(1, 1, 1, 0.8f);
+                nodeInfo.rect = GUI.Window(i, nodeInfo.rect, DrawNode, string.Empty, "NodeWindow");
+                nodeInfo.node.GraphPosition = MathHelper.Step(nodeInfo.rect.position, Vector2.one);
+
+                //--------------
+                // Root Text
+                //--------------
+                if (nodeInfo.node == m_graph.Root)
+                {
+                    GUI.Box(new Rect(nodeInfo.rect.position.x, nodeInfo.rect.position.y - 20, nodeInfo.rect.size.x, 20), "Root", "RootNode");
+                }
+            }
+            EndWindows();
+
+            GUI.color = Color.white;
+            GUI.backgroundColor = Color.white;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private void DrawNode(int id)
+        {
+            var e = Event.current;
+
+            if (id >= m_nodeInfos.Count)
+                return;
+
+            var nodeInfo = m_nodeInfos[id];
+
+            HandleNodeEvents(nodeInfo.node, e);
+
+            GUI.color = Color.white;
+            GUI.backgroundColor = Color.white;
+
+            //-------------------------
+            // No Pin Node
+            //-------------------------
+            if (nodeInfo.pins.Count == 0)
+            {
+                //-------------------------
+                // Node Handle
+                //-------------------------
+                GUI.backgroundColor = nodeInfo.baseTypeInfo.color;
+                var style = nodeInfo.baseTypeInfo.side == NodeSide.Right ? "ValueHandleLeft" : "ValueHandleRight";
+                var handleRect = nodeInfo.baseTypeInfo.side == NodeSide.Right ? new Rect(0, 0, s_nodeHandleWidth, nodeInfo.rect.size.y)
+                                                                              : new Rect(nodeInfo.rect.size.x - s_nodeHandleWidth, 0, s_nodeHandleWidth, nodeInfo.rect.size.y);
+                GUI.Box(handleRect, GUIContent.none, style);
+                GUI.backgroundColor = Color.white;
+
+                //-------------------------
+                // Node Input
+                //-------------------------
+                var inputRect = nodeInfo.baseTypeInfo.side == NodeSide.Right ? new Rect(handleRect.size.x, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2)
+                                                                             : new Rect(1, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2);
+                DrawField(nodeInfo.node, inputRect);
+            }
+            //-------------------------
+            // Multi Pin Node
+            //-------------------------
+            else
+            {
+                // Node Title
+                GUI.backgroundColor = nodeInfo.baseTypeInfo.color;
+                GUI.Box(new Rect(0, 0, nodeInfo.rect.size.x, 16), nodeInfo.derivedTypeInfo.name, "NodeTitle");
+                GUI.backgroundColor = Color.white;
+
+                // Node Fields
+                for (int i = 0; i < nodeInfo.pins.Count; ++i)
+                {
+                    var pin = nodeInfo.pins[i];
+
+                    //---------------------
+                    // Field Pin
+                    //---------------------
+                    GUI.backgroundColor = pin.typeInfo.color;
+                    GUI.Box(pin.pinLocalRect, GUIContent.none, "NodePin");
+                    GUI.backgroundColor = Color.white;
+                    GUI.Box(pin.pinLocalRect, GUIContent.none, "NodePinBorder");
+                    EditorGUIUtility.AddCursorRect(pin.pinLocalRect, MouseCursor.ArrowPlus);
+
+                    //---------------------
+                    // Field Value
+                    //---------------------
+                    GUI.color = Color.white;
+                    GUI.backgroundColor = Color.white;
+                    var fieldSize = ComputeFieldSize(pin.type);
+                    var fieldValueRect = new Rect(0, pin.pinLocalRect.y, 0, 0);
+                    var fieldValue = pin.field.GetValue(pin.nodeInfo.node) as INode;
+                    var hasFieldValue = false;
+                    if (pin.isAttached && fieldValue != null)
+                    {
+                        fieldValueRect = pin.typeInfo.side == NodeSide.Left ? new Rect(pin.pinLocalRect.xMax + nodeInfo.fieldNameMaxWidth + s_controlMargin * 2, pin.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y)
+                                                                            : new Rect(pin.pinLocalRect.xMin - s_controlMargin - nodeInfo.fieldValueMaxWidth, pin.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y);
+                        DrawField(fieldValue, fieldValueRect);
+                        hasFieldValue = true;
+                    }
+
+                    //---------------------
+                    // Field Name
+                    //---------------------
+                    var fieldWidth = hasFieldValue ? nodeInfo.fieldValueMaxWidth + s_controlMargin : 0;
+                    var nodeFieldNameStyle = pin.typeInfo.side == NodeSide.Left ? "NodeFieldNameLeft" : "NodeFieldNameRight";
+                    var nodeFieldNameRect = pin.typeInfo.side == NodeSide.Left ? new Rect(pin.pinLocalRect.xMax + s_controlMargin, pin.fieldPosition.y, nodeInfo.fieldNameMaxWidth, fieldSize.y)
+                                                                                : new Rect(pin.pinLocalRect.xMin - s_controlMargin - nodeInfo.fieldNameMaxWidth - fieldWidth, pin.fieldPosition.y, nodeInfo.fieldNameMaxWidth, fieldSize.y);
+                    GUI.Label(nodeFieldNameRect, pin.field.Name, nodeFieldNameStyle);
+                }
+            }
+
+            GUI.DragWindow();
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private void DrawField(INode node, Rect containerRect)
+        {
+            GUI.color = Color.white;
+            var rect = new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height);
+
+            if (node.ValueType == typeof(string))
+            {
+                node.BoxedValue = EditorGUI.TextField(rect, (string)node.BoxedValue);
+            }
+            else if (typeof(UnityEngine.Object).IsAssignableFrom(node.ValueType))
+            {
+                node.BoxedValue = EditorGUI.ObjectField(rect, (UnityEngine.Object)node.BoxedValue, node.ValueType, false);
+            }
+            else if (node.BoxedValue != null)
+            {
+                if (node.ValueType == typeof(bool))
+                {
+                    node.BoxedValue = EditorGUI.Toggle(rect, (bool)node.BoxedValue, "Toggle");
+                }
+                else if (node.ValueType == typeof(int))
+                {
+                    node.BoxedValue = EditorGUI.IntField(rect, GUIContent.none, (int)node.BoxedValue, "NodeFieldValue");
+                }
+                else if (node.ValueType == typeof(float))
+                {
+                    node.BoxedValue = EditorGUI.FloatField(rect, GUIContent.none, (float)node.BoxedValue, "NodeFieldValue");
+                }
+                else if (node.ValueType == typeof(Vector2))
+                {
+                    node.BoxedValue = EditorHelper.Vector2Field(rect, (Vector2)node.BoxedValue, new GUIStyle("NodeFieldNameLeft"), new GUIStyle("NodeFieldValue"));
+                }
+                else if (node.ValueType == typeof(Vector3))
+                {
+                    node.BoxedValue = EditorHelper.Vector3Field(rect, (Vector3)node.BoxedValue, new GUIStyle("NodeFieldNameLeft"), new GUIStyle("NodeFieldValue"));
+                }
+                else if (node.ValueType == typeof(Color))
+                {
+                    GUI.skin = null;
+                    node.BoxedValue = EditorGUI.ColorField(rect, GUIContent.none, (Color)node.BoxedValue, false, true, false, new ColorPickerHDRConfig(0, 0, 0, 0));
+                    GUI.skin = m_skin;
+                }
+                else if (node.ValueType.IsEnum)
+                {
+                    if (node.ValueType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0)
+                    {
+                        node.BoxedValue = EditorGUI.MaskField(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType), "NodeFieldValue");
+                    }
+                    else
+                    {
+                        node.BoxedValue = EditorGUI.Popup(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType), "NodeFieldValue");
+                    }
+                }
+            }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private void DrawConnections()
+        {
+            for (int i = 0; i < m_nodeInfos.Count; ++i)
+            {
+                var nodeInfo = m_nodeInfos[i];
+                for (int j = 0; j < nodeInfo.pins.Count; ++j)
+                {
+                    var pin = nodeInfo.pins[j];
+                    for (var k = 0; k < pin.connections.Count; ++k)
+                    {
+                        var connection = pin.connections[k];
+                        DrawConnection(connection, connection.connectedNodeInfo.connectionPosition, pin.isList);
+                    }
+                }
+            }
+
+            if (m_draggedPin != null)
+            {
+                DrawConnection(new NodeConnection { pin = m_draggedPin, connectedNodeInfo = null }, Event.current.mousePosition);
+            }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        void DrawConnection(NodeConnection connection, Vector2 end, bool drawIndex = false)
+        {
+            var start = connection.pin.pinGlobalRect.center;
+
+            if (connection.pin.typeInfo.side == NodeSide.Left)
+            {
+                Utils.Swap(ref start, ref end);
+            }
+
+            var color = connection == m_selectedConnection ? connection.pin.typeInfo.color.NewAlpha(1.0f) : connection.pin.typeInfo.color.NewAlpha(0.75f);
+            var width = connection == m_selectedConnection ? s_selectedConnectionWidth : s_connectionWidth;
+            DrawConnection(start, end, color, width);
+
+            if (drawIndex)
+            {
+                var content = new GUIContent(connection.index.ToString());
+                float minWidth, maxWidth;
+                m_connectionIndexStyle.CalcMinMaxWidth(content, out minWidth, out maxWidth);
+                var height = m_connectionIndexStyle.CalcHeight(content, maxWidth);
+                var size = new Vector2(maxWidth, height) + s_connectionIndexPadding * 2;
+                var position = (start + (end - start) * 0.5f) - size * 0.5f;
+                GUI.Box(new Rect(position, size), content, m_connectionIndexStyle);
+            }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        void DrawConnection(Vector2 start, Vector2 end, Color color, float width)
+        {
+            Vector2 startTangent, endTangent;
+            GetConnectionTangents(start, end, out startTangent, out endTangent);
+            Handles.DrawBezier(start, end, startTangent, endTangent, color, null, width);
+        }
+
+        // ----------------------------------------------------------------------------------------
+        void DrawScrollBars()
+        {
+            var width = m_nodesBounds.width - Mathf.Max(m_viewRect.xMin - m_nodesBounds.xMin, 0) - Mathf.Max(m_nodesBounds.xMax - m_viewRect.xMax, 0);
+            var rectH = new Rect(5, position.height - 18, position.width - 10, 10);
+            GUI.HorizontalScrollbar(rectH, ViewOffset.x, width, m_nodesBounds.x, m_nodesBounds.xMax);
+
+            var height = m_nodesBounds.height - Mathf.Max(m_viewRect.yMin - m_nodesBounds.yMin, 0) - Mathf.Max(m_nodesBounds.yMax - m_viewRect.yMax, 0);
+            var rectV = new Rect(position.width - 20, s_topMargin, 10, position.height - s_topMargin - 20);
+            GUI.VerticalScrollbar(rectV, ViewOffset.y, height, m_nodesBounds.y, m_nodesBounds.yMax);
+        }
+
+        // ----------------------------------------------------------------------------------------
+        void DrawGrid()
+        {
+            var backupColor = Handles.color;
+            var divisions = s_gridSize * s_gridDivisions;
+            var count = m_viewRect.size / ViewZoom;
+            var startX = ViewOffset.x - (ViewOffset.x % s_gridSize);
+            var startY = ViewOffset.y - (ViewOffset.y % s_gridSize);
+
+            for (var x = startX; x < count.x + startX; x += s_gridSize)
+            {
+                Handles.color = x % divisions == 0 ? s_gridLineColor : s_gridLineLightColor;
+                Handles.DrawLine(new Vector3(x, startY, 0), new Vector3(x, startY + count.y, 0));
+            }
+
+            for (var y = startY; y < count.y + startY; y += s_gridSize)
+            {
+                Handles.color = y % divisions == 0 ? s_gridLineColor : s_gridLineLightColor;
+                Handles.DrawLine(new Vector3(startX, y, 0), new Vector3(startX + count.x, y, 0));
+            }
+
+            Handles.color = backupColor;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        void DrawDebug()
+        {
+            var e = Event.current;
+            var rect = new Rect(e.mousePosition, new Vector2(200, 20));
+
+            WorldToScreen(e.mousePosition);
+
+            GUI.Box(rect, "Mouse:" + e.mousePosition.ToString());
+
+            if (m_nodeAtMousePosition != null)
+            {
+                rect.y += 20;
+                GUI.Box(rect, "Node:" + m_nodeAtMousePosition.rect.position.ToString());
+            }
+
+            if (m_pinAtMousePosition != null)
+            {
+                rect.y += 20;
+                GUI.Box(rect, "Pin:" + m_pinAtMousePosition.pinGlobalRect.position.ToString());
+            }
+        }
+
+        #endregion
+
+        // ----------------------------------------------------------------------------------------
+        #region Utility 
+
         // ----------------------------------------------------------------------------------------
         private void CreateNodeInfos()
         {
+            var e = Event.current;
+
+            m_nodesBounds = new Rect();
+            m_nodesBounds.xMin = float.MaxValue;
+            m_nodesBounds.xMax = float.MinValue;
+            m_nodesBounds.yMin = float.MaxValue;
+            m_nodesBounds.yMax = float.MinValue;
+
             m_nodeInfos.Clear();
             for (var i = 0; i < m_graph.Nodes.Count; ++i)
             {
@@ -237,8 +609,18 @@ namespace Spell.Graph
                 nodeInfo.rect = new Rect(node.GraphPosition, nodeSize);
                 nodeInfo.connectionPosition = nodeInfo.baseTypeInfo.side == NodeSide.Right ? node.GraphPosition + new Vector2(5, s_nodeHeaderHeight * 0.5f)
                                                                                            : node.GraphPosition + new Vector2(nodeSize.x - 5, s_nodeHeaderHeight * 0.5f);
+
+                m_nodesBounds.xMin = Mathf.Min(m_nodesBounds.xMin, nodeInfo.rect.xMin);
+                m_nodesBounds.xMax = Mathf.Max(m_nodesBounds.xMax, nodeInfo.rect.xMax);
+                m_nodesBounds.yMin = Mathf.Min(m_nodesBounds.yMin, nodeInfo.rect.yMin);
+                m_nodesBounds.yMax = Mathf.Max(m_nodesBounds.yMax, nodeInfo.rect.yMax);
+
                 m_nodeInfos.Add(nodeInfo);
             }
+
+            m_nodeAtMousePosition = null;
+            m_pinAtMousePosition = null;
+            m_connectionAtMousePosition = null;
 
             for (var i = 0; i < m_nodeInfos.Count; ++i)
             {
@@ -248,6 +630,12 @@ namespace Spell.Graph
                 nodeInfo.pins.Clear();
                 var fields = node.GetFields();
                 var fieldPosition = new Vector2(0, s_nodeHeaderHeight);
+
+                // Save the node where the mouse is.
+                if (nodeInfo.rect.Contains(ScreenToWorld(e.mousePosition)))
+                {
+                    m_nodeAtMousePosition = nodeInfo;
+                }
 
                 for (int j = 0; j < fields.Count; ++j)
                 {
@@ -279,6 +667,12 @@ namespace Spell.Graph
                     };
                     nodeInfo.pins.Add(pin);
 
+                    // Save the pin where the mouse is.
+                    if (pin.pinGlobalRect.Contains(ScreenToWorld(e.mousePosition)))
+                    {
+                        m_pinAtMousePosition = pin;
+                    }
+
                     if (isFieldList)
                     {
                         var connectedNodes = field.GetValue(node) as IList;
@@ -296,6 +690,12 @@ namespace Spell.Graph
                             {
                                 var connection = new NodeConnection() { connectedNodeInfo = m_nodeInfos[connectedNodeIndex], index = k, pin = pin };
                                 pin.connections.Add(connection);
+
+                                // Save the connection where the mouse is.
+                                if (IsNearConnection(ScreenToWorld(e.mousePosition), connection))
+                                {
+                                    m_connectionAtMousePosition = connection;
+                                }
                             }
                         }
                     }
@@ -384,16 +784,80 @@ namespace Spell.Graph
             }
         }
 
+        // ----------------------------------------------------------------------------------------
+        private NodeInfo GetNodeAtPosition(Vector2 position)
+        {
+            for (int i = 0; i < m_nodeInfos.Count; ++i)
+            {
+                var nodeInfo = m_nodeInfos[i];
+                if (nodeInfo.rect.Contains(position))
+                {
+                    return nodeInfo;
+                }
+            }
+            return null;
+        }
 
         // ----------------------------------------------------------------------------------------
-        private void HandleGraphEvents(Event e)
+        void GetConnectionTangents(Vector2 start, Vector2 end, out Vector2 startTangent, out Vector2 endTangent)
         {
+            var tangent = new Vector2((start.x - end.x) * 0.5f, 0.0f);
+            tangent = end.x > start.x ? -tangent : tangent;
+            startTangent = start + tangent;
+            endTangent = end - tangent;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        bool IsNearConnection(Vector2 position, NodeConnection connection)
+        {
+            var start = connection.pin.pinGlobalRect.center;
+            var end = connection.connectedNodeInfo.connectionPosition;
+
+            if (connection.pin.typeInfo.side == NodeSide.Left)
+            {
+                Utils.Swap(ref start, ref end);
+            }
+
+            Vector2 startTangent, endTangent;
+            GetConnectionTangents(start, end, out startTangent, out endTangent);
+            var distance = HandleUtility.DistancePointBezier(position, start, end, startTangent, endTangent);
+            return (distance <= s_connectionSelectionDistance);
+        }
+
+        #endregion
+
+        // ----------------------------------------------------------------------------------------
+        #region Events Management
+
+        // ----------------------------------------------------------------------------------------
+        private void OnSelectionChanged()
+        {
+            var graph = Selection.activeObject as Graph;
+            if (graph != null)
+            {
+                var lastEditor = focusedWindow;
+                ShowWindow(graph);
+                if (lastEditor)
+                {
+                    lastEditor.Focus();
+                }
+            }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private void OnPlayModeStateChanged()
+        {
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private void HandleGraphEvents()
+        {
+            var e = Event.current;
+
             if (mouseOverWindow == this && (e.isMouse || e.isKey))
             {
                 m_forceRepaint = true;
             }
-
-            m_nodeAtMousePosition = GetNodeAtPosition(e.mousePosition);
 
             if ((e.button == 2 && e.type == EventType.MouseDrag && m_zoomRect.Contains(e.mousePosition))
                 || ((e.type == EventType.MouseDown || e.type == EventType.MouseDrag) && e.alt && e.isMouse))
@@ -410,13 +874,26 @@ namespace Spell.Graph
                     m_selectedConnection = null;
                     m_draggedPin = null;
 
-                    HandlePinEvents(e);
+                    // Handle pin clicking to create a new connection.
+                    if (m_pinAtMousePosition != null)
+                    {
+                        m_draggedPin = m_pinAtMousePosition;
+                        e.Use();
+                    }
+                    // Handle connection selection. Check if the mouse is over a node to prevent 
+                    // selecting a connection if below a block. Otherwise can't move the block
+                    else if ((m_draggedPin == null) && (m_nodeAtMousePosition == null) && m_connectionAtMousePosition != null)
+                    {
+                        m_selectedConnection = m_connectionAtMousePosition;
+                        m_selectedNode = null;
+                        e.Use();
+                    }
                 }
                 else if (e.button == 1)
                 {
-                    if (m_zoomRect.Contains(Event.current.mousePosition))
+                    if (m_zoomRect.Contains(e.mousePosition))
                     {
-                        CreateNodeMenu(typeof(INode), ScreenToWorld(Event.current.mousePosition));
+                        CreateNodeMenu(typeof(INode), ScreenToWorld(e.mousePosition));
                     }
                 }
             }
@@ -426,7 +903,6 @@ namespace Spell.Graph
                 { 
                     if (m_draggedPin != null)
                     {
-                        m_nodeAtMousePosition = GetNodeAtPosition(e.mousePosition);
                         if (m_nodeAtMousePosition != null)
                         {
                             AssignValueToPin(m_draggedPin, m_nodeAtMousePosition);
@@ -436,7 +912,7 @@ namespace Spell.Graph
                         else
                         {
                             var selectedPin = m_draggedPin;
-                            CreateNodeMenu(m_draggedPin.type, e.mousePosition, (newNode) => { AssignValueToPin(selectedPin, new NodeInfo() { node = newNode }); });
+                            CreateNodeMenu(m_draggedPin.type, ScreenToWorld(e.mousePosition), (newNode) => { AssignValueToPin(selectedPin, new NodeInfo() { node = newNode }); });
                             m_draggedPin = null;
                         }
                     }
@@ -461,40 +937,6 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        void HandlePinEvents(Event e)
-        {
-            for (int i = 0; i < m_nodeInfos.Count; ++i)
-            {
-                var nodeInfo = m_nodeInfos[i];
-                for (int j = 0; j < nodeInfo.pins.Count; ++j)
-                {
-                    // Handle pin clicking to create a new connection.
-                    var pin = nodeInfo.pins[j];
-                    if (pin.pinGlobalRect.Contains(e.mousePosition))
-                    {
-                        m_draggedPin = pin;
-                        e.Use();
-                        return;
-                    }
-
-                    for (var k = 0; k < pin.connections.Count; ++k)
-                    {
-                        // Handle connection selection. Check if the mouse is over a node to prevent 
-                        // selecting a connection if below a block. Otherwise can't move the block
-                        var connection = pin.connections[k];
-                        if ((m_draggedPin == null) && (m_nodeAtMousePosition == null) && IsNearConnection(e.mousePosition, connection))
-                        {
-                            m_selectedConnection = connection;
-                            m_selectedNode = null;
-                            e.Use();
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-
-        // ----------------------------------------------------------------------------------------
         void HandleNodeEvents(INode node, Event e)
         {
             if (e.type == EventType.MouseDown)
@@ -511,6 +953,10 @@ namespace Spell.Graph
             }
         }
 
+        #endregion
+
+        // ----------------------------------------------------------------------------------------
+        #region Graph Manipulation
         // ----------------------------------------------------------------------------------------
         private void AssignValueToPin(NodePin pin, NodeInfo newValue)
         {
@@ -659,6 +1105,41 @@ namespace Spell.Graph
             }
         }
 
+        #endregion
+
+        // ----------------------------------------------------------------------------------------
+        #region View Management
+
+        // ----------------------------------------------------------------------------------------
+        Rect BeginZoom(Rect screenRect)
+        {
+            GUI.EndGroup();
+
+            m_backupGuiMatrix = GUI.matrix;
+            var m1 = Matrix4x4.TRS(new Vector2(0, s_topMargin), Quaternion.identity, Vector3.one);
+            var m2 = Matrix4x4.Scale(new Vector3(ViewZoom, ViewZoom, 1f));
+            GUI.matrix = m1 * m2 * m1.inverse * GUI.matrix;
+
+            var zoomRect = screenRect;
+            zoomRect.size /= ViewZoom;
+
+            GUI.BeginGroup(zoomRect);
+            GUI.BeginGroup(new Rect(-ViewOffset, m_zoomRect.size + ViewOffset));
+
+            return zoomRect;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        void EndZoom()
+        {
+            GUI.EndGroup();
+            GUI.EndGroup();
+
+            GUI.matrix = m_backupGuiMatrix;
+            var screenRect = new Rect(0, s_topMargin, EditorGUIUtility.currentViewWidth, Screen.height);
+            GUI.BeginGroup(screenRect);
+        }
+
         // ----------------------------------------------------------------------------------------
         void FocusPosition(Vector2 targetPos)
         {
@@ -700,484 +1181,10 @@ namespace Spell.Graph
             return WorldToScreen(worldPos, ViewOffset, ViewZoom);
         }
 
-        // ----------------------------------------------------------------------------------------
-        private Rect GetNodeBounds(List<INode> nodes, Rect m_viewRect, bool v)
-        {
-            return new Rect(0, 0, 1500, 1500);
-        }
+        #endregion
 
         // ----------------------------------------------------------------------------------------
-        void DrawNodes()
-        {
-            GUI.color = Color.white;
-
-            BeginWindows();
-
-            for (var i = 0; i < m_nodeInfos.Count; ++i)
-            {
-                var nodeInfo = m_nodeInfos[i];
-
-                //--------------
-                // Shadow
-                //--------------
-                if (ShowShadow)
-                { 
-                    GUI.Box(new Rect(nodeInfo.rect.position, nodeInfo.rect.size + s_nodeShadowOffset), GUIContent.none, "NodeShadow");
-                }
-
-                //--------------
-                // Selection
-                //--------------
-                if (nodeInfo.node == m_selectedNode)
-                {
-                    GUI.Box(new Rect(nodeInfo.rect.position - new Vector2(s_selectionBorder, s_selectionBorder), 
-                                     nodeInfo.rect.size + new Vector2(s_selectionBorder * 2, s_selectionBorder * 2)), 
-                                     GUIContent.none, "NodeSelection");
-                }
-
-                //--------------
-                // Window
-                //--------------
-                GUI.SetNextControlName("Node" + i);
-                GUI.color = new Color(1, 1, 1, 0.8f);
-                nodeInfo.rect = GUI.Window(i, nodeInfo.rect, DrawNode, string.Empty, "NodeWindow");
-                nodeInfo.node.GraphPosition = MathHelper.Step(nodeInfo.rect.position, Vector2.one);
-
-                //--------------
-                // Root Text
-                //--------------
-                if (nodeInfo.node == m_graph.Root)
-                {
-                    GUI.Box(new Rect(nodeInfo.rect.position.x, nodeInfo.rect.position.y - 20, nodeInfo.rect.size.x, 20), "Root", "RootNode");
-                }
-            }
-            EndWindows();
-
-            GUI.color = Color.white;
-            GUI.backgroundColor = Color.white;
-        }
-
-        // ----------------------------------------------------------------------------------------
-        private void DrawFixedValue(INode node, Rect containerRect)
-        {
-            GUI.color = Color.white;
-            var rect = new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height);
-
-            if (node.ValueType == typeof(string))
-            {
-                node.BoxedValue = EditorGUI.TextField(rect, (string)node.BoxedValue);
-            }
-            else if (typeof(UnityEngine.Object).IsAssignableFrom(node.ValueType))
-            {
-                node.BoxedValue = EditorGUI.ObjectField(rect, (UnityEngine.Object)node.BoxedValue, node.ValueType, false);
-            }
-            else if (node.BoxedValue != null)
-            {
-                if (node.ValueType == typeof(bool))
-                {
-                    node.BoxedValue = EditorGUI.Toggle(rect, (bool)node.BoxedValue, "Toggle");
-                }
-                else if (node.ValueType == typeof(int))
-                {
-                    node.BoxedValue = EditorGUI.IntField(rect, GUIContent.none, (int)node.BoxedValue, "NodeFieldValue");
-                }
-                else if (node.ValueType == typeof(float))
-                {
-                    node.BoxedValue = EditorGUI.FloatField(rect, GUIContent.none, (float)node.BoxedValue, "NodeFieldValue");
-                }
-                else if (node.ValueType == typeof(Vector2))
-                {
-                    node.BoxedValue = Vector2Field(rect, (Vector2)node.BoxedValue, new GUIStyle("NodeFieldNameLeft"), new GUIStyle("NodeFieldValue"));
-                }
-                else if (node.ValueType == typeof(Vector3))
-                {
-                    node.BoxedValue = Vector3Field(rect, (Vector3)node.BoxedValue, new GUIStyle("NodeFieldNameLeft"), new GUIStyle("NodeFieldValue"));
-                }
-                else if (node.ValueType == typeof(Color))
-                {
-                    GUI.skin = null;
-                    node.BoxedValue = EditorGUI.ColorField(rect, GUIContent.none, (Color)node.BoxedValue, false, true, false, new ColorPickerHDRConfig(0, 0, 0, 0));
-                    GUI.skin = m_skin;
-                }
-                else if (node.ValueType.IsEnum)
-                {
-                    if (node.ValueType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0)
-                    {
-                        node.BoxedValue = EditorGUI.MaskField(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType), "NodeFieldValue");
-                    }
-                    else
-                    {
-                        node.BoxedValue = EditorGUI.Popup(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType), "NodeFieldValue");
-                    }
-                }
-            }
-        }
-
-        // ----------------------------------------------------------------------------------------
-        public static Vector2 Vector2Field(Rect rect, Vector2 value, GUIStyle labelStyle, GUIStyle valueStyle)
-        {
-            var labelWidth = 15;
-            rect.width -= labelWidth * 2;
-            var fieldWidth = Mathf.RoundToInt(rect.width / 2.0f);
-
-            var x = rect.x;
-            EditorGUI.LabelField(new Rect(x + 2, rect.y, labelWidth, rect.height), "X:", labelStyle);
-            x += labelWidth;
-
-            value.x = EditorGUI.FloatField(new Rect(x, rect.y, fieldWidth, rect.height), GUIContent.none, value.x, valueStyle);
-            x += fieldWidth;
-
-            EditorGUI.LabelField(new Rect(x + 2, rect.y, labelWidth, rect.height), "Y:", labelStyle);
-            x += labelWidth;
-
-            value.y = EditorGUI.FloatField(new Rect(x, rect.y, fieldWidth, rect.height), GUIContent.none, value.y, valueStyle);
-            x += fieldWidth;
-
-            return value;
-        }
-
-        // ----------------------------------------------------------------------------------------
-        public static Vector3 Vector3Field(Rect rect, Vector3 value, GUIStyle labelStyle, GUIStyle valueStyle)
-        {
-            var labelWidth = 15;
-            rect.width -= labelWidth * 3;
-            var fieldWidth = Mathf.RoundToInt(rect.width / 3.0f);
-
-            var x = rect.x;
-            EditorGUI.LabelField(new Rect(x + 2, rect.y, labelWidth, rect.height), "X:", labelStyle);
-            x += labelWidth;
-
-            value.x = EditorGUI.FloatField(new Rect(x, rect.y, fieldWidth, rect.height), GUIContent.none, value.x, valueStyle);
-            x += fieldWidth;
-
-            EditorGUI.LabelField(new Rect(x + 2, rect.y, labelWidth, rect.height), "Y:", labelStyle);
-            x += labelWidth;
-
-            value.y = EditorGUI.FloatField(new Rect(x, rect.y, fieldWidth, rect.height), GUIContent.none, value.y, valueStyle);
-            x += fieldWidth;
-
-            EditorGUI.LabelField(new Rect(x + 2, rect.y, labelWidth, rect.height), "Z:", labelStyle);
-            x += labelWidth;
-
-            value.z = EditorGUI.FloatField(new Rect(x, rect.y, fieldWidth, rect.height), GUIContent.none, value.z, valueStyle);
-            x += fieldWidth;
-
-            return value;
-        }
-
-        // ----------------------------------------------------------------------------------------
-        private void DrawNode(int id)
-        {
-            var e = Event.current;
-
-            if (id >= m_nodeInfos.Count)
-                return;
-
-            var nodeInfo = m_nodeInfos[id];
-
-            HandleNodeEvents(nodeInfo.node, e);
-
-            GUI.color = Color.white;
-            GUI.backgroundColor = Color.white;
-
-            //-------------------------
-            // No Pin Node
-            //-------------------------
-            if (nodeInfo.pins.Count == 0)
-            {
-                //-------------------------
-                // Node Handle
-                //-------------------------
-                GUI.backgroundColor = nodeInfo.baseTypeInfo.color;
-                var style = nodeInfo.baseTypeInfo.side == NodeSide.Right ? "ValueHandleLeft" : "ValueHandleRight";
-                var handleRect = nodeInfo.baseTypeInfo.side == NodeSide.Right ? new Rect(0, 0, s_nodeHandleWidth, nodeInfo.rect.size.y) 
-                                                                              : new Rect(nodeInfo.rect.size.x - s_nodeHandleWidth, 0, s_nodeHandleWidth, nodeInfo.rect.size.y);
-                GUI.Box(handleRect, GUIContent.none, style);
-                GUI.backgroundColor = Color.white;
-
-                //-------------------------
-                // Node Input
-                //-------------------------
-                var inputRect = nodeInfo.baseTypeInfo.side == NodeSide.Right ? new Rect(handleRect.size.x, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2)
-                                                                             : new Rect(1, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2);
-                DrawFixedValue(nodeInfo.node, inputRect);
-            }
-            //-------------------------
-            // Multi Pin Node
-            //-------------------------
-            else
-            {
-                // Node Title
-                GUI.backgroundColor = nodeInfo.baseTypeInfo.color;
-                GUI.Box(new Rect(0, 0, nodeInfo.rect.size.x, 16), nodeInfo.derivedTypeInfo.name, "NodeTitle");
-                GUI.backgroundColor = Color.white;
-
-                // Node Fields
-                for (int i = 0; i < nodeInfo.pins.Count; ++i)
-                {
-                    var pin = nodeInfo.pins[i];
-
-                    //---------------------
-                    // Field Pin
-                    //---------------------
-                    GUI.backgroundColor = pin.typeInfo.color;
-                    GUI.Box(pin.pinLocalRect, GUIContent.none, "NodePin");
-                    GUI.backgroundColor = Color.white;
-                    GUI.Box(pin.pinLocalRect, GUIContent.none, "NodePinBorder");
-                    EditorGUIUtility.AddCursorRect(pin.pinLocalRect, MouseCursor.ArrowPlus);
-
-                    //---------------------
-                    // Field Value
-                    //---------------------
-                    GUI.color = Color.white;
-                    GUI.backgroundColor = Color.white;
-                    var fieldSize = ComputeFieldSize(pin.type);
-                    var fieldValueRect = new Rect(0, pin.pinLocalRect.y, 0, 0);
-                    var fieldValue = pin.field.GetValue(pin.nodeInfo.node) as INode;
-                    var hasFieldValue = false;
-                    if (pin.isAttached && fieldValue != null)
-                    {
-                        fieldValueRect = pin.typeInfo.side == NodeSide.Left ? new Rect(pin.pinLocalRect.xMax + nodeInfo.fieldNameMaxWidth + s_controlMargin * 2, pin.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y)
-                                                                            : new Rect(pin.pinLocalRect.xMin - s_controlMargin - nodeInfo.fieldValueMaxWidth, pin.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y);
-                        DrawFixedValue(fieldValue, fieldValueRect);
-                        hasFieldValue = true;
-                    }
-
-                    //---------------------
-                    // Field Name
-                    //---------------------
-                    var fieldWidth = hasFieldValue ? nodeInfo.fieldValueMaxWidth + s_controlMargin : 0;
-                    var nodeFieldNameStyle = pin.typeInfo.side == NodeSide.Left ? "NodeFieldNameLeft" : "NodeFieldNameRight";
-                    var nodeFieldNameRect  = pin.typeInfo.side == NodeSide.Left ? new Rect(pin.pinLocalRect.xMax + s_controlMargin, pin.fieldPosition.y, nodeInfo.fieldNameMaxWidth, fieldSize.y)
-                                                                                : new Rect(pin.pinLocalRect.xMin - s_controlMargin - nodeInfo.fieldNameMaxWidth - fieldWidth, pin.fieldPosition.y, nodeInfo.fieldNameMaxWidth, fieldSize.y);
-                    GUI.Label(nodeFieldNameRect, pin.field.Name, nodeFieldNameStyle);
-                }
-            }
-
-            GUI.DragWindow();
-        }
-
-        // ----------------------------------------------------------------------------------------
-        private void DrawConnections()
-        {
-            for (int i = 0; i < m_nodeInfos.Count; ++i)
-            {
-                var nodeInfo = m_nodeInfos[i];
-                for (int j = 0; j < nodeInfo.pins.Count; ++j)
-                {
-                    var pin = nodeInfo.pins[j];
-                    for (var k = 0; k < pin.connections.Count; ++k)
-                    {
-                        var connection = pin.connections[k];
-                        DrawConnection(connection, connection.connectedNodeInfo.connectionPosition, pin.isList);
-                    }
-                }
-            }
-
-            if (m_draggedPin != null)
-            {
-                DrawConnection(new NodeConnection { pin = m_draggedPin, connectedNodeInfo = null } , Event.current.mousePosition);
-            }
-        }
-
-        // ----------------------------------------------------------------------------------------
-        private NodeInfo GetNodeAtPosition(Vector2 position)
-        {
-            for (int i = 0; i < m_nodeInfos.Count; ++i)
-            {
-                var nodeInfo = m_nodeInfos[i];
-                if (nodeInfo.rect.Contains(position))
-                {
-                    return nodeInfo;
-                }
-            }
-            return null;
-        }
-
-        // ----------------------------------------------------------------------------------------
-        void GetConnectionTangents(Vector2 start, Vector2 end, out Vector2 startTangent, out Vector2 endTangent)
-        {
-            var tangent = new Vector2((start.x - end.x) * 0.5f, 0.0f);
-            tangent = end.x > start.x ? -tangent : tangent;
-            startTangent = start + tangent;
-            endTangent = end - tangent;
-        }
-
-        // ----------------------------------------------------------------------------------------
-        bool IsNearConnection(Vector2 cursor, NodeConnection connection)
-        {
-            var start = connection.pin.pinGlobalRect.center;
-            var end = connection.connectedNodeInfo.connectionPosition;
-
-            if (connection.pin.typeInfo.side == NodeSide.Left)
-            {
-                Utils.Swap(ref start, ref end);
-            }
-
-            Vector2 startTangent, endTangent;
-            GetConnectionTangents(start, end, out startTangent, out endTangent);
-            var distance = HandleUtility.DistancePointBezier(cursor, start, end, startTangent, endTangent);
-            return (distance <= s_connectionSelectionDistance);
-        }
-
-        // ----------------------------------------------------------------------------------------
-        void DrawConnection(NodeConnection connection, Vector2 end, bool drawIndex = false)
-        {
-            var start = connection.pin.pinGlobalRect.center;
-
-            if (connection.pin.typeInfo.side == NodeSide.Left)
-            {
-                Utils.Swap(ref start, ref end);
-            }
-
-            var color = connection == m_selectedConnection ? connection.pin.typeInfo.color.NewAlpha(1.0f) : connection.pin.typeInfo.color.NewAlpha(0.75f);
-            var width = connection == m_selectedConnection ? s_selectedConnectionWidth : s_connectionWidth;
-            DrawConnection(start, end, color, width);
-
-            if (drawIndex)
-            {
-                var content = new GUIContent(connection.index.ToString());
-                float minWidth, maxWidth;
-                m_connectionIndexStyle.CalcMinMaxWidth(content, out minWidth, out maxWidth);
-                var height = m_connectionIndexStyle.CalcHeight(content, maxWidth);
-                var size = new Vector2(maxWidth, height) + s_connectionIndexPadding * 2;
-                var position = (start + (end - start) * 0.5f) - size * 0.5f;
-                GUI.Box(new Rect(position, size), content, m_connectionIndexStyle);
-            }
-        }
-        
-        // ----------------------------------------------------------------------------------------
-        void DrawConnection(Vector2 start, Vector2 end, Color color, float width)
-        {
-            Vector2 startTangent, endTangent;
-            GetConnectionTangents(start, end, out startTangent, out endTangent);
-            Handles.DrawBezier(start, end, startTangent, endTangent, color, null, width);
-        }
-
-        // ----------------------------------------------------------------------------------------
-        Rect BeginZoom(Rect screenRect)
-        {
-            GUI.EndGroup();
-
-            m_backupGuiMatrix = GUI.matrix;
-            var m1 = Matrix4x4.TRS(new Vector2(0, s_topMargin), Quaternion.identity, Vector3.one);
-            var m2 = Matrix4x4.Scale(new Vector3(ViewZoom, ViewZoom, 1f));
-            GUI.matrix = m1 * m2 * m1.inverse * GUI.matrix;
-
-            var zoomRect = screenRect;
-            zoomRect.size /= ViewZoom;
-
-            GUI.BeginGroup(zoomRect);
-            GUI.BeginGroup(new Rect(-ViewOffset, m_zoomRect.size + ViewOffset));
-
-            return zoomRect;
-        }
-
-        // ----------------------------------------------------------------------------------------
-        void EndZoom()
-        {
-            GUI.EndGroup();
-            GUI.EndGroup();
-
-            GUI.matrix = m_backupGuiMatrix;
-            var screenRect = new Rect(0, s_topMargin, EditorGUIUtility.currentViewWidth, Screen.height);
-            GUI.BeginGroup(screenRect);
-        }
-
-        // ----------------------------------------------------------------------------------------
-        void DrawScrollBars()
-        {
-            if (IsAnyNodesOutOfView == false)
-                return;
-
-            var scrollPos = ViewOffset;
-
-            var diffLeft = Mathf.Max(m_viewRect.xMin - m_nodeBounds.xMin, 0);
-            var diffRight = Mathf.Max(m_nodeBounds.xMax - m_viewRect.xMax, 0);
-            var barSizeX = m_nodeBounds.width - diffLeft - diffRight;
-            //if (diffLeft > 0 || diffRight > 0)
-            {
-                var rect = new Rect(5, position.height - 18, position.width - 10, 10);
-                scrollPos.x = GUI.HorizontalScrollbar(rect, scrollPos.x, barSizeX, m_nodeBounds.x, m_nodeBounds.xMax);
-            }
-
-            var diffTop = Mathf.Max(m_viewRect.yMin - m_nodeBounds.yMin, 0);
-            var diffBottom = Mathf.Max(m_nodeBounds.yMax - m_viewRect.yMax, 0);
-            var barSizeY = m_nodeBounds.height - diffTop - diffBottom;
-            //if (diffTop > 0 || diffBottom > 0)
-            {
-                var rect = new Rect(position.width - 20, s_topMargin, 10, position.height - s_topMargin - 20);
-                scrollPos.y = GUI.VerticalScrollbar(rect, scrollPos.y, barSizeY, m_nodeBounds.y, m_nodeBounds.yMax);
-            }
-
-            ViewOffset = scrollPos;
-        }
-
-        // ----------------------------------------------------------------------------------------
-        void DrawGrid()
-        {
-            var backupColor = Handles.color;
-            var divisions = s_gridSize * s_gridDivisions;
-            var count = m_viewRect.size / ViewZoom;
-            var startX = ViewOffset.x - (ViewOffset.x % s_gridSize);
-            var startY = ViewOffset.y - (ViewOffset.y % s_gridSize);
-
-            for (var x = startX; x < count.x + startX; x += s_gridSize)
-            {
-                Handles.color = x % divisions == 0 ? s_gridLineColor : s_gridLineLightColor;
-                Handles.DrawLine(new Vector3(x, startY, 0), new Vector3(x, startY + count.y, 0));
-            }
-
-            for (var y = startY; y < count.y + startY; y += s_gridSize)
-            {
-                Handles.color = y % divisions == 0 ? s_gridLineColor : s_gridLineLightColor;
-                Handles.DrawLine(new Vector3(startX, y, 0), new Vector3(startX + count.x, y, 0));
-            }
-
-            Handles.color = backupColor;
-        }
-
-        // ----------------------------------------------------------------------------------------
-        void DrawMenu()
-        {
-            GUILayout.BeginHorizontal(EditorStyles.toolbar);
-
-            if (GUILayout.Button("File", EditorStyles.toolbarDropDown))
-            {
-                var menu = new GenericMenu();
-                menu.AddItem(new GUIContent("New/Ability"), false, () => { ScriptableObjectHelper.CreateGraph<Ability>(); });
-                menu.AddItem(new GUIContent("New/Caster"), false, () => { ScriptableObjectHelper.CreateGraph<Caster>(); });
-                menu.AddItem(new GUIContent("Clear"), false, () => { m_graph.Clear(); });
-                menu.AddItem(new GUIContent("Load"), false, () => { m_graph.Load(); });
-                menu.AddItem(new GUIContent("Save"), false, () => { m_graph.Save(); });
-                menu.ShowAsContext();
-            }
-
-            if (GUILayout.Button("Create", EditorStyles.toolbarDropDown))
-            {
-                CreateNodeMenu(typeof(INode), ScreenToWorld(m_screenRect.size * 0.5f));
-            }
-
-            if (GUILayout.Button("Options", EditorStyles.toolbarDropDown))
-            {
-                var menu = new GenericMenu();
-				menu.AddItem(new GUIContent("Dark Skin"), UseDarkSkin, ()=> { UseDarkSkin = !UseDarkSkin; });
-				menu.AddItem(new GUIContent("Show Shadow"), ShowShadow, ()=> { ShowShadow = !ShowShadow; });
-                menu.ShowAsContext();
-            }
-
-            GUILayout.FlexibleSpace();
-
-            ViewZoom = GUILayout.HorizontalSlider(ViewZoom, s_farZoom, s_closeZoom, GUILayout.MinWidth(80));
-
-            if (GUILayout.Button("Reset", EditorStyles.toolbarButton, new GUILayoutOption[0]))
-            {
-                ViewOffset = Vector2.zero;
-                ViewZoom = 1.0f;
-            }
-
-            GUILayout.EndHorizontal();
-        }
+        #region Context Menus
 
         // ----------------------------------------------------------------------------------------
         private GenericMenu CreateNodeContextMenu(INode node)
@@ -1237,5 +1244,8 @@ namespace Spell.Graph
             menu.ShowAsContext();
             return menu;
         }
+
+        // ----------------------------------------------------------------------------------------
+        #endregion
     }
 }
