@@ -698,7 +698,7 @@ namespace Spell.Graph
                     //-----------------------------------------------------------------------------
                     if (pin.isAttached == false && isFieldList == false)
                     {
-                        var connection = new NodeConnection() { connectedNodeInfo = m_nodeInfos[fieldValueNodeIndex], index = 0, pin = pin };
+                        var connection = new NodeConnection() { connectedNodeInfo = m_nodeInfos[fieldValueNodeIndex], index = -1, pin = pin };
                         pin.connections.Add(connection);
 
                         //-------------------------------------------------------------------------
@@ -1129,9 +1129,58 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
+        private List<NodeConnection> FindNodeReferences(NodeInfo nodeToFind)
+        {
+            var connections = new List<NodeConnection>();
+            for (var i = 0; i < m_nodeInfos.Count; ++i)
+            {
+                var nodeInfo = m_nodeInfos[i];
+                for (var j = 0; j < nodeInfo.pins.Count; ++j)
+                {
+                    var pin = nodeInfo.pins[j];
+                    for (var k = 0; k < pin.connections.Count; ++k)
+                    {
+                        var connection = pin.connections[k];
+                        if (connection.connectedNodeInfo == nodeToFind)
+                        {
+                            connections.Add(connection);
+                        }
+                    }
+                }
+            }
+
+            return connections;
+        }
+
+        // ----------------------------------------------------------------------------------------
         private void RebuildListIndices(NodeInfo nodeInfo)
         {
+            var references = FindNodeReferences(nodeInfo);
+            for (var i = 0; i < references.Count; ++i)
+            {
+                var reference = references[i];
+                if (reference.pin.isList)
+                {
+                    RebuildPinListIndices(reference.pin);
+                }
+            }
+        }
 
+        // ----------------------------------------------------------------------------------------
+        private void RebuildPinListIndices(NodePin pin)
+        {
+            var list = pin.field.GetValue(pin.nodeInfo.node) as IList;
+
+            var tempArray = new INode[list.Count];
+            list.CopyTo(tempArray, 0);
+
+            var orderedList = new List<INode>(tempArray).OrderBy(n => n.GraphPosition.y).ToList();
+
+            list.Clear();
+            for (var i = 0; i < orderedList.Count; ++i)
+            {
+                list.Add(orderedList[i]);
+            }
         }
 
         // ----------------------------------------------------------------------------------------
