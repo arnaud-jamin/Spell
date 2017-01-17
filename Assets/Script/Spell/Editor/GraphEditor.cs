@@ -434,8 +434,6 @@ namespace Spell.Graph
                     GUI.Label(nodeFieldNameRect, pin.field.Name, nodeFieldNameStyle);
                 }
             }
-
-            GUI.DragWindow();
         }
 
         // ----------------------------------------------------------------------------------------
@@ -593,16 +591,29 @@ namespace Spell.Graph
             if (ShowDebug == false)
                 return;
 
+            var rect = new Rect(Event.current.mousePosition, new Vector2(200, 20));
+            GUI.Box(rect, "Mouse:" + Event.current.mousePosition.ToString());
+            rect.y += 20;
 
+            GUI.Box(rect, "World Mouse:" + m_worldMousePosition.ToString());
+            rect.y += 20;
 
             if (m_nodeAtMousePosition != null)
             {
                 GUI.Box(rect, "Node:" + m_nodeAtMousePosition.rect.position.ToString());
+                rect.y += 20;
             }
 
             if (m_pinAtMousePosition != null)
             {
                 GUI.Box(rect, "Pin:" + m_pinAtMousePosition.pinGlobalRect.position.ToString());
+                rect.y += 20;
+            }
+
+            if (m_selectedNodes != null)
+            {
+                GUI.Box(rect, "Selected Nodes:" + m_selectedNodes.Count.ToString());
+                rect.y += 20;
             }
         }
 
@@ -614,6 +625,9 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         private void CreateNodeInfos()
         {
+            // This must be done before the view modification because
+            // Event.current.mousePosition is modified by the view changes.
+            m_worldMousePosition = ScreenToWorld(Event.current.mousePosition);
 
             m_nodesBounds = new Rect();
             m_nodesBounds.xMin = float.MaxValue;
@@ -657,6 +671,7 @@ namespace Spell.Graph
                 //---------------------------------------------------------------------------------
                 // Save the node where the mouse is.
                 //---------------------------------------------------------------------------------
+                if (nodeInfo.rect.Contains(m_worldMousePosition))
                 {
                     m_nodeAtMousePosition = nodeInfo;
                 }
@@ -702,6 +717,7 @@ namespace Spell.Graph
                     //-----------------------------------------------------------------------------
                     // Save the pin where the mouse is.
                     //-----------------------------------------------------------------------------
+                    if (pin.pinGlobalRect.Contains(m_worldMousePosition))
                     {
                         m_pinAtMousePosition = pin;
                     }
@@ -712,11 +728,13 @@ namespace Spell.Graph
                     //-----------------------------------------------------------------------------
                     if (pin.isAttached == false && isFieldList == false)
                     {
+                        var connection = new NodeConnection() { connectedNodeInfo = m_nodeInfos[fieldValueNodeIndex], index = 0, pin = pin };
                         pin.connections.Add(connection);
 
                         //-------------------------------------------------------------------------
                         // Save the connection where the mouse is.
                         //-------------------------------------------------------------------------
+                        if (IsNearConnection(m_worldMousePosition, connection))
                         {
                             m_connectionAtMousePosition = connection;
                         }
@@ -742,6 +760,7 @@ namespace Spell.Graph
                                 //-----------------------------------------------------------------
                                 // Save the connection where the mouse is.
                                 //-----------------------------------------------------------------
+                                if (IsNearConnection(m_worldMousePosition, connection))
                                 {
                                     m_connectionAtMousePosition = connection;
                                 }
@@ -889,9 +908,33 @@ namespace Spell.Graph
                 m_forceRepaint = true;
             }
 
+            //-------------------------------------------------------------------------------------
+            // Update selection rect and select the nodes inside
+            //-------------------------------------------------------------------------------------
+            if (m_isRectSelectionInitiated)
             {
+                m_selectionRect.x = (m_worldMousePosition.x > m_initialSelectionPosition.x) ? m_initialSelectionPosition.x : m_worldMousePosition.x;
+                m_selectionRect.y = (m_worldMousePosition.y > m_initialSelectionPosition.y) ? m_initialSelectionPosition.y : m_worldMousePosition.y;
+                m_selectionRect.width = Mathf.Abs(m_worldMousePosition.x - m_initialSelectionPosition.x);
+                m_selectionRect.height = Mathf.Abs(m_worldMousePosition.y - m_initialSelectionPosition.y);
+
+                if (IsReallyRectSelecting())
+                {
+                    m_selectedNodes.Clear();
+                    for (int i = 0; i < m_nodeInfos.Count; ++i)
+                    {
+                        var nodeInfo = m_nodeInfos[i];
+                        if (m_selectionRect.Overlaps(nodeInfo.rect))
+                        {
+                            m_selectedNodes.Add(nodeInfo.index);
+                        }
+                    }
+                }
             }
 
+            //-------------------------------------------------------------------------------------
+            // Mouse Down
+            //-------------------------------------------------------------------------------------
             if (e.type == EventType.MouseDown)
             {
                 if (e.button == 0)
@@ -905,24 +948,69 @@ namespace Spell.Graph
                         m_draggedPin = m_pinAtMousePosition;
                         e.Use();
                     }
+                    else if (m_nodeAtMousePosition != null)
+                    {
+                        if (m_selectedNodes.Contains(m_nodeAtMousePosition.index) == false)
+                        {
+                            m_selectedNodes.Clear();
+                            m_selectedNodes.Add(m_nodeAtMousePosition.index);
+                            e.Use();
+                        }
+                    }
                     // Handle connection selection. Check if the mouse is over a node to prevent 
                     // selecting a connection if below a block. Otherwise can't move the block
                     else if ((m_draggedPin == null) && (m_nodeAtMousePosition == null) && m_connectionAtMousePosition != null)
                     {
                         m_selectedConnection = m_connectionAtMousePosition;
+                        m_selectedNodes.Clear();
                         e.Use();
+                    }
+                    else if (m_isRectSelectionInitiated == false)
+                    {
+                        m_selectedNodes.Clear();
+                        m_isRectSelectionInitiated = true;
+                        m_initialSelectionPosition = m_worldMousePosition;
+                        m_selectionRect = new Rect(m_worldMousePosition, Vector2.zero);
+                        //e.Use();
                     }
                 }
                 else if (e.button == 1)
                 {
+                    if (m_nodeAtMousePosition != null)
                     {
+                        CreateNodeContextMenu(m_nodeAtMousePosition);
+                    }
+                    else if (m_zoomRect.Contains(e.mousePosition))
+                    {
+                        CreateNodeMenu(typeof(INode), m_worldMousePosition);
                     }
                 }
             }
+            //-------------------------------------------------------------------------------------
+            // Mouse Up
+            //-------------------------------------------------------------------------------------
             else if (e.type == EventType.MouseUp)
             {
+                if (m_isDraggingSelectedNodes)
+                {
+                    for (int i = 0; i < m_selectedNodes.Count; ++i)
+                    {
+                        var nodeInfo = m_nodeInfos[m_selectedNodes[i]];
+                        SnapNode(nodeInfo.node);
+                        RebuildListIndices(nodeInfo);
+                    }
+                    m_isDraggingSelectedNodes = false;
+                }
+
                 if (e.button == 0)
                 {
+                    if (m_isRectSelectionInitiated)
+                    {
+                        m_isRectSelectionInitiated = false;
+                        m_selectionRect = new Rect();
+                    }
+
+                    if (m_selectionRect.width > 2 && m_selectionRect.height > 2)
                     {
 
                     }
@@ -937,11 +1025,45 @@ namespace Spell.Graph
                         else
                         {
                             var selectedPin = m_draggedPin;
+                            CreateNodeMenu(m_draggedPin.type, m_worldMousePosition, (newNode) => { AssignValueToPin(selectedPin, new NodeInfo() { node = newNode }); });
                             m_draggedPin = null;
+                            e.Use();
                         }
+                    }
+                    else
+                    {
+                        m_isRectSelectionInitiated = false;
+                        e.Use();
                     }
                 }
             }
+            //-------------------------------------------------------------------------------------
+            // Mouse Drag
+            //-------------------------------------------------------------------------------------
+            else if (e.type == EventType.MouseDrag)
+            {
+                if (e.button == 0)
+                {
+                    if (m_draggedPin == null && m_isRectSelectionInitiated == false)
+                    {
+                        m_isDraggingSelectedNodes = true;
+
+                        for (int i = 0; i < m_selectedNodes.Count; ++i)
+                        {
+                            var nodeInfo = m_nodeInfos[m_selectedNodes[i]];
+                            nodeInfo.node.GraphPosition += e.delta / ViewZoom;
+                        }
+                    }
+                }
+                else if (e.button == 2)
+                {
+                    ViewOffset -= e.delta / ViewZoom;
+                    e.Use();
+                }
+            }
+            //-------------------------------------------------------------------------------------
+            // ScrollWheel
+            //-------------------------------------------------------------------------------------
             else if (e.type == EventType.ScrollWheel)
             {
                 if (m_zoomRect.Contains(e.mousePosition))
@@ -950,6 +1072,9 @@ namespace Spell.Graph
                     m_forceRepaint = true;
                 }
             }
+            //-------------------------------------------------------------------------------------
+            // KeyUp
+            //-------------------------------------------------------------------------------------
             else if (e.type == EventType.KeyUp)
             {
                 if (e.keyCode == KeyCode.Delete)
@@ -961,7 +1086,15 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
+        private bool IsReallyRectSelecting()
         {
+            return m_isRectSelectionInitiated && m_selectionRect.width > 3 && m_selectionRect.height > 3;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private void SnapNode(INode node)
+        {
+            node.GraphPosition = MathHelper.Step(node.GraphPosition, Vector2.one);
         }
 
         #endregion
@@ -1028,8 +1161,12 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         private void DeleteSelection()
         {
+            for (int i = 0; i < m_selectedNodes.Count; ++i)
             {
+                DeleteNode(m_nodeInfos[m_selectedNodes[i]]);
             }
+
+            if (m_selectedConnection != null)
             {
                 DeleteConnection(m_selectedConnection);
             }
@@ -1094,6 +1231,7 @@ namespace Spell.Graph
                 }
             }
 
+            m_selectedNodes.Remove(nodeInfo.index);
         }
 
         // ----------------------------------------------------------------------------------------
@@ -1206,6 +1344,7 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         void ZoomAtCursor(Vector2 screenPosition, float zoomDelta)
         {
+            var worldPosition = m_worldMousePosition;
             ViewZoom += zoomDelta;
             var newScreenPosition = WorldToScreen(worldPosition);
             ViewOffset += (newScreenPosition - screenPosition) / ViewZoom;
@@ -1286,6 +1425,7 @@ namespace Spell.Graph
                         menu.AddItem(new GUIContent(path), false, (userData) =>
                         {
                             var node = m_graph.CreateNode(userData as Type);
+                            SnapNode(node);
                             if (onNodeCreated != null)
                             {
                                 onNodeCreated(node);
