@@ -68,6 +68,7 @@ namespace Spell.Graph
         private NodePin m_draggedPin;
         private NodeConnection m_selectedConnection;
         private bool m_isDraggingSelectedNodes;
+        private NodePin m_pinToRebuildIndices;
 
         // Info recomputed every repaint
         private Vector2 m_worldMousePosition;
@@ -781,6 +782,13 @@ namespace Spell.Graph
             {
                 m_selectedConnection = m_nodeInfos[m_selectedConnection.pin.nodeInfo.index].pins[m_selectedConnection.pin.index].connections[m_selectedConnection.index];
             }
+
+            if (m_pinToRebuildIndices != null)
+            {
+                var pin = m_nodeInfos[m_pinToRebuildIndices.nodeInfo.index].pins[m_pinToRebuildIndices.index];
+                RebuildPinListIndices(pin);
+                m_pinToRebuildIndices = null;
+            }
         }
 
         // ----------------------------------------------------------------------------------------
@@ -1135,6 +1143,7 @@ namespace Spell.Graph
                 {
                     var list = pin.field.GetValue(node) as IList;
                     list.Add(newValue.node);
+                    m_pinToRebuildIndices = pin;
                 }
             }
         }
@@ -1425,6 +1434,7 @@ namespace Spell.Graph
                         menu.AddItem(new GUIContent(path), false, (userData) =>
                         {
                             var node = m_graph.CreateNode(userData as Type);
+                            node.GraphPosition = nodeWorldPosition;
                             SnapNode(node);
                             if (onNodeCreated != null)
                             {
