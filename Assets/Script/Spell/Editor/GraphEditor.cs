@@ -18,9 +18,9 @@ namespace Spell.Graph
         private readonly static float s_zoomDelta = 0.1f;
 
         private readonly static float s_topMargin = 20;
-        private readonly static float s_bottomMargin = 4;
-        private readonly static float s_leftMargin = 4;
-        private readonly static float s_rightMargin = 4;
+        private readonly static float s_bottomMargin = 0;
+        private readonly static float s_leftMargin = 0;
+        private readonly static float s_rightMargin = 0;
 
         private readonly static int s_gridSize = 15;
         private readonly static int s_gridDivisions = 5;
