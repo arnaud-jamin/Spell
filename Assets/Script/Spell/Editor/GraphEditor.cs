@@ -1077,7 +1077,7 @@ namespace Spell.Graph
                         m_selectionRect = new Rect();
                     }
 
-                    if (m_selectionRect.width > 2 && m_selectionRect.height > 2)
+                    if (IsReallyRectSelecting())
                     {
 
                     }
