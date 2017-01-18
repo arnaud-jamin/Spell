@@ -40,6 +40,12 @@ namespace Spell.Graph
         public virtual Type RootType { get { return m_rootType; } set { m_rootType = value; } }
 
         // ----------------------------------------------------------------------------------------
+        protected void OnEnable()
+        {
+            Load();
+        }
+
+        // ----------------------------------------------------------------------------------------
         public BaseTypeInfo GetTypeInfo(Type type)
         {
             if (typeof(Expression<float>).IsAssignableFrom(type))
@@ -95,6 +101,7 @@ namespace Spell.Graph
             fsData data;
             m_serializer.TrySerialize(GetType(), this, out data).AssertSuccessWithoutWarnings();
             m_json = fsJsonPrinter.PrettyJson(data);
+            EditorUtility.SetDirty(this);
         }
 
         // ----------------------------------------------------------------------------------------

@@ -18,9 +18,6 @@ namespace Spell.Graph
         private readonly static float s_zoomDelta = 0.1f;
 
         private readonly static float s_topMargin = 20;
-        private readonly static float s_bottomMargin = 0;
-        private readonly static float s_leftMargin = 0;
-        private readonly static float s_rightMargin = 0;
 
         private readonly static int s_gridSize = 15;
         private readonly static int s_gridDivisions = 5;
@@ -47,6 +44,7 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         #region Fields
         private IGraph m_graph;
+        private int m_graphId;
 
         // Skin
         private GUISkin m_darkSkin;
@@ -86,6 +84,29 @@ namespace Spell.Graph
 
         // ----------------------------------------------------------------------------------------
         #region Properties
+
+        // ----------------------------------------------------------------------------------------
+        private IGraph Graph
+        {
+            get
+            {
+                if (m_graph == null)
+                {
+                    m_graph = EditorUtility.InstanceIDToObject(EditorPrefs.GetInt("SpellEditor.GraphId")) as IGraph;
+                }
+                return m_graph;
+            }
+
+            set
+            {
+                m_graph = value;
+                if (m_graph != null)
+                {
+                    EditorPrefs.SetInt("SpellEditor.GraphId", m_graph.GetInstanceID());
+                }
+            }
+        }
+
         // ----------------------------------------------------------------------------------------
         private float ViewZoom
         {
@@ -140,16 +161,9 @@ namespace Spell.Graph
         [MenuItem("Window/Spell Editor")]
         public static GraphEditor ShowWindow()
         {
-            return ShowWindow(Selection.activeObject as Graph);
-        }
-
-        // ----------------------------------------------------------------------------------------
-        public static GraphEditor ShowWindow(Graph graph)
-        {
-            var spellEditor = GetWindow<GraphEditor>();
-            spellEditor.Show();
-            spellEditor.m_graph = graph;
-            return spellEditor;
+            var editor = GetWindow<GraphEditor>();
+            editor.Show();
+            return editor;
         }
 
         // ----------------------------------------------------------------------------------------
@@ -177,22 +191,6 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         void OnGUI()
         {
-            var e = Event.current;
-
-            if (m_graph == null)
-            {
-                m_graph = Selection.activeObject as IGraph;
-                if (m_graph != null)
-                {
-                    m_graph.Load();
-                }
-                else
-                {
-                    EditorGUILayout.HelpBox("Please select a graph asset", MessageType.Info, true);
-                    return;
-                }
-            }
-
             m_skin = UseDarkSkin ? m_darkSkin : m_lightSkin;
             GUI.skin = m_skin;
             m_fieldNameStyle = m_skin.GetStyle("NodeFieldNameLeft");
@@ -200,12 +198,12 @@ namespace Spell.Graph
 
             Draw();
 
-            if (m_forceRepaint /* || e.type == EventType.MouseMove */)
+            if (m_forceRepaint)
             {
                 Repaint();
             }
 
-            if (e.type == EventType.Repaint)
+            if (Event.current.type == EventType.Repaint)
             {
                 m_forceRepaint = false;
             }
@@ -219,13 +217,22 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         void Draw()
         {
-            m_screenRect = new Rect(s_leftMargin,
-                                    s_topMargin,
-                                    position.width - s_rightMargin - s_leftMargin,
-                                    position.height - s_topMargin - s_bottomMargin);
-
             GUI.SetNextControlName("Background");
-            GUI.Box(m_screenRect, m_graph.GetType().Name, "Background");
+            GUI.Box(new Rect(Vector2.zero, position.size), GUIContent.none, "Background");
+            
+            if (EditorApplication.isCompiling)
+            {
+                DrawMessage("Compiling...");
+                return;
+            }
+
+            if (Graph == null)
+            {
+                DrawMessage("Please select a graph asset.");
+                return;
+            }
+
+            m_screenRect = new Rect(0, s_topMargin, position.width, position.height - s_topMargin);
 
             CreateNodeInfos();
 
@@ -252,6 +259,12 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
+        private void DrawMessage(string message)
+        {
+            GUI.Box(new Rect(Vector2.zero, position.size), message, "Message");
+        }
+
+        // ----------------------------------------------------------------------------------------
         void DrawMainMenu()
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
@@ -259,11 +272,16 @@ namespace Spell.Graph
             if (GUILayout.Button("File", EditorStyles.toolbarDropDown))
             {
                 var menu = new GenericMenu();
+                menu.AddItem(new GUIContent("Clear"), false, () => { ShowClear(); });
                 menu.AddItem(new GUIContent("New/Ability"), false, () => { ScriptableObjectHelper.CreateGraph<Ability>(); });
                 menu.AddItem(new GUIContent("New/Caster"), false, () => { ScriptableObjectHelper.CreateGraph<Caster>(); });
-                menu.AddItem(new GUIContent("Clear"), false, () => { m_graph.Clear(); });
-                menu.AddItem(new GUIContent("Load"), false, () => { m_graph.Load(); });
-                menu.AddItem(new GUIContent("Save"), false, () => { m_graph.Save(); });
+                if (ShowDebug)
+                {
+                    menu.AddSeparator("");
+                    menu.AddItem(new GUIContent("Save"), false, () => { Save(); });
+                    menu.AddItem(new GUIContent("Load"), false, () => { Load(); });
+                }
+
                 menu.ShowAsContext();
             }
 
@@ -592,7 +610,7 @@ namespace Spell.Graph
             if (ShowDebug == false)
                 return;
 
-            var rect = new Rect(Event.current.mousePosition, new Vector2(200, 20));
+            var rect = new Rect(new Vector2(5, 40), new Vector2(200, 20));
             GUI.Box(rect, "Mouse:" + Event.current.mousePosition.ToString());
             rect.y += 20;
 
@@ -889,12 +907,17 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         private void OnSelectionChanged()
         {
-            var graph = Selection.activeObject as Graph;
-            if (graph != null)
+            if (Graph != null)
+            {
+                Graph.Save();
+            }
+
+            Graph = Selection.activeObject as Graph;
+            if (Graph != null)
             {
                 var lastEditor = focusedWindow;
-                ShowWindow(graph);
-                if (lastEditor)
+                ShowWindow();
+                if (lastEditor != null)
                 {
                     lastEditor.Focus();
                 }
@@ -1008,6 +1031,7 @@ namespace Spell.Graph
                         RebuildListIndices(nodeInfo);
                     }
                     m_isDraggingSelectedNodes = false;
+                    Save();
                 }
 
                 if (e.button == 0)
@@ -1109,6 +1133,29 @@ namespace Spell.Graph
 
         // ----------------------------------------------------------------------------------------
         #region Graph Manipulation
+
+        // ----------------------------------------------------------------------------------------
+        private void Load()
+        {
+            m_graph.Clear();
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private void Save()
+        {
+            m_graph.Save();
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private void ShowClear()
+        {
+            if (EditorUtility.DisplayDialog("Clear Graph", "Are you sure you want to delete all the nodes?", "Yes", "No"))
+            {
+                m_graph.Clear();
+                m_graph.Save();
+            }
+        }
+
         // ----------------------------------------------------------------------------------------
         private void AssignValueToPin(NodePin pin, NodeInfo newValue)
         {
@@ -1146,6 +1193,8 @@ namespace Spell.Graph
                     m_pinToRebuildIndices = pin;
                 }
             }
+
+            Save();
         }
 
         // ----------------------------------------------------------------------------------------
@@ -1179,6 +1228,8 @@ namespace Spell.Graph
             {
                 DeleteConnection(m_selectedConnection);
             }
+
+            Save();
         }
 
         // ----------------------------------------------------------------------------------------
@@ -1305,6 +1356,7 @@ namespace Spell.Graph
             {
                 m_graph.Root = node;
             }
+            Save();
         }
 
         #endregion
@@ -1340,14 +1392,6 @@ namespace Spell.Graph
             GUI.matrix = m_backupGuiMatrix;
             var screenRect = new Rect(0, s_topMargin, EditorGUIUtility.currentViewWidth, Screen.height);
             GUI.BeginGroup(screenRect);
-        }
-
-        // ----------------------------------------------------------------------------------------
-        void FocusPosition(Vector2 targetPos)
-        {
-            var targetPan = -targetPos;
-            targetPan += new Vector2(m_viewRect.width / 2, m_viewRect.height / 2);
-            targetPan *= ViewZoom;
         }
 
         // ----------------------------------------------------------------------------------------
@@ -1418,6 +1462,8 @@ namespace Spell.Graph
                                         .GroupBy(t => t.menuPath)
                                         .ToList();
 
+                // TODO: collapse things like 'Action/' and 'Action/Select' to '' and 'Select'
+
                 foreach (var menuPathGroup in nodeInfos)
                 {
                     var menuPath = menuPathGroup.Key;
@@ -1440,6 +1486,7 @@ namespace Spell.Graph
                             {
                                 onNodeCreated(node);
                             }
+                            Save();
                         }, nodeInfo.type);
                     }
                 }

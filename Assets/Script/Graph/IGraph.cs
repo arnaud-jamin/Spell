@@ -33,5 +33,6 @@ namespace Spell.Graph
         void Clear();
         void Save();
         void Load();
+        int GetInstanceID();
     }
 }
