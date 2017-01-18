@@ -48,7 +48,6 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         #region Fields
         private IGraph m_graph;
-        private int m_graphId;
 
         // Skin
         private GUISkin m_darkSkin;
@@ -201,6 +200,7 @@ namespace Spell.Graph
             m_connectionIndexStyle = m_skin.GetStyle("ConnectionIndex");
 
             Draw();
+            HandleGraphEvents();
 
             if (m_forceRepaint)
             {
@@ -258,8 +258,6 @@ namespace Spell.Graph
             DrawScrollBars();
             DrawMainMenu();
             DrawDebug();
-
-            HandleGraphEvents();
         }
 
         // ----------------------------------------------------------------------------------------
@@ -282,8 +280,8 @@ namespace Spell.Graph
                 if (ShowDebug)
                 {
                     menu.AddSeparator("");
-                    menu.AddItem(new GUIContent("Save"), false, () => { Save(); });
-                    menu.AddItem(new GUIContent("Load"), false, () => { Load(); });
+                    menu.AddItem(new GUIContent("Save"), false, () => { m_graph.Save(); });
+                    menu.AddItem(new GUIContent("Load"), false, () => { m_graph.Load(); });
                 }
 
                 menu.ShowAsContext();
@@ -465,6 +463,8 @@ namespace Spell.Graph
             GUI.color = Color.white;
             var rect = new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height);
 
+            EditorGUI.BeginChangeCheck();
+
             if (node.ValueType == typeof(string))
             {
                 GUI.SetNextControlName(s_fieldControlName);
@@ -513,6 +513,11 @@ namespace Spell.Graph
                         node.BoxedValue = EditorGUI.Popup(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType), "NodeFieldValue");
                     }
                 }
+            }
+
+            if (EditorGUI.EndChangeCheck())
+            {
+                RecordAndSave("Set Node Parameter");
             }
         }
 
@@ -969,9 +974,21 @@ namespace Spell.Graph
             }
 
             //-------------------------------------------------------------------------------------
+            // Validate Command
+            //-------------------------------------------------------------------------------------
+            if (e.type == EventType.ValidateCommand)
+            {
+                if (e.commandName == "UndoRedoPerformed")
+                {
+                    m_graph.Load();
+                    e.Use();
+                    return;
+                }
+            }
+            //-------------------------------------------------------------------------------------
             // Mouse Down
             //-------------------------------------------------------------------------------------
-            if (e.type == EventType.MouseDown)
+            else if (e.type == EventType.MouseDown)
             {
                 if (e.button == 0)
                 {
@@ -986,7 +1003,7 @@ namespace Spell.Graph
                     }
                     else if (m_nodeAtMousePosition != null)
                     {
-                        // Give focus to the node below the mouse. This make sure we unfocus
+                        // Give focus to the node below the mouse to unfocus
                         // a text field inside the node for example.
                         GUI.FocusControl(s_nodeControlName + m_nodeAtMousePosition.index);
 
@@ -1009,10 +1026,14 @@ namespace Spell.Graph
                     }
                     else if (m_isRectSelectionInitiated == false)
                     {
+                        // Give focus to the background to unfocus a focused field inside a node.
+                        GUI.FocusControl(s_backgroundControlName);
+
                         m_selectedNodes.Clear();
                         m_isRectSelectionInitiated = true;
                         m_initialSelectionPosition = m_worldMousePosition;
                         m_selectionRect = new Rect(m_worldMousePosition, Vector2.zero);
+
                         //e.Use();
                     }
                 }
@@ -1042,7 +1063,7 @@ namespace Spell.Graph
                         RebuildListIndices(nodeInfo);
                     }
                     m_isDraggingSelectedNodes = false;
-                    Save();
+                    RecordAndSave("Move");
                 }
 
                 if (e.button == 0)
@@ -1150,14 +1171,9 @@ namespace Spell.Graph
         #region Graph Manipulation
 
         // ----------------------------------------------------------------------------------------
-        private void Load()
+        private void RecordAndSave(string action)
         {
-            m_graph.Clear();
-        }
-
-        // ----------------------------------------------------------------------------------------
-        private void Save()
-        {
+            Undo.RecordObject(m_graph as ScriptableObject, action);
             m_graph.Save();
         }
 
@@ -1204,12 +1220,15 @@ namespace Spell.Graph
                 if (typeof(INode).IsAssignableFrom(listItemType))
                 {
                     var list = pin.field.GetValue(node) as IList;
-                    list.Add(newValue.node);
-                    m_pinToRebuildIndices = pin;
+                    if (list.Contains(newValue.node) == false)
+                    {
+                        list.Add(newValue.node);
+                        m_pinToRebuildIndices = pin;
+                    }
                 }
             }
 
-            Save();
+            RecordAndSave("Assign Selection");
         }
 
         // ----------------------------------------------------------------------------------------
@@ -1234,17 +1253,20 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         private void DeleteSelection()
         {
-            for (int i = 0; i < m_selectedNodes.Count; ++i)
-            {
-                DeleteNode(m_nodeInfos[m_selectedNodes[i]]);
-            }
-
             if (m_selectedConnection != null)
             {
                 DeleteConnection(m_selectedConnection);
             }
+            else
+            {
+                var selectedNodes = m_selectedNodes.OrderByDescending(i => i).ToList();
+                for (int i = 0; i < selectedNodes.Count; ++i)
+                {
+                    DeleteNode(m_nodeInfos[selectedNodes[i]]);
+                }
+            }
 
-            Save();
+            RecordAndSave("Delete Selection");
         }
 
         // ----------------------------------------------------------------------------------------
@@ -1371,7 +1393,7 @@ namespace Spell.Graph
             {
                 m_graph.Root = node;
             }
-            Save();
+            RecordAndSave("Set As Root");
         }
 
         #endregion
@@ -1501,7 +1523,7 @@ namespace Spell.Graph
                             {
                                 onNodeCreated(node);
                             }
-                            Save();
+                            RecordAndSave("Create Node");
                         }, nodeInfo.type);
                     }
                 }

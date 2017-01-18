@@ -31,13 +31,13 @@ MonoBehaviour:
     {\r\n                    \"x\": 0.0,\r\n                    \"y\": 0.0\r\n                },\r\n
     \               \"VariableName\": null,\r\n                \"$type\": \"Spell.Graph.CastTargetTypeValue\"\r\n
     \           },\r\n            \"Actions\": [],\r\n            \"GraphPosition\":
-    {\r\n                \"x\": 124.0,\r\n                \"y\": 242.0\r\n            },\r\n
+    {\r\n                \"x\": 134.0,\r\n                \"y\": 314.0\r\n            },\r\n
     \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.Ability\"\r\n
     \       },\r\n        {\r\n            \"$ref\": \"3\"\r\n        },\r\n        {\r\n
     \           \"Abilities\": [],\r\n            \"GraphPosition\": {\r\n                \"x\":
-    803.0,\r\n                \"y\": 489.0\r\n            },\r\n            \"VariableName\":
+    685.0,\r\n                \"y\": 426.0\r\n            },\r\n            \"VariableName\":
     null,\r\n            \"$type\": \"Spell.Graph.Caster\"\r\n        }\r\n    ],\r\n
-    \   \"m_viewOffset\": {\r\n        \"x\": -106.0,\r\n        \"y\": -45.0\r\n
-    \   },\r\n    \"m_viewZoom\": 1.0\r\n}"
-  m_viewOffset: {x: -106, y: -45}
+    \   \"m_viewOffset\": {\r\n        \"x\": 23.0,\r\n        \"y\": 53.0\r\n    },\r\n
+    \   \"m_viewZoom\": 1.0\r\n}"
+  m_viewOffset: {x: 23, y: 53}
   m_viewZoom: 1
