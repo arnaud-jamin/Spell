@@ -39,6 +39,10 @@ namespace Spell.Graph
         private readonly static float s_connectionSelectionDistance = 5.0f;
         private readonly static Vector2 s_connectionIndexPadding = new Vector2(4, 2);
 
+        private readonly static string s_backgroundControlName = "Background";
+        private readonly static string s_nodeControlName = "Node";
+        private readonly static string s_fieldControlName = "Field";
+
         #endregion
 
         // ----------------------------------------------------------------------------------------
@@ -217,7 +221,7 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         void Draw()
         {
-            GUI.SetNextControlName("Background");
+            GUI.SetNextControlName(s_backgroundControlName);
             GUI.Box(new Rect(Vector2.zero, position.size), GUIContent.none, "Background");
             
             if (EditorApplication.isCompiling)
@@ -344,7 +348,7 @@ namespace Spell.Graph
                 //--------------
                 // Window
                 //--------------
-                GUI.SetNextControlName("Node" + i);
+                GUI.SetNextControlName(s_nodeControlName + i);
                 GUI.color = new Color(1, 1, 1, 0.8f);
                 nodeInfo.rect = GUI.Window(i, nodeInfo.rect, DrawNode, string.Empty, "NodeWindow");
                 if (m_isDraggingSelectedNodes == false)
@@ -463,6 +467,7 @@ namespace Spell.Graph
 
             if (node.ValueType == typeof(string))
             {
+                GUI.SetNextControlName(s_fieldControlName);
                 node.BoxedValue = EditorGUI.TextField(rect, (string)node.BoxedValue);
             }
             else if (typeof(UnityEngine.Object).IsAssignableFrom(node.ValueType))
@@ -981,6 +986,12 @@ namespace Spell.Graph
                     }
                     else if (m_nodeAtMousePosition != null)
                     {
+                        // Give focus to the node below the mouse. This make sure we unfocus
+                        // a text field inside the node for example.
+                        GUI.FocusControl(s_nodeControlName + m_nodeAtMousePosition.index);
+
+                        // Dont change the selected items if the node we try to select is already
+                        // inside the selected nodes.
                         if (m_selectedNodes.Contains(m_nodeAtMousePosition.index) == false)
                         {
                             m_selectedNodes.Clear();
@@ -1111,8 +1122,12 @@ namespace Spell.Graph
             {
                 if (e.keyCode == KeyCode.Delete)
                 {
-                    DeleteSelection();
-                    e.Use();
+                    var focusedControl = GUI.GetNameOfFocusedControl();
+                    if (focusedControl != s_fieldControlName)
+                    {
+                        DeleteSelection();
+                        e.Use();
+                    }
                 }
             }
         }
