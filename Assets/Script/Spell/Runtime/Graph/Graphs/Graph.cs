@@ -100,6 +100,7 @@ namespace Spell.Graph
         {
             fsData data;
             m_serializer.TrySerialize(GetType(), this, out data).AssertSuccessWithoutWarnings();
+            //m_json = fsJsonPrinter.CompressedJson(data);
             m_json = fsJsonPrinter.PrettyJson(data);
             EditorUtility.SetDirty(this);
         }

@@ -105,6 +105,6 @@ MonoBehaviour:
     \       },\r\n        {\r\n            \"$ref\": \"17\"\r\n        },\r\n        {\r\n
     \           \"$ref\": \"21\"\r\n        },\r\n        {\r\n            \"$ref\":
     \"25\"\r\n        }\r\n    ],\r\n    \"m_viewOffset\": {\r\n        \"x\": 0.0,\r\n
-    \       \"y\": 0.0\r\n    },\r\n    \"m_viewZoom\": 1.180147\r\n}"
+    \       \"y\": 0.0\r\n    },\r\n    \"m_viewZoom\": 1.0\r\n}"
   m_viewOffset: {x: 0, y: 0}
-  m_viewZoom: 1.180147
+  m_viewZoom: 1

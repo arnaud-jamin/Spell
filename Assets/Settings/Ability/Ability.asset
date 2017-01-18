@@ -37,7 +37,7 @@ MonoBehaviour:
     \           \"Abilities\": [],\r\n            \"GraphPosition\": {\r\n                \"x\":
     685.0,\r\n                \"y\": 426.0\r\n            },\r\n            \"VariableName\":
     null,\r\n            \"$type\": \"Spell.Graph.Caster\"\r\n        }\r\n    ],\r\n
-    \   \"m_viewOffset\": {\r\n        \"x\": 23.0,\r\n        \"y\": 53.0\r\n    },\r\n
+    \   \"m_viewOffset\": {\r\n        \"x\": 0.0,\r\n        \"y\": 0.0\r\n    },\r\n
     \   \"m_viewZoom\": 1.0\r\n}"
-  m_viewOffset: {x: 23, y: 53}
+  m_viewOffset: {x: 0, y: 0}
   m_viewZoom: 1

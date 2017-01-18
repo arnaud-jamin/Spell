@@ -200,7 +200,7 @@ namespace Spell.Graph
             m_connectionIndexStyle = m_skin.GetStyle("ConnectionIndex");
 
             Draw();
-            HandleGraphEvents();
+            HandleEvents();
 
             if (m_forceRepaint)
             {
@@ -940,7 +940,7 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        private void HandleGraphEvents()
+        private void HandleEvents()
         {
             var e = Event.current;
 
@@ -1052,7 +1052,10 @@ namespace Spell.Graph
             //-------------------------------------------------------------------------------------
             // Mouse Up
             //-------------------------------------------------------------------------------------
-            else if (e.type == EventType.MouseUp)
+            // use rawType because we want to receive mouse up event even if the mouse is not
+            // inside the graph editor which often hapen when doing a selection rect.
+            //-------------------------------------------------------------------------------------
+            else if (e.rawType == EventType.MouseUp)
             {
                 if (m_isDraggingSelectedNodes)
                 {
