@@ -34,5 +34,10 @@ namespace Spell.Graph
         void Save();
         void Load();
         int GetInstanceID();
+
+        List<NodeTypeInfo> GetNodesTypeInfos(Type baseType);
+
+        bool CanConnectParameters(IParameter p1, IParameter p2);
+        void ConnectParameters(IParameter p1, IParameter p2);
     }
 }

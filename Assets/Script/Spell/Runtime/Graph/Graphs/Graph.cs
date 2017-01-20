@@ -1,6 +1,7 @@
 ﻿using FullSerializer;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEditor;
 using UnityEngine;
@@ -111,6 +112,34 @@ namespace Spell.Graph
             var data = fsJsonParser.Parse(m_json);
             var obj = (object)this;
             m_serializer.TryDeserialize(data, GetType(), ref obj).AssertSuccessWithoutWarnings();
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public List<NodeTypeInfo> GetNodesTypeInfos(Type baseType)
+        {
+            // TODO: collapse things like 'Action/' and 'Action/Select' to '' and 'Select'
+
+            var assembly = Assembly.GetAssembly(baseType);
+            var allTypes = assembly.GetTypes();
+            var nodeInfos = allTypes.Where(t => baseType.IsAssignableFrom(t) && t.IsAbstract == false && t.IsInterface == false)
+                                    .Select(t => NodeTypeInfo.GetNodeInfo(t))
+                                    .Where(t => t.excludeFromMenu == false)
+                                    .OrderBy(t => t.menuPath + "/" + t.name).ToList();
+            return nodeInfos;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public bool CanConnectParameters(IParameter p1, IParameter p2)
+        {
+            if (p1 != null)
+                return true;
+
+            return false;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public void ConnectParameters(IParameter p1, IParameter p2)
+        {
         }
     }
 }

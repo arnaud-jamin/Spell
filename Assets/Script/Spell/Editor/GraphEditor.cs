@@ -422,10 +422,20 @@ namespace Spell.Graph
                     //---------------------
                     // Field Pin
                     //---------------------
+                    var pinStyle = "NodePinNormal";
+                    var pinBorderStyle = "NodePinBorderNormal";
+                    if (m_draggedPin != null && pin != m_draggedPin)
+                    {
+                        //var enable = m_graph.CanConnectParameters(test, null);
+                        var enable = m_draggedPin.field.FieldType.IsAssignableFrom(pin.type);
+                        pinStyle = enable ? "NodePinEnable" : "NodePinDisable";
+                        pinBorderStyle = enable ? "NodePinBorderEnable" : "NodePinBorderDisable";
+                    }
+
                     GUI.backgroundColor = pin.typeInfo.color;
-                    GUI.Box(pin.pinLocalRect, GUIContent.none, "NodePin");
+                    GUI.Box(pin.pinLocalRect, GUIContent.none, pinStyle);
                     GUI.backgroundColor = Color.white;
-                    GUI.Box(pin.pinLocalRect, GUIContent.none, "NodePinBorder");
+                    GUI.Box(pin.pinLocalRect, GUIContent.none, pinBorderStyle);
                     EditorGUIUtility.AddCursorRect(pin.pinLocalRect, MouseCursor.ArrowPlus);
 
                     //---------------------
@@ -706,7 +716,7 @@ namespace Spell.Graph
                 }
 
                 nodeInfo.pins.Clear();
-                var fields = node.GetFields();
+                var fields = node.GetParameters();
                 var fieldPosition = new Vector2(0, s_nodeHeaderHeight);
 
                 //---------------------------------------------------------------------------------
@@ -842,7 +852,7 @@ namespace Spell.Graph
 
             NodeSide? side = null;
 
-            var fields = node.GetFields();
+            var fields = node.GetParameters();
 
             if (fields.Count == 0)
             {
@@ -1083,7 +1093,16 @@ namespace Spell.Graph
                     }
                     else if (m_draggedPin != null)
                     {
-                        if (m_nodeAtMousePosition != null)
+                        if (m_pinAtMousePosition != null && m_pinAtMousePosition != m_draggedPin)
+                        {
+                            if (m_graph.CanConnectParameters(null, null))
+                            {
+                                m_graph.ConnectParameters(null, null);
+                            }
+                            m_draggedPin = null;
+                            e.Use();
+                        }
+                        else if (m_nodeAtMousePosition != null)
                         {
                             AssignValueToPin(m_draggedPin, m_nodeAtMousePosition);
                             m_draggedPin = null;
@@ -1318,17 +1337,11 @@ namespace Spell.Graph
 
             m_graph.Nodes.Remove(nodeInfo.node);
 
-            for (var j = 0; j < nodeInfo.pins.Count; ++j)
+            var references = FindNodeReferences(nodeInfo);
+            for (var j = 0; j < references.Count; ++j)
             {
-                var pin = nodeInfo.pins[j];
-                for (var k = 0; k < pin.connections.Count; ++k)
-                {
-                    var connection = pin.connections[k];
-                    if (connection.connectedNodeInfo == nodeInfo) 
-                    {
-                        DeleteConnection(connection);
-                    }
-                }
+                var reference = references[j];
+                DeleteConnection(reference);
             }
 
             m_selectedNodes.Remove(nodeInfo.index);
@@ -1493,42 +1506,21 @@ namespace Spell.Graph
             var menu = new GenericMenu();
             if (m_graph != null)
             {
-                var assembly = Assembly.GetAssembly(typeof(INode));
-                var allTypes = assembly.GetTypes();
-                var nodeInfos = allTypes.Where(t => baseType.IsAssignableFrom(t) && t.IsAbstract == false && t.IsInterface == false)
-                                        .Select(t => NodeTypeInfo.GetNodeInfo(t))
-                                        .Where(t => t.excludeFromMenu == false)
-                                        .OrderBy(t => t.menuPath + "/" + t.name)
-                                        .GroupBy(t => t.menuPath)
-                                        .ToList();
-
-                // TODO: collapse things like 'Action/' and 'Action/Select' to '' and 'Select'
-
-                foreach (var menuPathGroup in nodeInfos)
+                var nodeInfos  = m_graph.GetNodesTypeInfos(baseType);
+                foreach (var nodeInfo in nodeInfos)
                 {
-                    var menuPath = menuPathGroup.Key;
-
-                    // If we have only one category, we collapse the items to the root category.
-                    if (nodeInfos.Count == 1)
+                    var path = nodeInfo.menuPath != string.Empty ? nodeInfo.menuPath + "/" + nodeInfo.name : nodeInfo.name;
+                    menu.AddItem(new GUIContent(path), false, (userData) =>
                     {
-                        menuPath = string.Empty;
-                    }
-
-                    foreach (var nodeInfo in menuPathGroup)
-                    {
-                        var path = menuPath != string.Empty ? menuPath + "/" + nodeInfo.name : nodeInfo.name;
-                        menu.AddItem(new GUIContent(path), false, (userData) =>
+                        var node = m_graph.CreateNode(userData as Type);
+                        node.GraphPosition = nodeWorldPosition;
+                        SnapNode(node);
+                        if (onNodeCreated != null)
                         {
-                            var node = m_graph.CreateNode(userData as Type);
-                            node.GraphPosition = nodeWorldPosition;
-                            SnapNode(node);
-                            if (onNodeCreated != null)
-                            {
-                                onNodeCreated(node);
-                            }
-                            RecordAndSave("Create Node");
-                        }, nodeInfo.type);
-                    }
+                            onNodeCreated(node);
+                        }
+                        RecordAndSave("Create Node");
+                    }, nodeInfo.type);
                 }
             }
             menu.ShowAsContext();

@@ -12,7 +12,7 @@ namespace Spell.Graph
         public virtual Type ValueType { get { return null; } }
         public virtual object BoxedValue { get { return null; }  set { } }
 
-        public List<FieldInfo> GetFields()
+        public List<FieldInfo> GetParameters()
         {
             var fields = new List<FieldInfo>();
             var allFields = GetType().GetFields(BindingFlags.Instance | BindingFlags.Public);
@@ -35,5 +35,7 @@ namespace Spell.Graph
 
             return fields;
         }
+
+        
     }
 }
