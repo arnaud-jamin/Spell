@@ -31,7 +31,7 @@ MonoBehaviour:
     \       \"Actions\": [],\r\n        \"GraphPosition\": {\r\n            \"x\":
     363.0,\r\n            \"y\": 279.0\r\n        },\r\n        \"VariableName\":
     null,\r\n        \"$type\": \"Spell.Graph.Ability\"\r\n    },\r\n    \"m_nodes\":
-    [\r\n        {\r\n            \"Name\": {\r\n                \"Value\": null,\r\n
+    [\r\n        {\r\n            \"Name\": {\r\n                \"Value\": \"56156\",\r\n
     \               \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n                    \"y\":
     0.0\r\n                },\r\n                \"VariableName\": null,\r\n                \"$type\":
     \"Spell.Graph.TextValue\"\r\n            },\r\n            \"Icon\": {\r\n                \"Value\":
@@ -45,7 +45,7 @@ MonoBehaviour:
     \               \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n                    \"y\":
     0.0\r\n                },\r\n                \"VariableName\": null,\r\n                \"$type\":
     \"Spell.Graph.FloatValue\"\r\n            },\r\n            \"CastTargetType\":
-    {\r\n                \"Value\": \"Target\",\r\n                \"GraphPosition\":
+    {\r\n                \"Value\": \"Ground\",\r\n                \"GraphPosition\":
     {\r\n                    \"x\": 0.0,\r\n                    \"y\": 0.0\r\n                },\r\n
     \               \"VariableName\": null,\r\n                \"$type\": \"Spell.Graph.CastTargetTypeValue\"\r\n
     \           },\r\n            \"Actions\": [\r\n                {\r\n                    \"Amount\":
@@ -63,7 +63,7 @@ MonoBehaviour:
     0.0\r\n                        },\r\n                        \"VariableName\":
     null,\r\n                        \"$type\": \"Spell.Graph.GameObjectValue\"\r\n
     \                   },\r\n                    \"GraphPosition\": {\r\n                        \"x\":
-    511.0,\r\n                        \"y\": 132.0\r\n                    },\r\n                    \"VariableName\":
+    797.0,\r\n                        \"y\": 214.0\r\n                    },\r\n                    \"VariableName\":
     null,\r\n                    \"$type\": \"Spell.Graph.Damage\",\r\n                    \"$id\":
     \"17\"\r\n                },\r\n                {\r\n                    \"Amount\":
     {\r\n                        \"Value\": 0.0,\r\n                        \"GraphPosition\":
@@ -80,7 +80,7 @@ MonoBehaviour:
     0.0\r\n                        },\r\n                        \"VariableName\":
     null,\r\n                        \"$type\": \"Spell.Graph.GameObjectValue\"\r\n
     \                   },\r\n                    \"GraphPosition\": {\r\n                        \"x\":
-    510.0,\r\n                        \"y\": 241.0\r\n                    },\r\n                    \"VariableName\":
+    797.0,\r\n                        \"y\": 313.0\r\n                    },\r\n                    \"VariableName\":
     null,\r\n                    \"$type\": \"Spell.Graph.Damage\",\r\n                    \"$id\":
     \"21\"\r\n                },\r\n                {\r\n                    \"Amount\":
     {\r\n                        \"Value\": 0.0,\r\n                        \"GraphPosition\":
@@ -97,14 +97,51 @@ MonoBehaviour:
     0.0\r\n                        },\r\n                        \"VariableName\":
     null,\r\n                        \"$type\": \"Spell.Graph.GameObjectValue\"\r\n
     \                   },\r\n                    \"GraphPosition\": {\r\n                        \"x\":
-    510.0,\r\n                        \"y\": 339.0\r\n                    },\r\n                    \"VariableName\":
+    798.0,\r\n                        \"y\": 407.0\r\n                    },\r\n                    \"VariableName\":
     null,\r\n                    \"$type\": \"Spell.Graph.Damage\",\r\n                    \"$id\":
     \"25\"\r\n                }\r\n            ],\r\n            \"GraphPosition\":
-    {\r\n                \"x\": 136.0,\r\n                \"y\": 137.0\r\n            },\r\n
+    {\r\n                \"x\": 303.0,\r\n                \"y\": 191.0\r\n            },\r\n
     \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.Ability\"\r\n
     \       },\r\n        {\r\n            \"$ref\": \"17\"\r\n        },\r\n        {\r\n
     \           \"$ref\": \"21\"\r\n        },\r\n        {\r\n            \"$ref\":
-    \"25\"\r\n        }\r\n    ],\r\n    \"m_viewOffset\": {\r\n        \"x\": 0.0,\r\n
-    \       \"y\": 0.0\r\n    },\r\n    \"m_viewZoom\": 1.0\r\n}"
-  m_viewOffset: {x: 0, y: 0}
+    \"25\"\r\n        },\r\n        {\r\n            \"Width\": {\r\n                \"Value\":
+    0.0,\r\n                \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n
+    \                   \"y\": 0.0\r\n                },\r\n                \"VariableName\":
+    null,\r\n                \"$type\": \"Spell.Graph.FloatValue\"\r\n            },\r\n
+    \           \"Height\": {\r\n                \"Value\": 0.0,\r\n                \"GraphPosition\":
+    {\r\n                    \"x\": 0.0,\r\n                    \"y\": 0.0\r\n                },\r\n
+    \               \"VariableName\": null,\r\n                \"$type\": \"Spell.Graph.FloatValue\"\r\n
+    \           },\r\n            \"Duration\": {\r\n                \"Value\": 0.0,\r\n
+    \               \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n                    \"y\":
+    0.0\r\n                },\r\n                \"VariableName\": null,\r\n                \"$type\":
+    \"Spell.Graph.FloatValue\"\r\n            },\r\n            \"Tick\": {\r\n                \"Value\":
+    0.5,\r\n                \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n
+    \                   \"y\": 0.0\r\n                },\r\n                \"VariableName\":
+    null,\r\n                \"$type\": \"Spell.Graph.FloatValue\"\r\n            },\r\n
+    \           \"OnEnter\": {\r\n                \"Amount\": {\r\n                    \"Value\":
+    0.0,\r\n                    \"GraphPosition\": {\r\n                        \"x\":
+    0.0,\r\n                        \"y\": 0.0\r\n                    },\r\n                    \"VariableName\":
+    null,\r\n                    \"$type\": \"Spell.Graph.FloatValue\"\r\n                },\r\n
+    \               \"DamageType\": {\r\n                    \"Value\": \"Physical\",\r\n
+    \                   \"GraphPosition\": {\r\n                        \"x\": 0.0,\r\n
+    \                       \"y\": 0.0\r\n                    },\r\n                    \"VariableName\":
+    null,\r\n                    \"$type\": \"Spell.Graph.DamageTypeValue\"\r\n                },\r\n
+    \               \"Target\": {\r\n                    \"Value\": null,\r\n                    \"GraphPosition\":
+    {\r\n                        \"x\": 0.0,\r\n                        \"y\": 0.0\r\n
+    \                   },\r\n                    \"VariableName\": null,\r\n                    \"$type\":
+    \"Spell.Graph.GameObjectValue\"\r\n                },\r\n                \"GraphPosition\":
+    {\r\n                    \"x\": 637.0,\r\n                    \"y\": 557.0\r\n
+    \               },\r\n                \"VariableName\": null,\r\n                \"$type\":
+    \"Spell.Graph.Damage\",\r\n                \"$id\": \"34\"\r\n            },\r\n
+    \           \"OnStay\": null,\r\n            \"OnTick\": null,\r\n            \"OnExit\":
+    null,\r\n            \"Selection\": {\r\n                \"Value\": null,\r\n
+    \               \"GraphPosition\": {\r\n                    \"x\": 635.0,\r\n
+    \                   \"y\": 492.0\r\n                },\r\n                \"VariableName\":
+    null\r\n            },\r\n            \"GraphPosition\": {\r\n                \"x\":
+    323.0,\r\n                \"y\": 355.0\r\n            },\r\n            \"VariableName\":
+    null,\r\n            \"$type\": \"Spell.Graph.BoxField\"\r\n        },\r\n        {\r\n
+    \           \"$ref\": \"34\"\r\n        }\r\n    ],\r\n    \"m_viewOffset\": {\r\n
+    \       \"x\": 251.0,\r\n        \"y\": 84.0\r\n    },\r\n    \"m_viewZoom\":
+    1.0\r\n}"
+  m_viewOffset: {x: 251, y: 84}
   m_viewZoom: 1

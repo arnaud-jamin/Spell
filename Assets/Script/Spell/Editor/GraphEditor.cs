@@ -1212,7 +1212,7 @@ namespace Spell.Graph
 
                 // When we create a connection we try to retain the value
                 // of the old node to the new one.
-                if (previousValue.BoxedValue != null)
+                if (previousValue != null && previousValue.BoxedValue != null)
                 {
                     newValue.node.BoxedValue = previousValue.BoxedValue;
                 }
