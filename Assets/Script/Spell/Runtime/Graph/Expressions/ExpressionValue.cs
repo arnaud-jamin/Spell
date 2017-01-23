@@ -23,7 +23,7 @@ namespace Spell.Graph
             return Value;
         }
 
-        public override object BoxedValue
+        public override object PrimitiveValue
         {
             get { return Value; }
             set { Value = (T)value; }

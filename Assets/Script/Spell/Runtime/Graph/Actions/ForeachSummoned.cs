@@ -8,7 +8,10 @@ namespace Spell.Graph
     public class ForeachSummoned : Action
     {
         public Expression<GameObject> Source = new GameObjectValue();
+
         public Action Action = null;
+
+        [ParameterSide(ParameterSide.Right)]
         public GameObjectValue Selection = new GameObjectValue();
 
         public override void Execute()

@@ -14,10 +14,10 @@ namespace Spell.Graph
             var target = Target.Evaluate();
             var amount = Amount.Evaluate();
 
-            var health = target.GetComponent<Health>();
+            var health = target.GetComponent<Spell.Health>();
             if (health != null)
             {
-                health.Modify(new Health.Modifier { amount = amount, source = m_owner, canResurrect = false });
+                health.Modify(new Spell.Health.Modifier { amount = amount, source = m_owner, canResurrect = false });
             }
         }
     }

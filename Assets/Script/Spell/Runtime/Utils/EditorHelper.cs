@@ -1,14 +1,13 @@
-﻿using System;
-using System.IO;
-using UnityEditor;
+﻿using UnityEditor;
 using UnityEngine;
 
 namespace Spell.Graph
 {
     public class EditorHelper
     {
+#if UNITY_EDITOR
         // ----------------------------------------------------------------------------------------
-        public static Vector2 Vector2Field(Rect rect, Vector2 value, GUIStyle labelStyle, GUIStyle valueStyle)
+        public static Vector2 Vector2Field(Rect rect, Vector2 value, string labelStyle, string valueStyle)
         {
             var labelWidth = 15;
             rect.width -= labelWidth * 2;
@@ -31,7 +30,7 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        public static Vector3 Vector3Field(Rect rect, Vector3 value, GUIStyle labelStyle, GUIStyle valueStyle)
+        public static Vector3 Vector3Field(Rect rect, Vector3 value, string labelStyle, string valueStyle)
         {
             var labelWidth = 15;
             rect.width -= labelWidth * 3;
@@ -58,5 +57,6 @@ namespace Spell.Graph
 
             return value;
         }
+#endif
     }
 }

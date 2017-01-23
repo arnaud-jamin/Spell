@@ -36,16 +36,16 @@ namespace Spell
         private bool m_isInvincible = false;
 
         [SerializeField]
-        private float m_currentLife = 100;
+        private float m_currentHealth = 100;
 
         [SerializeField]
-        private float m_maxLife = 100;
+        private float m_maxHealth = 100;
 
         //---------------------------------------------------------------------------------------
-        public float CurrentLife { get { return m_currentLife; } set { m_currentLife = value; } }
-        public float MaxLife { get { return m_maxLife; } set { m_maxLife = value; } }
+        public float CurrentHealth { get { return m_currentHealth; } set { m_currentHealth = value; } }
+        public float MaxHealth { get { return m_maxHealth; } set { m_maxHealth = value; } }
         public bool IsInvincible { get { return m_isInvincible; } set { ChangeInvincible(value); } }
-        public float LifeRatio { get { return m_maxLife > 0 ? m_currentLife / (float)m_maxLife : 0; } }
+        public float HealthRatio { get { return m_maxHealth > 0 ? m_currentHealth / (float)m_maxHealth : 0; } }
         public bool IsDead { get { return m_isDead; } }
         
         //---------------------------------------------------------------------------------------
@@ -59,8 +59,8 @@ namespace Spell
             var healthEvent = new HealthEvent();
             healthEvent.source = modifier.source;
             healthEvent.ability = modifier.ability;
-            healthEvent.oldHealth = m_currentLife;
-            healthEvent.newHealth = m_currentLife;
+            healthEvent.oldHealth = m_currentHealth;
+            healthEvent.newHealth = m_currentHealth;
             healthEvent.affectedAmount = 0;
 
             if (modifier.amount == 0)
@@ -79,13 +79,13 @@ namespace Spell
                     return;
             }
 
-            var previousLife = m_currentLife;
-            m_currentLife += modifier.amount;
-            m_currentLife = Mathf.Clamp(m_currentLife, 0, m_maxLife);
-            healthEvent.affectedAmount = m_currentLife - previousLife;
+            var previousHeath = m_currentHealth;
+            m_currentHealth += modifier.amount;
+            m_currentHealth = Mathf.Clamp(m_currentHealth, 0, m_maxHealth);
+            healthEvent.affectedAmount = m_currentHealth - previousHeath;
 
             healthEvent.target = gameObject;
-            healthEvent.newHealth = m_currentLife;
+            healthEvent.newHealth = m_currentHealth;
 
             if (modifier.amount > 0)
             {
@@ -96,7 +96,7 @@ namespace Spell
                 GameManager.CombatLogManager.Log(CombatLog.Damage(healthEvent));
             }
 
-            if (m_currentLife == 0)
+            if (m_currentHealth == 0)
             {
                 Die(healthEvent);
             }
@@ -114,7 +114,7 @@ namespace Spell
         {
             if ((value) && m_isDead)
             {
-                Modify(new Modifier { amount = m_maxLife, canResurrect = true, ability = null, source = null });
+                Modify(new Modifier { amount = m_maxHealth, canResurrect = true, ability = null, source = null });
             }
 
             m_isInvincible = value;
@@ -123,7 +123,7 @@ namespace Spell
         //---------------------------------------------------------------------------------------
         public bool CanBeHealed(bool canResurect = false)
         {
-            if (m_currentLife == m_maxLife)
+            if (m_currentHealth == m_maxHealth)
                 return false;
 
             if (m_isDead && canResurect == false)

@@ -9,8 +9,8 @@ namespace Spell.Graph
     {
         Vector2 GraphPosition { get; set; }
         string VariableName { get; set; }
-        Type ValueType { get; }
-        object BoxedValue { get; set; }
-        List<FieldInfo> GetParameters();
+        Type PrimitiveType { get; }
+        object PrimitiveValue { get; set; }
+        List<IParameter> GetParameters();
     }
 }

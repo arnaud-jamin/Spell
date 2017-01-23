@@ -9,33 +9,31 @@ namespace Spell.Graph
     {
         public Vector2 GraphPosition { get; set; }
         public string VariableName { get; set; }
-        public virtual Type ValueType { get { return null; } }
-        public virtual object BoxedValue { get { return null; }  set { } }
+        public virtual Type PrimitiveType { get { return null; } }
+        public virtual object PrimitiveValue { get { return null; }  set { } }
 
-        public List<FieldInfo> GetParameters()
+        public List<IParameter> GetParameters()
         {
-            var fields = new List<FieldInfo>();
-            var allFields = GetType().GetFields(BindingFlags.Instance | BindingFlags.Public);
-            for (int i = 0; i < allFields.Length; ++i)
+            var parameters = new List<IParameter>();
+            var fieldsInfos = GetType().GetFields(BindingFlags.Instance | BindingFlags.Public);
+            for (int i = 0; i < fieldsInfos.Length; ++i)
             {
-                var field = allFields[i];
-                if (typeof(INode).IsAssignableFrom(field.FieldType))
+                var fieldInfo = fieldsInfos[i];
+                if (typeof(INode).IsAssignableFrom(fieldInfo.FieldType))
                 {
-                    fields.Add(field);
+                    parameters.Add(new Parameter(this, fieldInfo));
                 }
-                else if (field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof(List<>))
+                else if (fieldInfo.FieldType.IsGenericType && fieldInfo.FieldType.GetGenericTypeDefinition() == typeof(List<>))
                 {
-                    var listItemType = field.FieldType.GetGenericArguments()[0];
+                    var listItemType = fieldInfo.FieldType.GetGenericArguments()[0];
                     if (typeof(INode).IsAssignableFrom(listItemType))
                     {
-                        fields.Add(field);
+                        parameters.Add(new Parameter(this, fieldInfo));
                     }
                 }
             }
 
-            return fields;
+            return parameters;
         }
-
-        
     }
 }

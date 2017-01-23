@@ -10,6 +10,8 @@ namespace Spell.Graph
         public Expression<float> ManaCost = new FloatValue();
         public Expression<float> Cooldown = new FloatValue();
         public Expression<CastTargetType> CastTargetType = new CastTargetTypeValue();
+
+        [ParameterSide(ParameterSide.Right)]
         public List<Action> Actions = new List<Action>();
     }
 }

@@ -16,10 +16,10 @@ namespace Spell.Graph
             var amount = Amount.Evaluate();
             var damageType = DamageType.Evaluate();
 
-            var health = target.GetComponent<Health>();
+            var health = target.GetComponent<Spell.Health>();
             if (health != null)
             {
-                health.Modify(new Health.Modifier { amount = -amount, source = m_owner, canResurrect = false, damageType = damageType });
+                health.Modify(new Spell.Health.Modifier { amount = -amount, source = m_owner, canResurrect = false, damageType = damageType });
             }
         }
     }

@@ -6,16 +6,9 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
-    public enum NodeSide
-    {
-        Right,
-        Left,
-    }
-
     public struct BaseTypeInfo
     {
         public Color color;
-        public NodeSide side;
     }
 
     public interface IGraph 
@@ -26,7 +19,11 @@ namespace Spell.Graph
         Vector2 ViewOffset { get; set; }
         float ViewZoom { get; set; }
 
-        BaseTypeInfo GetTypeInfo(Type type);
+        Color GetNodeColor(INode node);
+        Color GetParameterColor(IParameter parameter);
+        Vector2 GetPrimitiveNodeSize(INode node);
+        void DrawField(INode node, Rect rect);
+
         INode CreateNode(Type type);
         INode CreateFixedValue(Type valueType);
 
@@ -35,7 +32,8 @@ namespace Spell.Graph
         void Load();
         int GetInstanceID();
 
-        List<NodeTypeInfo> GetNodesTypeInfos(Type baseType);
+        List<NodeTypeInfo> GetAllNodes();
+        List<NodeTypeInfo> GetAssignableNodes(IParameter parameter);
 
         bool CanConnectParameters(IParameter p1, IParameter p2);
         void ConnectParameters(IParameter p1, IParameter p2);

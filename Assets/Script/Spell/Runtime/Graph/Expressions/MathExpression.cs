@@ -50,4 +50,16 @@ namespace Spell.Graph
             return A.Evaluate() / B.Evaluate();
         }
     }
+
+    [NodeMenuItem("Math")]
+    public class GeatherThan : Expression<bool>
+    {
+        public Expression<float> A = new FloatValue();
+        public Expression<float> B = new FloatValue();
+
+        public override bool Evaluate()
+        {
+            return A.Evaluate() > B.Evaluate();
+        }
+    }
 }

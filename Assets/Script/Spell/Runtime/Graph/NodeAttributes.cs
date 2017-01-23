@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Spell
+namespace Spell.Graph
 {
     public class ExcludeFromMenuAttribute : Attribute
     {
@@ -15,6 +15,16 @@ namespace Spell
         public NodeMenuItemAttribute(String menuPath)
         {
             MenuPath = menuPath;
+        }
+    }
+
+    public class ParameterSideAttribute : Attribute
+    {
+        public ParameterSide Side;
+
+        public ParameterSideAttribute(ParameterSide type)
+        {
+            Side = type;
         }
     }
 

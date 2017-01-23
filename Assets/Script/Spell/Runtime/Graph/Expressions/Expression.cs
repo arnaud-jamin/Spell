@@ -10,6 +10,6 @@ namespace Spell.Graph
     {
         public abstract T Evaluate();
 
-        public override Type ValueType { get { return typeof(T); } }
+        public override Type PrimitiveType { get { return typeof(T); } }
     }
 }

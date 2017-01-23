@@ -11,13 +11,34 @@ namespace Spell.Graph
 
         public override void OnInspectorGUI()
         {
+            var graph = target as Graph;
+
             serializedObject.Update();
 
-            m_scroll = EditorGUILayout.BeginScrollView(m_scroll);
+            if (GUILayout.Button("Save"))
+            {
+                graph.Save();
+            }
 
+            if (GUILayout.Button("Load"))
+            {
+                graph.Load();
+            }
+
+            if (GUILayout.Button("Clear"))
+            {
+                graph.Clear();
+            }
+
+            m_scroll = EditorGUILayout.BeginScrollView(m_scroll);
+            EditorGUI.BeginChangeCheck();
             var jsonProperty = serializedObject.FindProperty("m_json");
-            jsonProperty.stringValue = EditorGUILayout.TextArea(jsonProperty.stringValue);
+            var newValue = EditorGUILayout.TextArea(jsonProperty.stringValue);
             EditorGUILayout.EndScrollView();
+            if (EditorGUI.EndChangeCheck())
+            {
+                jsonProperty.stringValue = newValue;
+            }
 
             serializedObject.ApplyModifiedProperties();
         }

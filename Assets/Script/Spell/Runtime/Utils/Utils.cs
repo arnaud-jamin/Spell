@@ -60,62 +60,6 @@ namespace Spell
         }
 
         //-----------------------------------------------------------------------------------------
-        public static void Do<T>(this GameObject gameObject, Action<T> op) where T : MonoBehaviour
-        {
-            if (gameObject != null)
-            {
-                var c = gameObject.GetComponent<T>();
-                if (c != null)
-                {
-                    op(c);
-                }
-            }
-        }
-
-        //-----------------------------------------------------------------------------------------
-        public static void Do<T>(this Component component, Action<T> op) where T : MonoBehaviour
-        {
-            if (component != null)
-            {
-                var c = component.GetComponent<T>();
-                if (c != null)
-                {
-                    op(c);
-                }
-            }
-        }
-
-        //-----------------------------------------------------------------------------------------
-        public static R Get<T, R>(this GameObject gameObject, Func<T, R> op) where T : MonoBehaviour
-        {
-            if (gameObject != null)
-            {
-                var c = gameObject.GetComponent<T>();
-                if (c != null)
-                {
-                    return op(c);
-                }
-            }
-
-            return default(R);
-        }
-
-        //-----------------------------------------------------------------------------------------
-        public static R Get<T, R>(this Component component, Func<T, R> op) where T : MonoBehaviour
-        {
-            if (component != null)
-            {
-                var c = component.GetComponent<T>();
-                if (c != null)
-                {
-                    return op(c);
-                }
-            }
-
-            return default(R);
-        }
-
-        //-----------------------------------------------------------------------------------------
         public static bool SetValueType<T>(ref T currentValue, T newValue) where T : struct
         {
             if (currentValue.Equals(newValue))

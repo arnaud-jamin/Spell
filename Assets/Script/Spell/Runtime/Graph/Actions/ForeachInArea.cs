@@ -10,7 +10,11 @@ namespace Spell.Graph
         private static Collider[] s_colliders = new Collider[256];
 
         public Shape Shape = null;
-        public Action Action = null;
+
+        [ParameterSide(ParameterSide.Right)]
+        public List<Action> Action = new List<Spell.Graph.Action>();
+
+        [ParameterSide(ParameterSide.Right)]
         public GameObjectValue Selection = new GameObjectValue();
 
         public override void Execute()
@@ -24,7 +28,11 @@ namespace Spell.Graph
             {
                 var collider = s_colliders[i];
                 Selection.Value = collider.attachedRigidbody.gameObject;
-                Action.Execute();
+
+                for (int j = 0; j < Action.Count; ++j)
+                {
+                    Action[j].Execute();
+                }
             }
         }
 
