@@ -1,40 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Spell.Graph
 {
-    [NodeMenuItem("Action/Composite")]
-    public class ForeachInArea : Action
+    [NodeMenuItem("Action")]
+    public class ForeachInArea : Node
     {
         private static Collider[] s_colliders = new Collider[256];
 
-        public Shape Shape = null;
+        public InAction In = new InAction();
+        public InValue<Shape> Shape = new InValue<Shape>();
 
-        [ParameterSide(ParameterSide.Right)]
-        public List<Action> Action = new List<Spell.Graph.Action>();
+        public OutAction Loop = new OutAction();
+        public OutAction Finished = new OutAction();
+        public OutValue<GameObject> Iterator = new OutValue<GameObject>();
 
-        [ParameterSide(ParameterSide.Right)]
-        public GameObjectValue Selection = new GameObjectValue();
-
-        public override void Execute()
+        public ForeachInArea()
         {
-            if (Shape == null)
+            In.Action = Execute;
+        }
+
+        private void Execute()
+        {
+            var shape = Shape.Value;
+            if (shape == null)
                 return;
 
-            int count = Shape.GetTouchingColliders(s_colliders, 0xFFFFFF, QueryTriggerInteraction.Ignore);
-
+            var count = shape.GetTouchingColliders(s_colliders, 0xFFFFFF, QueryTriggerInteraction.Ignore);
             for (var i = 0; i < count; ++i)
             {
                 var collider = s_colliders[i];
-                Selection.Value = collider.attachedRigidbody.gameObject;
-
-                for (int j = 0; j < Action.Count; ++j)
-                {
-                    Action[j].Execute();
-                }
+                Iterator.Value = collider.attachedRigidbody.gameObject;
+                Loop.Execute();
             }
-        }
 
+            Finished.Execute();
+        }
     }
 }

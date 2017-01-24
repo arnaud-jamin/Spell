@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Spell.Graph
 {
     [NodeMenuItem("Action")]
-    public class Damage : Action
+    public class Damage : SimpleAction
     {
         public Expression<float> Amount = new FloatValue();
         public Expression<DamageType> DamageType = new DamageTypeValue();

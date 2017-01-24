@@ -1,20 +1,29 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 namespace Spell.Graph
 {
     [NodeMenuItem("Shape")]
-    public class Box : Shape
+    public class Box : Node
     {
-        public Expression<float> Width = new FloatValue(1);
-        public Expression<float> Height = new FloatValue(1);
+        public InValue<Vector3> Position = new InValue<Vector3>();
+        public InValue<float> Rotation = new InValue<float>();
+        public InValue<float> Width = new InValue<float>(1.0f);
+        public InValue<float> Height = new InValue<float>(1.0f);
+        public OutValue<BoxShape> Shape = new OutValue<BoxShape>();
 
-        public override int GetTouchingColliders(Collider[] colliders, int mask, QueryTriggerInteraction queryTriggerInteraction)
+        private BoxShape m_boxShape = new BoxShape();
+
+        public Box()
         {
-            var position = Position.Evaluate();
-            var rotation = Rotation.Evaluate();
-            var width = Width.Evaluate();
-            var height = Height.Evaluate();
-            return Physics.OverlapBoxNonAlloc(position, new Vector3(width, 1, height), colliders, Quaternion.Euler(0, rotation, 0), mask, queryTriggerInteraction);
+            Shape.Func = () =>
+            {
+                m_boxShape.Position = Position.Value;
+                m_boxShape.Rotation = Rotation.Value;
+                m_boxShape.Width = Width.Value;
+                m_boxShape.Height = Height.Value;
+                return m_boxShape;
+            };
         }
     }
 }

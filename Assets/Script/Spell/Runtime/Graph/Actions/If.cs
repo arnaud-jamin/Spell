@@ -4,31 +4,27 @@ using UnityEngine;
 namespace Spell.Graph
 {
     [NodeMenuItem("Action")]
-    public class If : Action
+    public class If : Node
     {
+        public InAction In = new InAction();
         public Expression<bool> Condition = new ExpressionValue<bool>(false);
+        public OutAction True = new OutAction();
+        public OutAction False = new OutAction();
 
-        [ParameterSide(ParameterSide.Right)]
-        public Action True = null;
+        public If()
+        {
+            In.Action = Execute;
+        }
 
-        [ParameterSide(ParameterSide.Right)]
-        public Action False = null;
-
-        public override void Execute()
+        public void Execute()
         {
             if (Condition.Evaluate())
             {
-                if (True != null)
-                {
-                    True.Execute();
-                }
+                True.Execute();
             }
             else
             {
-                if (False != null)
-                {
-                    False.Execute();
-                }
+                False.Execute();
             }
         }
     }

@@ -12,7 +12,7 @@ namespace Spell.Graph
         Left,
     }
 
-    public interface IParameter
+    public interface IParameterInfo
     {
         string Name { get; }
         Color Color { get; }
@@ -22,8 +22,8 @@ namespace Spell.Graph
         IList List { get; }
         Vector2 Size { get; }
 
-        bool CanConnectToParameter(IParameter parameter);
-        bool ConnectToParameter(IParameter parameter);
+        bool CanConnectToParameter(IParameterInfo parameter);
+        bool ConnectToParameter(IParameterInfo parameter);
         bool CanConnectToNode(INode node);
         bool ConnectToNode(INode node);
         void Disconnect(IGraph graph, INode node);

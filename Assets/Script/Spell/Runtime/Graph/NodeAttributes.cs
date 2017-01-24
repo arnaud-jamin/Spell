@@ -37,4 +37,20 @@ namespace Spell.Graph
             Name = name;
         }
     }
+
+    public enum ValueType
+    {
+        Input,
+        Output,
+    }
+
+    public class ValueTypeAttribute : Attribute
+    {
+        public ValueType Type;
+
+        public ValueTypeAttribute(ValueType type)
+        {
+            Type = type;
+        }
+    }
 }

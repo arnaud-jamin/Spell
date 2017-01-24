@@ -3,16 +3,22 @@
 namespace Spell.Graph
 {
     [NodeMenuItem("Shape")]
-    public class Circle : Shape
+    public class Circle : Node
     {
-        public Expression<float> Radius = new FloatValue(1);
+        public InValue<Vector3> Position = new InValue<Vector3>();
+        public InValue<float> Radius = new InValue<float>(1.0f);
+        public OutValue<CircleShape> Shape = new OutValue<CircleShape>();
 
-        public override int GetTouchingColliders(Collider[] colliders, int mask, QueryTriggerInteraction queryTriggerInteraction)
+        private CircleShape m_circleShape = new CircleShape();
+
+        public Circle()
         {
-            var position = Position.Evaluate();
-            //var rotation = Rotation.Evaluate();
-            var radius = Radius.Evaluate();
-            return Physics.OverlapSphereNonAlloc(position, radius, colliders);
+            Shape.Func = () =>
+            {
+                m_circleShape.Position = Position.Value;
+                m_circleShape.Radius = Radius.Value;
+                return m_circleShape;
+            };
         }
     }
 }

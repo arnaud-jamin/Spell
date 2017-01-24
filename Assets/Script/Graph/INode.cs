@@ -11,6 +11,6 @@ namespace Spell.Graph
         string VariableName { get; set; }
         Type PrimitiveType { get; }
         object PrimitiveValue { get; set; }
-        List<IParameter> GetParameters();
+        List<IParameterInfo> GetParameters();
     }
 }

@@ -38,21 +38,21 @@ namespace Spell.Entities
         public void OnTriggerEnter(Collider collider)
         {
             m_fieldNode.Selection.Value = collider.attachedRigidbody.gameObject;
-            m_fieldNode.OnEnter.Execute();
+            m_fieldNode.OnEnter();
         }
 
         // ----------------------------------------------------------------------------------------
         public void OnTriggerStay(Collider collider)
         {
             m_fieldNode.Selection.Value = collider.attachedRigidbody.gameObject;
-            m_fieldNode.OnStay.Execute();
+            m_fieldNode.OnStay();
         }
 
         // ----------------------------------------------------------------------------------------
         public void OnTriggerExit(Collider collider)
         {
             m_fieldNode.Selection.Value = collider.attachedRigidbody.gameObject;
-            m_fieldNode.OnExit.Execute();
+            m_fieldNode.OnExit();
         }
 
         // ----------------------------------------------------------------------------------------

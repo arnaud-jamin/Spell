@@ -778,7 +778,7 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        private void GetParameterIndex(INode source, IParameter parameter, out int nodeIndex, out int parameterIndex)
+        private void GetParameterIndex(INode source, IParameterInfo parameter, out int nodeIndex, out int parameterIndex)
         {
             nodeIndex = -1;
             parameterIndex = -1;

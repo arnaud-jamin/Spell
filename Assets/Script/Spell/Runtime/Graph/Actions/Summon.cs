@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Spell.Graph
 {
     [NodeMenuItem("Action")]
-    public class Summon : Action
+    public class Summon : SimpleAction
     {
         public Expression<ObjectNode> Object = new ObjectValue();
         public Expression<Vector3> Position = new Vector3Value();

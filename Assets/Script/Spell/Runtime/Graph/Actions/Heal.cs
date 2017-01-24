@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Spell.Graph
 {
     [NodeMenuItem("Action")]
-    public class Heal : Action
+    public class Heal : SimpleAction
     {
         public Expression<float> Amount = new FloatValue();
         public Expression<GameObject> Target = new GameObjectValue();

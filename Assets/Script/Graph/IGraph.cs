@@ -20,7 +20,7 @@ namespace Spell.Graph
         float ViewZoom { get; set; }
 
         Color GetNodeColor(INode node);
-        Color GetParameterColor(IParameter parameter);
+        Color GetParameterColor(IParameterInfo parameter);
         Vector2 GetPrimitiveNodeSize(INode node);
         void DrawField(INode node, Rect rect);
 
@@ -33,9 +33,9 @@ namespace Spell.Graph
         int GetInstanceID();
 
         List<NodeTypeInfo> GetAllNodes();
-        List<NodeTypeInfo> GetAssignableNodes(IParameter parameter);
+        List<NodeTypeInfo> GetAssignableNodes(IParameterInfo parameter);
 
-        bool CanConnectParameters(IParameter p1, IParameter p2);
-        void ConnectParameters(IParameter p1, IParameter p2);
+        bool CanConnectParameters(IParameterInfo p1, IParameterInfo p2);
+        void ConnectParameters(IParameterInfo p1, IParameterInfo p2);
     }
 }

@@ -1,33 +1,37 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace Spell.Graph
 {
-    [NodeMenuItem("Action/Composite")]
-    public class ForeachSummoned : Action
+    [NodeMenuItem("Action")]
+    public class ForeachSummoned : Node
     {
-        public Expression<GameObject> Source = new GameObjectValue();
+        public InAction In = new InAction();
+        public InValue<GameObject> Summoner = new InValue<GameObject>();
 
-        public Action Action = null;
+        public OutAction Loop = new OutAction();
+        public OutAction Finished = new OutAction();
+        public OutValue<GameObject> Iterator = new OutValue<GameObject>();
 
-        [ParameterSide(ParameterSide.Right)]
-        public GameObjectValue Selection = new GameObjectValue();
-
-        public override void Execute()
+        public ForeachSummoned()
         {
-            var source = Source.Evaluate();
-            if (source == null)
+            In.Action = Execute;
+        }
+
+        public void Execute()
+        {
+            var summoner = Summoner.Value;
+            if (summoner == null)
                 return;
 
-            var caster = source.GetComponent<Spell.Caster>();
-
+            var caster = summoner.GetComponent<Spell.Caster>();
             for (var i = 0; i < caster.Summoned.Count; ++i)
             {
                 var summoned = caster.Summoned[i];
-                Selection.Value = summoned;
-                Action.Execute();
+                Iterator.Value = summoned;
+                Loop.Execute();
             }
+
+            Finished.Execute();
         }
     }
 }

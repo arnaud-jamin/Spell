@@ -59,9 +59,9 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        public Color GetParameterColor(IParameter parameter)
+        public Color GetParameterColor(IParameterInfo parameter)
         {
-            return GetTypeColor(((Parameter)parameter).PrimitiveType);
+            return GetTypeColor(((ParameterInfo)parameter).PrimitiveType);
         }
 
         // ----------------------------------------------------------------------------------------
@@ -141,9 +141,9 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        public List<NodeTypeInfo> GetAssignableNodes(IParameter parameter)
+        public List<NodeTypeInfo> GetAssignableNodes(IParameterInfo parameter)
         {
-            return GetAssignableNodes((parameter as Parameter).FieldInfo.FieldType);
+            return GetAssignableNodes((parameter as ParameterInfo).FieldInfo.FieldType);
         }
 
         // ----------------------------------------------------------------------------------------
@@ -167,7 +167,7 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        public bool CanConnectParameters(IParameter p1, IParameter p2)
+        public bool CanConnectParameters(IParameterInfo p1, IParameterInfo p2)
         {
             if (p1 != null)
                 return true;
@@ -176,7 +176,7 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        public void ConnectParameters(IParameter p1, IParameter p2)
+        public void ConnectParameters(IParameterInfo p1, IParameterInfo p2)
         {
         }
 

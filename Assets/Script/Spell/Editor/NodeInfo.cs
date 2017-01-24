@@ -30,7 +30,7 @@ namespace Spell.Graph
         public Vector2 fieldPosition;
         public Rect pinLocalRect;
         public Rect pinGlobalRect;
-        public IParameter parameter;
+        public IParameterInfo parameter;
     }
 
     public class NodeConnection
