@@ -17,14 +17,15 @@ namespace Spell.Graph
         private Color m_color;
         private Type m_primitiveType;
         private Vector2 m_size;
+        private string m_name;
 
         // ----------------------------------------------------------------------------------------
-        public string Name { get { return m_fieldInfo.Name; } }
+        public string Name { get { return m_name; } }
         public Color Color { get { return m_color;  } }
         public ParameterSide Side { get { return m_side; } }
-        public INode ConnectedNode { get { return m_fieldInfo.GetValue(m_node) as INode; } }
+        public INode ConnectedNode { get { return m_fieldInfo != null ? m_fieldInfo.GetValue(m_node) as INode : null; } }
         public bool IsList { get { return m_isList; } }
-        public IList List { get { return m_fieldInfo.GetValue(m_node) as IList; } }
+        public IList List { get { return m_fieldInfo != null ? m_fieldInfo.GetValue(m_node) as IList : null; } }
         public Vector2 Size { get { return m_size; } }
 
         // ----------------------------------------------------------------------------------------
@@ -36,6 +37,7 @@ namespace Spell.Graph
         {
             m_node = node;
             m_fieldInfo = fieldInfo;
+            m_name = m_fieldInfo.Name;
 
             var sideAttribute = fieldInfo.GetCustomAttributes(typeof(ParameterSideAttribute), false).FirstOrDefault() as ParameterSideAttribute;
             m_side = (sideAttribute != null) ? sideAttribute.Side : ParameterSide.Left;
@@ -69,6 +71,37 @@ namespace Spell.Graph
                 m_primitiveType = ConnectedNode.PrimitiveType;
             }
 
+            m_color = Graph.GetTypeColor(m_primitiveType);
+            m_size = Graph.GetFieldSize(m_primitiveType);
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public ParameterInfo(Node node, NodeParameter param)
+        {
+            m_node = node;
+            m_fieldInfo = null;
+            m_name = param.Name;
+
+            m_side = ParameterSide.Left;
+
+            if (typeof(InAction).IsAssignableFrom(param.GetType()))
+            {
+                m_side = ParameterSide.Left;
+            }
+            else if (typeof(OutAction).IsAssignableFrom(param.GetType()))
+            {
+                m_side = ParameterSide.Right;
+            }
+            else if (typeof(InValue).IsAssignableFrom(param.GetType()))
+            {
+                m_side = ParameterSide.Left;
+            }
+            else if (typeof(OutValue).IsAssignableFrom(param.GetType()))
+            {
+                m_side = ParameterSide.Right;
+            }
+
+            m_isList = false;
             m_color = Graph.GetTypeColor(m_primitiveType);
             m_size = Graph.GetFieldSize(m_primitiveType);
         }

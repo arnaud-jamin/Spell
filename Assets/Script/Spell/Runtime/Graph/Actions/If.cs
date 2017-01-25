@@ -6,26 +6,22 @@ namespace Spell.Graph
     [NodeMenuItem("Action")]
     public class If : Node
     {
-        public InAction In = new InAction();
-        public Expression<bool> Condition = new ExpressionValue<bool>(false);
-        public OutAction True = new OutAction();
-        public OutAction False = new OutAction();
-
         public If()
         {
-            In.Action = Execute;
-        }
-
-        public void Execute()
-        {
-            if (Condition.Evaluate())
+            var Condition = AddInValue("Condition", false);
+            var True = AddOutAction("True");
+            var False = AddOutAction("False");
+            var inAction = AddInAction("In", () =>
             {
-                True.Execute();
-            }
-            else
-            {
-                False.Execute();
-            }
+                if (Condition.Value)
+                {
+                    True.Execute();
+                }
+                else
+                {
+                    False.Execute();
+                }
+            });
         }
     }
 }

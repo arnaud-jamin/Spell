@@ -5,33 +5,28 @@ namespace Spell.Graph
     [NodeMenuItem("Action")]
     public class ForeachSummoned : Node
     {
-        public InAction In = new InAction();
-        public InValue<GameObject> Summoner = new InValue<GameObject>();
-
-        public OutAction Loop = new OutAction();
-        public OutAction Finished = new OutAction();
-        public OutValue<GameObject> Iterator = new OutValue<GameObject>();
-
         public ForeachSummoned()
         {
-            In.Action = Execute;
-        }
-
-        public void Execute()
-        {
-            var summoner = Summoner.Value;
-            if (summoner == null)
-                return;
-
-            var caster = summoner.GetComponent<Spell.Caster>();
-            for (var i = 0; i < caster.Summoned.Count; ++i)
+            var inSummoner = AddInValue<GameObject>("Summoner", null);
+            var outLoop = AddOutAction("Loop");
+            var outFinished = AddOutAction("Finished");
+            var outIterator = AddOutValue<GameObject>("Iterator", null);
+            var inAction = AddInAction("In", () =>
             {
-                var summoned = caster.Summoned[i];
-                Iterator.Value = summoned;
-                Loop.Execute();
-            }
+                var summoner = inSummoner.Value;
+                if (summoner == null)
+                    return;
 
-            Finished.Execute();
+                var caster = summoner.GetComponent<Spell.Caster>();
+                for (var i = 0; i < caster.Summoned.Count; ++i)
+                {
+                    var summoned = caster.Summoned[i];
+                    outIterator.Value = summoned;
+                    outLoop.Execute();
+                }
+
+                outFinished.Execute();
+            });
         }
     }
 }

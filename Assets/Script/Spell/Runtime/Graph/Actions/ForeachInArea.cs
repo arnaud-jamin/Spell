@@ -7,33 +7,29 @@ namespace Spell.Graph
     {
         private static Collider[] s_colliders = new Collider[256];
 
-        public InAction In = new InAction();
-        public InValue<Shape> Shape = new InValue<Shape>();
-
-        public OutAction Loop = new OutAction();
-        public OutAction Finished = new OutAction();
-        public OutValue<GameObject> Iterator = new OutValue<GameObject>();
-
         public ForeachInArea()
         {
-            In.Action = Execute;
-        }
+            var Shape = AddInValue<Shape>("Shape", null);
+            var Loop = AddOutAction("Loop");
+            var Finished = AddOutAction("Finished");
+            var Iterator = AddOutValue<GameObject>("Iterator", null);
 
-        private void Execute()
-        {
-            var shape = Shape.Value;
-            if (shape == null)
-                return;
-
-            var count = shape.GetTouchingColliders(s_colliders, 0xFFFFFF, QueryTriggerInteraction.Ignore);
-            for (var i = 0; i < count; ++i)
+            var In = AddInAction("In", () =>
             {
-                var collider = s_colliders[i];
-                Iterator.Value = collider.attachedRigidbody.gameObject;
-                Loop.Execute();
-            }
+                var shape = Shape.Value;
+                if (shape == null)
+                    return;
 
-            Finished.Execute();
+                var count = shape.GetTouchingColliders(s_colliders, 0xFFFFFF, QueryTriggerInteraction.Ignore);
+                for (var i = 0; i < count; ++i)
+                {
+                    var collider = s_colliders[i];
+                    Iterator.Value = collider.attachedRigidbody.gameObject;
+                    Loop.Execute();
+                }
+
+                Finished.Execute();
+            });
         }
     }
 }

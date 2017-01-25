@@ -5,25 +5,40 @@ namespace Spell.Graph
 {
     public class NodeParameter
     {
+        private string m_name;
+
+        public string Name { get { return m_name; } }
+
+        public NodeParameter()
+        {
+        }
+
+        public NodeParameter(string name)
+        {
+            m_name = name;
+        }
     }
 
     public class OutValue : NodeParameter
     {
+        public OutValue(string name)
+            : base(name)
+        {
+        }
     }
 
     public class InValue : NodeParameter
     {
+        public InValue(string name) : base(name)
+        {
+        }
     }
 
     public class InAction : NodeParameter
     {
         public Action Action;
 
-        public InAction()
-        {
-        }
-
-        public InAction(Action action)
+        public InAction(string name, Action action) : base(name)
         {
             Action = action;
         }
@@ -41,7 +56,7 @@ namespace Spell.Graph
     {
         public InAction InAction;
 
-        public OutAction()
+        public OutAction(string name) : base(name)
         {
         }
 
@@ -57,15 +72,11 @@ namespace Spell.Graph
     public class InValue<T> : InValue
     {
         public OutValue<T> OutValue = null;
-        public T DefaultValue = default(T);
+        private T m_defaultValue;
 
-        public InValue()
+        public InValue(string name, T defaultValue) : base(name)
         {
-        }
-
-        public InValue(T defaultValue)
-        {
-            DefaultValue = defaultValue;
+            m_defaultValue = defaultValue;
         }
 
         public T Value
@@ -78,7 +89,7 @@ namespace Spell.Graph
                 }
                 else
                 {
-                    return DefaultValue;
+                    return m_defaultValue;
                 }
             }
         }
@@ -86,17 +97,20 @@ namespace Spell.Graph
 
     public class OutValue<T> : OutValue
     {
-        private T m_value = default(T);
-
         public Func<T> Func = null;
+        private T defaultValue;
+        private Func<T> func;
+        private T m_defaultValue;
 
-        public OutValue()
+        public OutValue(string name, T defaultValue) : base(name)
         {
+            m_defaultValue = defaultValue;
         }
 
-        public OutValue(Func<T> func)
+        public OutValue(string name, T defaultValue, Func<T> func) : base(name)
         {
-            Func = func;
+            this.defaultValue = defaultValue;
+            this.func = func;
         }
 
         public T Value
@@ -109,13 +123,13 @@ namespace Spell.Graph
                 }
                 else
                 {
-                    return m_value;
+                    return m_defaultValue;
                 }
             }
 
             set
             {
-                m_value = value;
+                m_defaultValue = value;
             }
         }
     }

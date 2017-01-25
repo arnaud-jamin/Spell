@@ -6,24 +6,22 @@ namespace Spell.Graph
     [NodeMenuItem("Shape")]
     public class Box : Node
     {
-        public InValue<Vector3> Position = new InValue<Vector3>();
-        public InValue<float> Rotation = new InValue<float>();
-        public InValue<float> Width = new InValue<float>(1.0f);
-        public InValue<float> Height = new InValue<float>(1.0f);
-        public OutValue<BoxShape> Shape = new OutValue<BoxShape>();
-
         private BoxShape m_boxShape = new BoxShape();
 
         public Box()
         {
-            Shape.Func = () =>
+            var position = AddInValue("Position", Vector3.zero);
+            var rotation = AddInValue("Rotation", 1.0f);
+            var width = AddInValue("Width", 1.0f);
+            var height = AddInValue("Height", 1.0f);
+            var shape = AddOutValue("Shape", null, () =>
             {
-                m_boxShape.Position = Position.Value;
-                m_boxShape.Rotation = Rotation.Value;
-                m_boxShape.Width = Width.Value;
-                m_boxShape.Height = Height.Value;
+                m_boxShape.Position = position.Value;
+                m_boxShape.Rotation = rotation.Value;
+                m_boxShape.Width = width.Value;
+                m_boxShape.Height = height.Value;
                 return m_boxShape;
-            };
+            });
         }
     }
 }

@@ -5,18 +5,16 @@ namespace Spell.Graph
 {
     public abstract class SimpleAction : Node
     {
-        public InAction In = new InAction();
-        public OutAction Out = new OutAction();
-
         public abstract void Execute();
 
         public SimpleAction()
         {
-            In.Action = () =>
+            var outAction = AddOutAction("Out");
+            var inAction = AddInAction("In", () =>
             {
                 Execute();
-                Out.Execute();
-            };
+                outAction.Execute();
+            });
         }
     }
 }
