@@ -23,6 +23,7 @@ namespace Spell.Graph
 
     public class NodePin
     {
+        public ParameterIndex parameterIndex;
         public int index;
         public NodeInfo nodeInfo;
         public List<NodeConnection> connections;

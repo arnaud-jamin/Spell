@@ -31,11 +31,11 @@ MonoBehaviour:
     \       \"Actions\": [],\r\n        \"GraphPosition\": {\r\n            \"x\":
     363.0,\r\n            \"y\": 279.0\r\n        },\r\n        \"VariableName\":
     null,\r\n        \"$type\": \"Spell.Graph.Ability\"\r\n    },\r\n    \"m_nodes\":
-    [\r\n        {\r\n            \"GraphPosition\": {\r\n                \"x\": 494.0,\r\n
-    \               \"y\": 369.0\r\n            },\r\n            \"VariableName\":
+    [\r\n        {\r\n            \"GraphPosition\": {\r\n                \"x\": 523.0,\r\n
+    \               \"y\": 377.0\r\n            },\r\n            \"VariableName\":
     null,\r\n            \"$type\": \"Spell.Graph.Box\"\r\n        },\r\n        {\r\n
-    \           \"GraphPosition\": {\r\n                \"x\": 713.0,\r\n                \"y\":
-    368.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
+    \           \"GraphPosition\": {\r\n                \"x\": 994.0,\r\n                \"y\":
+    371.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
     \"Spell.Graph.ForeachInArea\"\r\n        }\r\n    ],\r\n    \"m_viewOffset\":
     {\r\n        \"x\": 251.0,\r\n        \"y\": 84.0\r\n    },\r\n    \"m_viewZoom\":
     1.0\r\n}"

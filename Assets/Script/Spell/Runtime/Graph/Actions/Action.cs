@@ -6,51 +6,70 @@ namespace Spell.Graph
 {
     public class BaseParameter
     {
-        private string m_name;
-
-        public string Name { get { return m_name; } }
-
-        public BaseParameter()
-        {
-        }
-
-        public BaseParameter(string name)
-        {
-            m_name = name;
-        }
+        public int Order;
+        public string Name;
 
         public virtual void DrawField(Rect rect)
         {
         }
+
+        public virtual Color GetColor()
+        {
+            return Graph.DefaultColor;
+        }
+
+        public virtual Vector2 GetSize()
+        {
+            return new Vector2(100, 16);
+        }
     }
 
-    public abstract class InValue : BaseParameter
+    public abstract class ValueParameter : BaseParameter
     {
-        public InValue(string name) : base(name) { }
-
         public virtual Type ValueType { get { return null; } }
+
+        // ----------------------------------------------------------------------------------------
+        public override Color GetColor()
+        {
+            if (ValueType == typeof(bool)) return Graph.BoolColor;
+            if (ValueType == typeof(int)) return Graph.IntColor;
+            if (ValueType == typeof(float)) return Graph.FloatColor;
+            if (typeof(Shape).IsAssignableFrom(ValueType)) return Graph.ShapeColor;
+            return Graph.DefaultColor;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public override Vector2 GetSize()
+        {
+            if (ValueType == typeof(bool)) return new Vector2(75, 16);
+            if (ValueType == typeof(int)) return new Vector2(75, 16);
+            if (ValueType == typeof(float)) return new Vector2(75, 16);
+            if (ValueType == typeof(Vector3)) return new Vector2(150, 16);
+            if (ValueType == typeof(GameObject)) return new Vector2(100, 16);
+            if (ValueType.IsEnum) return new Vector2(75, 16);
+            return new Vector2(100, 16);
+        }
     }
 
-    public abstract class OutValue : BaseParameter
+    public abstract class InValue : ValueParameter
     {
-        public OutValue(string name) : base(name) { }
-
-        public virtual Type ValueType { get { return null; } }
     }
 
-    public abstract class BaseAction : BaseParameter
+    public abstract class OutValue : ValueParameter
     {
-        public BaseAction(string name) : base(name) { }
     }
 
-    public class InAction : BaseAction
+    public abstract class ActionParameter : BaseParameter
+    {
+        public override Color GetColor()
+        {
+            return Graph.ActionColor;
+        }
+    }
+
+    public class InAction : ActionParameter
     {
         public Action Action;
-
-        public InAction(string name, Action action) : base(name)
-        {
-            Action = action;
-        }
 
         public void Execute()
         {
@@ -61,13 +80,9 @@ namespace Spell.Graph
         }
     }
 
-    public class OutAction : BaseAction
+    public class OutAction : ActionParameter
     {
         public InAction InAction;
-
-        public OutAction(string name) : base(name)
-        {
-        }
 
         public void Execute()
         {
@@ -81,12 +96,7 @@ namespace Spell.Graph
     public class InValue<T> : InValue
     {
         public OutValue<T> OutValue = null;
-        private T m_defaultValue;
-
-        public InValue(string name, T defaultValue) : base(name)
-        {
-            m_defaultValue = defaultValue;
-        }
+        public T DefaultValue;
 
         public override Type ValueType { get { return typeof(T); } }
 
@@ -100,7 +110,7 @@ namespace Spell.Graph
                 }
                 else
                 {
-                    return m_defaultValue;
+                    return DefaultValue;
                 }
             }
 
@@ -111,8 +121,8 @@ namespace Spell.Graph
 
         private object BoxedValue
         {
-            get { return m_defaultValue; }
-            set { m_defaultValue = (T)value; }
+            get { return DefaultValue; }
+            set { DefaultValue = (T)value; }
         }
 
         public override void DrawField(Rect rect)
@@ -174,37 +184,28 @@ namespace Spell.Graph
 
     public class OutValue<T> : OutValue
     {
-        private Func<T> m_func;
-        private T m_defaultValue;
+        public Func<T> Func;
+        public T DefaultValue;
 
-        public OutValue(string name, T defaultValue) : base(name)
-        {
-            m_defaultValue = defaultValue;
-        }
-
-        public OutValue(string name, T defaultValue, Func<T> func) : base(name)
-        {
-            m_defaultValue = defaultValue;
-            m_func = func;
-        }
+        public override Type ValueType { get { return typeof(T); } }
 
         public T Value
         {
             get
             {
-                if (m_func != null)
+                if (Func != null)
                 {
-                    return m_func();
+                    return Func();
                 }
                 else
                 {
-                    return m_defaultValue;
+                    return DefaultValue;
                 }
             }
 
             set
             {
-                m_defaultValue = value;
+                DefaultValue = value;
             }
         }
     }

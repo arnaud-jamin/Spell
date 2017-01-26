@@ -6,9 +6,11 @@ namespace Spell.Graph
     [NodeMenuItem("Action")]
     public class Damage : Node
     {
+        public override Color Color { get { return Graph.ActionColor; } }
+
         public Damage()
         {
-            var amount = AddInValue<float>("amount", 0);
+            var amount = AddInValue<float>("Amount", 0);
             var damageType = AddInValue<DamageType>("DamageType", DamageType.Physical);
             var target = AddInValue<GameObject>("Target", null);
 

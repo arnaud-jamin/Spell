@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -13,42 +14,69 @@ namespace Spell.Graph
         public virtual Type PrimitiveType { get { return null; } }
         public virtual object PrimitiveValue { get { return null; }  set { } }
         public List<BaseParameter> Parameters { get { return m_parameters; } }
+        public virtual Color Color { get { return Graph.DefaultColor; } }
 
-        private List<BaseParameter> m_parameters = new List<BaseParameter>();
+        protected List<BaseParameter> m_parameters = new List<BaseParameter>();
+        protected List<InValue> m_inValues = new List<InValue>();
+        protected List<OutValue> m_outValues = new List<OutValue>();
+        protected List<InAction> m_inActions = new List<InAction>();
+        protected List<OutAction> m_outActions = new List<OutAction>();
 
-        protected InValue<T> AddInValue<T>(string name, T defaultValue)
+        protected InValue<T> AddInValue<T>(string name, T defaultValue, int order = 0)
         {
-            var inValue = new InValue<T>(name, defaultValue);
-            m_parameters.Add(inValue);
+            var inValue = new InValue<T> { Name = name, DefaultValue = defaultValue };
+            m_inValues.Add(inValue);
+            RefreshParameterList();
             return inValue;
         }
 
-        protected OutValue<T> AddOutValue<T>(string name, T defaultValue)
+        protected OutValue<T> AddOutValue<T>(string name, T defaultValue, Func<T> func = null, int order = 0)
         {
-            var outValue = new OutValue<T>(name, defaultValue);
-            m_parameters.Add(outValue);
+            var outValue = new OutValue<T> { Name = name, DefaultValue = defaultValue, Func = func };
+            m_outValues.Add(outValue);
+            RefreshParameterList();
             return outValue;
         }
 
-        protected OutValue<T> AddOutValue<T>(string name, T defaultValue, Func<T> func)
+        protected InAction AddInAction(string name, Action action, int order = 0)
         {
-            var outValue = new OutValue<T>(name, defaultValue, func);
-            m_parameters.Add(outValue);
-            return outValue;
-        }
-
-        protected InAction AddInAction(string name, Action action)
-        {
-            var inAction = new InAction(name, action);
-            m_parameters.Add(inAction);
+            var inAction = new InAction { Name = name, Action = action };
+            m_inActions.Add(inAction);
+            RefreshParameterList();
             return inAction;
         }
 
-        protected OutAction AddOutAction(string name)
+        protected OutAction AddOutAction(string name, int order = 0)
         {
-            var outAction  = new OutAction(name);
-            m_parameters.Add(outAction);
+            var outAction  = new OutAction { Name = name };
+            m_outActions.Add(outAction);
+            RefreshParameterList();
             return outAction;
+        }
+
+        private void RefreshParameterList()
+        {
+            m_parameters.Clear();
+
+            foreach (var action in m_inActions)
+            {
+                m_parameters.Add(action);
+            }
+
+            foreach (var inValue in m_inValues)
+            {
+                m_parameters.Add(inValue);
+            }
+
+            foreach (var action in m_outActions)
+            {
+                m_parameters.Add(action);
+            }
+
+            foreach (var outValue in m_outValues)
+            {
+                m_parameters.Add(outValue);
+            }
         }
 
         public List<IParameterInfo> GetParameters()

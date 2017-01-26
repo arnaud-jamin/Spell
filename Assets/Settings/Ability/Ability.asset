@@ -12,20 +12,10 @@ MonoBehaviour:
   m_Name: Ability
   m_EditorClassIdentifier: 
   m_json: "{\r\n    \"m_rootType\": null,\r\n    \"m_root\": null,\r\n    \"m_nodes\":
-    [\r\n        {\r\n            \"Amount\": {\r\n                \"Value\": 0.0,\r\n
-    \               \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n                    \"y\":
-    0.0\r\n                },\r\n                \"VariableName\": null,\r\n                \"$type\":
-    \"Spell.Graph.FloatValue\"\r\n            },\r\n            \"DamageType\": {\r\n
-    \               \"Value\": \"Physical\",\r\n                \"GraphPosition\":
-    {\r\n                    \"x\": 0.0,\r\n                    \"y\": 0.0\r\n                },\r\n
-    \               \"VariableName\": null,\r\n                \"$type\": \"Spell.Graph.DamageTypeValue\"\r\n
-    \           },\r\n            \"Target\": {\r\n                \"Value\": null,\r\n
-    \               \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n                    \"y\":
-    0.0\r\n                },\r\n                \"VariableName\": null,\r\n                \"$type\":
-    \"Spell.Graph.GameObjectValue\"\r\n            },\r\n            \"GraphPosition\":
-    {\r\n                \"x\": 536.0,\r\n                \"y\": 197.0\r\n            },\r\n
-    \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.Damage\"\r\n
-    \       }\r\n    ],\r\n    \"m_viewOffset\": {\r\n        \"x\": -42.0,\r\n        \"y\":
-    -9.0\r\n    },\r\n    \"m_viewZoom\": 1.0\r\n}"
+    [\r\n        {\r\n            \"GraphPosition\": {\r\n                \"x\": 536.0,\r\n
+    \               \"y\": 197.0\r\n            },\r\n            \"VariableName\":
+    null,\r\n            \"$type\": \"Spell.Graph.Damage\"\r\n        }\r\n    ],\r\n
+    \   \"m_viewOffset\": {\r\n        \"x\": -42.0,\r\n        \"y\": -9.0\r\n    },\r\n
+    \   \"m_viewZoom\": 1.0\r\n}"
   m_viewOffset: {x: -42, y: -9}
   m_viewZoom: 1

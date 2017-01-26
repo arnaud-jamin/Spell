@@ -19,11 +19,11 @@ namespace Spell.Graph
         Vector2 ViewOffset { get; set; }
         float ViewZoom { get; set; }
 
-        Color GetNodeColor(INode node);
-        Color GetParameterColor(int nodeIndex, int parameterIndex);
-        Vector2 GetParameterSize(int nodeIndex, int parameterIndex);
-        void DrawField(int nodeIndex, int parameterIndex, Rect rect);
-
+        Color GetNodeColor(int nodeIndex);
+        Color GetParameterColor(ParameterIndex p);
+        Vector2 GetParameterSize(ParameterIndex p);
+        void DrawField(ParameterIndex p, Rect rect);
+        
         INode CreateNode(Type type);
         INode CreateFixedValue(Type valueType);
 
@@ -35,7 +35,8 @@ namespace Spell.Graph
         List<NodeTypeInfo> GetAllNodes();
         List<NodeTypeInfo> GetAssignableNodes(IParameterInfo parameter);
 
-        bool CanConnectParameters(IParameterInfo p1, IParameterInfo p2);
-        void ConnectParameters(IParameterInfo p1, IParameterInfo p2);
+        bool CanConnectParameters(ParameterIndex p1, ParameterIndex p2);
+        bool ConnectParameters(ParameterIndex p1, ParameterIndex p2);
+        void Disconnect(ParameterIndex p1, ParameterIndex p2);
     }
 }

@@ -5,6 +5,8 @@ namespace Spell.Graph
     [NodeMenuItem("Action")]
     public class ForeachSummoned : Node
     {
+        public override Color Color { get { return Graph.ActionColor; } }
+
         public ForeachSummoned()
         {
             var inSummoner = AddInValue<GameObject>("Summoner", null);

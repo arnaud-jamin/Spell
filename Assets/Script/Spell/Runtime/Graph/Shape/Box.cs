@@ -8,6 +8,8 @@ namespace Spell.Graph
     {
         private BoxShape m_boxShape = new BoxShape();
 
+        public override Color Color { get { return Graph.ShapeColor; } }
+
         public Box()
         {
             var position = AddInValue("Position", Vector3.zero);
@@ -15,7 +17,7 @@ namespace Spell.Graph
             var width = AddInValue("Width", 1.0f);
             var height = AddInValue("Height", 1.0f);
 
-            AddOutValue("Shape", null, () =>
+            AddOutValue<Shape>("Shape", null, () =>
             {
                 m_boxShape.Position = position.Value;
                 m_boxShape.Rotation = rotation.Value;

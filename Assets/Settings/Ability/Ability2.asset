@@ -29,26 +29,13 @@ MonoBehaviour:
     0.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
     \"Spell.Graph.CastTargetTypeValue\"\r\n        },\r\n        \"Actions\": [\r\n
     \           {\r\n\r\n            }\r\n        ],\r\n        \"GraphPosition\":
-    {\r\n            \"x\": 412.0,\r\n            \"y\": 94.0\r\n        },\r\n        \"VariableName\":
+    {\r\n            \"x\": 368.0,\r\n            \"y\": 121.0\r\n        },\r\n        \"VariableName\":
     null,\r\n        \"$type\": \"Spell.Graph.Ability\",\r\n        \"$id\": \"1\"\r\n
     \   },\r\n    \"m_nodes\": [\r\n        {\r\n            \"$ref\": \"1\"\r\n        },\r\n
-    \       {\r\n            \"GraphPosition\": {\r\n                \"x\": 419.0,\r\n
-    \               \"y\": 232.0\r\n            },\r\n            \"VariableName\":
-    null,\r\n            \"$type\": \"Spell.Graph.If\"\r\n        },\r\n        {\r\n
-    \           \"Amount\": {\r\n                \"Value\": 0.0,\r\n                \"GraphPosition\":
-    {\r\n                    \"x\": 0.0,\r\n                    \"y\": 0.0\r\n                },\r\n
-    \               \"VariableName\": null,\r\n                \"$type\": \"Spell.Graph.FloatValue\"\r\n
-    \           },\r\n            \"DamageType\": {\r\n                \"Value\":
-    \"Physical\",\r\n                \"GraphPosition\": {\r\n                    \"x\":
-    0.0,\r\n                    \"y\": 0.0\r\n                },\r\n                \"VariableName\":
-    null,\r\n                \"$type\": \"Spell.Graph.DamageTypeValue\"\r\n            },\r\n
-    \           \"Target\": {\r\n                \"Value\": null,\r\n                \"GraphPosition\":
-    {\r\n                    \"x\": 0.0,\r\n                    \"y\": 0.0\r\n                },\r\n
-    \               \"VariableName\": null,\r\n                \"$type\": \"Spell.Graph.GameObjectValue\"\r\n
-    \           },\r\n            \"GraphPosition\": {\r\n                \"x\": 626.0,\r\n
-    \               \"y\": 231.0\r\n            },\r\n            \"VariableName\":
-    null,\r\n            \"$type\": \"Spell.Graph.Damage\"\r\n        }\r\n    ],\r\n
-    \   \"m_viewOffset\": {\r\n        \"x\": -40.0,\r\n        \"y\": -37.0\r\n    },\r\n
-    \   \"m_viewZoom\": 1.0\r\n}"
+    \       {\r\n            \"GraphPosition\": {\r\n                \"x\": 738.0,\r\n
+    \               \"y\": 395.0\r\n            },\r\n            \"VariableName\":
+    null,\r\n            \"$type\": \"Spell.Graph.ForeachInArea\"\r\n        }\r\n
+    \   ],\r\n    \"m_viewOffset\": {\r\n        \"x\": -40.0,\r\n        \"y\": -37.0\r\n
+    \   },\r\n    \"m_viewZoom\": 1.0\r\n}"
   m_viewOffset: {x: -40, y: -37}
   m_viewZoom: 1

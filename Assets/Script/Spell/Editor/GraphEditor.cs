@@ -427,7 +427,7 @@ namespace Spell.Graph
                     var pinBorderStyle = "NodePinBorderNormal";
                     if (m_draggedPin != null && pin != m_draggedPin)
                     {
-                        var enable = m_draggedPin.parameter.CanConnectToParameter(pin.parameter);
+                        var enable = m_graph.CanConnectParameters(m_draggedPin.parameterIndex, pin.parameterIndex);
                         pinStyle = enable ? "NodePinEnable" : "NodePinDisable";
                         pinBorderStyle = enable ? "NodePinBorderEnable" : "NodePinBorderDisable";
                     }
@@ -453,7 +453,7 @@ namespace Spell.Graph
                         {
                             fieldValueRect = pin.parameter.Side == ParameterSide.Left ? new Rect(pin.pinLocalRect.xMax + nodeInfo.fieldNameMaxWidth + s_controlMargin * 2, pin.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y)
                                                                                       : new Rect(pin.pinLocalRect.xMin - s_controlMargin - nodeInfo.fieldValueMaxWidth, pin.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y);
-                            DrawField(pin.nodeInfo.index, pin.index, fieldValueRect);
+                            DrawField(pin.parameterIndex, fieldValueRect);
                             hasFieldValue = true;
                         }
                     }
@@ -489,14 +489,14 @@ namespace Spell.Graph
         //}
 
         // ----------------------------------------------------------------------------------------
-        private void DrawField(int nodeIndex, int parameterIndex, Rect containerRect)
+        private void DrawField(ParameterIndex p, Rect containerRect)
         {
             EditorGUI.BeginChangeCheck();
 
             GUI.SetNextControlName(s_fieldControlName);
             GUI.color = Color.white;
             //m_graph.DrawField(node, new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height));
-            m_graph.DrawField(nodeIndex, parameterIndex, new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height));
+            m_graph.DrawField(p, new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height));
 
             GUI.skin = m_skin;
 
@@ -653,7 +653,7 @@ namespace Spell.Graph
                 nodeInfo.index = i;
                 nodeInfo.node = node;
                 nodeInfo.derivedTypeInfo = NodeTypeInfo.GetNodeInfo(node.GetType());
-                nodeInfo.color = m_graph.GetNodeColor(node);
+                nodeInfo.color = m_graph.GetNodeColor(i);
 
                 Vector2 nodeSize;
                 ComputeNodeSize(i, node, out nodeSize, out nodeInfo.fieldValueMaxWidth, out nodeInfo.fieldNameMaxWidth);
@@ -690,7 +690,7 @@ namespace Spell.Graph
                 var fieldPosition = new Vector2(0, s_nodeHeaderHeight);
 
                 //---------------------------------------------------------------------------------
-                // Compute node fields info and place them verticaly. Also compute the field 
+                // Compute node fields info and place them vertically. Also compute the field 
                 // connection infos
                 //---------------------------------------------------------------------------------
                 for (int j = 0; j < parameters.Count; ++j)
@@ -709,6 +709,8 @@ namespace Spell.Graph
                     var pinX = parameter.Side == ParameterSide.Left ? s_controlMargin : nodeInfo.rect.size.x - s_nodePinSize.x - s_nodePinOffset.x;
                     var pinLocalRect = new Rect(pinX, fieldPosition.y + s_nodePinOffset.y, s_nodePinSize.x, s_nodePinSize.y);
 
+                    var parameterIndex = new ParameterIndex { nodeIndex = i, parameterIndex = j };
+
                     var pin = new NodePin
                     {
                         index = j,
@@ -719,8 +721,9 @@ namespace Spell.Graph
                         fieldPosition = fieldPosition,
                         pinLocalRect = pinLocalRect,
                         pinGlobalRect = new Rect(nodeInfo.rect.position + pinLocalRect.position, pinLocalRect.size),
-                        color = m_graph.GetParameterColor(i, j),
-                        size = m_graph.GetParameterSize(i, j)
+                        parameterIndex = parameterIndex,
+                        color = m_graph.GetParameterColor(parameterIndex),
+                        size = m_graph.GetParameterSize(parameterIndex)
                     };
                     nodeInfo.parameters.Add(pin);
 
@@ -850,7 +853,9 @@ namespace Spell.Graph
                     m_fieldNameStyle.CalcMinMaxWidth(new GUIContent(parameter.Name), out minWidth, out maxWidth);
                     fieldNameMaxWidth = Mathf.Max(fieldNameMaxWidth, maxWidth);
 
-                    var fieldSize = m_graph.GetParameterSize(nodeIndex, i);
+                    var parameterIndex = new ParameterIndex(nodeIndex, i);
+
+                    var fieldSize = m_graph.GetParameterSize(parameterIndex);
                     fieldValueMaxWidth = Mathf.Max(fieldValueMaxWidth, fieldSize.x);
                     nodeSize.y += fieldSize.y + s_nodeFieldVerticalSpacing;
 
@@ -1226,7 +1231,7 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         private void ConnectParameterToParameter(NodePin source, NodePin dest)
         {
-            if (source.parameter.ConnectToParameter(dest.parameter))
+            if (m_graph.ConnectParameters(source.parameterIndex, dest.parameterIndex))
             {
                 m_pinToRebuildIndices = source;
             }
@@ -1237,11 +1242,11 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         private void ConnectParameterToNode(NodePin parameter, NodeInfo value)
         {
-            if (parameter.parameter.ConnectToNode(value.node))
-            {
-                m_pinToRebuildIndices = parameter;
-            }
-            RecordAndSave("Connect");
+            //if (parameter.parameter.ConnectToNode(value.node))
+            //{
+            //    m_pinToRebuildIndices = parameter;
+            //}
+            //RecordAndSave("Connect");
         }
 
         // ----------------------------------------------------------------------------------------
@@ -1287,7 +1292,7 @@ namespace Spell.Graph
         {
             var parameter = connection.parameter.parameter;
             var node = GetConnectedNode(connection);
-            parameter.Disconnect(m_graph, node);
+            m_graph.Disconnect(connection.parameter.parameterIndex, new ParameterIndex());
 
             if (m_selectedConnection == connection)
             {

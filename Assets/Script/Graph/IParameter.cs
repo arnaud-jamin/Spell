@@ -12,6 +12,18 @@ namespace Spell.Graph
         Left,
     }
 
+    public struct ParameterIndex
+    {
+        public ParameterIndex(int nodeIndex, int parameterIndex)
+        {
+            this.nodeIndex = nodeIndex;
+            this.parameterIndex = parameterIndex;
+        }
+
+        public int nodeIndex;
+        public int parameterIndex;
+    }
+
     public interface IParameterInfo
     {
         string Name { get; }
@@ -19,11 +31,5 @@ namespace Spell.Graph
         INode ConnectedNode { get; }
         bool IsList { get; }
         IList List { get; }
-
-        bool CanConnectToParameter(IParameterInfo parameter);
-        bool ConnectToParameter(IParameterInfo parameter);
-        bool CanConnectToNode(INode node);
-        bool ConnectToNode(INode node);
-        void Disconnect(IGraph graph, INode node);
     }
 }

@@ -11,6 +11,14 @@ namespace Spell.Graph
     public class Graph : ScriptableObject, IGraph
     {
         // ----------------------------------------------------------------------------------------
+        public static readonly Color DefaultColor = new Color(0.2f, 0.2f, 0.2f);
+        public static readonly Color BoolColor = new Color(0.2f, 0.5f, 0.2f);
+        public static readonly Color FloatColor = new Color(0.2f, 0.2f, 0.5f);
+        public static readonly Color IntColor = new Color(0.8f, 0.8f, 0.0f);
+        public static readonly Color ShapeColor = new Color(0.2f, 0.5f, 0.2f);
+        public static readonly Color ActionColor = new Color(0.5f, 0.2f, 0.2f);
+
+        // ----------------------------------------------------------------------------------------
         [fsIgnore]
         private fsSerializer m_serializer = new fsSerializer();
 
@@ -47,75 +55,28 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        public Color GetColor(Type type)
+        public Color GetNodeColor(int nodeIndex)
         {
-            return GetTypeColor(type);
+            var node = GetNode(nodeIndex);
+            return node.Color;
         }
 
         // ----------------------------------------------------------------------------------------
-        public Color GetNodeColor(INode node)
+        public Color GetParameterColor(ParameterIndex p)
         {
-            return GetTypeColor(node.GetType());
-        }
-
-        // ----------------------------------------------------------------------------------------
-        public Color GetParameterColor(int nodeIndex, int parameterIndex)
-        {
-            var parameter = GetParameter(nodeIndex, parameterIndex);
+            var parameter = GetParameter(p);
             if (parameter == null)
-                return new Color(0.2f, 0.2f, 0.2f);
-
-            return GetTypeColor(parameter.GetType());
+                return DefaultColor;
+            return parameter.GetColor();
         }
 
         // ----------------------------------------------------------------------------------------
-        public Vector2 GetParameterSize(int nodeIndex, int parameterIndex)
+        public Vector2 GetParameterSize(ParameterIndex p)
         {
-            var parameter = GetParameter(nodeIndex, parameterIndex);
-
-            var inValue = parameter as InValue;
-            if (inValue != null)
-            {
-                return GetFieldSize(inValue.ValueType);
-            }
-
-            var outValue = parameter as InValue;
-            if (outValue != null)
-            {
-                return GetFieldSize(outValue.ValueType);
-            }
-
-            return new Vector2(0, 16);
-        }
-
-        // ----------------------------------------------------------------------------------------
-        public static Color GetTypeColor(Type type)
-        {
-            if (typeof(InValue<float>).IsAssignableFrom(type))      return new Color(0.2f, 0.2f, 0.5f);
-            if (typeof(OutValue<float>).IsAssignableFrom(type))     return new Color(0.2f, 0.2f, 0.5f);
-
-            if (typeof(InValue<int>).IsAssignableFrom(type))        return new Color(0.8f, 0.8f, 0.0f);
-            if (typeof(OutValue<int>).IsAssignableFrom(type))       return new Color(0.8f, 0.8f, 0.0f);
-
-            if (typeof(InValue<Shape>).IsAssignableFrom(type))      return new Color(0.2f, 0.5f, 0.2f);
-            if (typeof(OutValue<Shape>).IsAssignableFrom(type))     return new Color(0.2f, 0.5f, 0.2f);
-
-            if (typeof(BaseAction).IsAssignableFrom(type))          return new Color(0.5f, 0.2f, 0.2f);
-
-            return new Color(0.2f, 0.2f, 0.2f);
-        }
-
-        // ----------------------------------------------------------------------------------------
-        public static Vector2 GetFieldSize(Type type)
-        {
-            if (type == null)               return new Vector2(100, 16);
-            if (type == typeof(float))      return new Vector2(75, 16);
-            if (type == typeof(bool))       return new Vector2(75, 16);
-            if (type == typeof(int))        return new Vector2(75, 16);
-            if (type == typeof(Vector3))    return new Vector2(150, 16);
-            if (type == typeof(GameObject)) return new Vector2(100, 16);
-            if (type.IsEnum)                return new Vector2(75, 16);
-            return new Vector2(100, 16);
+            var parameter = GetParameter(p);
+            if (parameter == null)
+                return new Vector2(0, 16);
+            return parameter.GetSize();
         }
 
         // ----------------------------------------------------------------------------------------
@@ -191,44 +152,154 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        public bool CanConnectParameters(IParameterInfo p1, IParameterInfo p2)
+        private Node GetNode(int nodeIndex)
         {
-            if (p1 != null)
-                return true;
+            if (nodeIndex < 0 && nodeIndex >= m_nodes.Count)
+                return null;
+
+            return m_nodes[nodeIndex] as Node;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private BaseParameter GetParameter(ParameterIndex p)
+        {
+            var node = GetNode(p.nodeIndex);
+            if (node == null)
+                return null;
+
+            if (p.parameterIndex < 0 && p.parameterIndex >= node.Parameters.Count)
+                return null;
+
+            var parameter = node.Parameters[p.parameterIndex];
+            return parameter;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public void DrawField(ParameterIndex p, Rect rect)
+        {
+            var parameter = GetParameter(p);
+            if (parameter == null)
+                return;
+
+            parameter.DrawField(rect);
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public bool CanConnectParameters(ParameterIndex p1, ParameterIndex p2)
+        {
+            var param1 = GetParameter(p1);
+            var param2 = GetParameter(p2);
+
+            if (param1 is ValueParameter && param2 is ValueParameter)
+            {
+                if (param1 is InValue && param2 is OutValue)
+                {
+                    return ((InValue)param1).ValueType.IsAssignableFrom(((OutValue)param2).ValueType);
+                }
+                else if (param1 is OutValue && param1 is InValue)
+                {
+                    return ((InValue)param2).ValueType.IsAssignableFrom(((OutValue)param1).ValueType);
+                }
+            }
+            else if (param1 is ActionParameter && param2 is ActionParameter)
+            {
+                if ((param1 is InAction && param2 is OutAction) || (param1 is OutValue && param1 is InValue))
+                {
+                    return true;
+                }
+            }
 
             return false;
         }
 
         // ----------------------------------------------------------------------------------------
-        public void ConnectParameters(IParameterInfo p1, IParameterInfo p2)
+        public bool ConnectParameters(ParameterIndex p1, ParameterIndex p2)
         {
+            return true;
         }
 
         // ----------------------------------------------------------------------------------------
-        private BaseParameter GetParameter(int nodeIndex, int parameterIndex)
-        {
-            if (nodeIndex < 0 && nodeIndex >= m_nodes.Count)
-                return null;
+        //public bool CanConnectToNode(INode node)
+        //{
+        //    var currentValue = ConnectedNode;
+        //    if (currentValue == node)
+        //        return false;
 
-            var node = m_nodes[nodeIndex] as Node;
-            if (node == null)
-                return null;
+        //    if (IsList && typeof(INode).IsAssignableFrom(m_primitiveType))
+        //        return true;
 
-            if (parameterIndex < 0 && parameterIndex >= node.Parameters.Count)
-                return null;
+        //    if (m_fieldInfo.FieldType.IsAssignableFrom(node.GetType()))
+        //        return true;
 
-            var parameter = node.Parameters[parameterIndex];
-            return parameter;
-        }
+        //    return false;
+        //}
 
         // ----------------------------------------------------------------------------------------
-        public void DrawField(int nodeIndex, int parameterIndex, Rect rect)
-        {
-            var parameter = GetParameter(nodeIndex, parameterIndex);
-            if (parameter == null)
-                return;
+        //public bool ConnectToNode(INode nodeToConnect)
+        //{
+        //    var currentValue = ConnectedNode;
+        //    if (currentValue == nodeToConnect)
+        //        return false;
 
-            parameter.DrawField(rect);
+        //    // TODO: manage cycles:
+        //    //parameter.connections.Add(new NodeConnection() { connectedNode = value, index = 0, pin = parameter });
+        //    //var isCreatingCycle = IsCreatingCycle(value, value);
+        //    //parameter.connections.RemoveAt(parameter.connections.Count - 1);
+        //    //if (isCreatingCycle)
+        //    //    return;
+
+        //    if (IsList)
+        //    {
+        //        if (typeof(INode).IsAssignableFrom(m_primitiveType))
+        //        {
+        //            var list = List;
+        //            if (list.Contains(nodeToConnect) == false)
+        //            {
+        //                list.Add(nodeToConnect);
+        //                return true;
+        //            }
+        //        }
+        //    }
+        //    else if (m_fieldInfo.FieldType.IsAssignableFrom(nodeToConnect.GetType()))
+        //    {
+        //        m_fieldInfo.SetValue(m_node, nodeToConnect);
+
+        //        // When we create a connection we try to retain the value
+        //        // of the old node to the new one.
+        //        if (currentValue != null && currentValue.PrimitiveValue != null)
+        //        {
+        //            nodeToConnect.PrimitiveValue = currentValue.PrimitiveValue;
+        //        }
+        //    }
+        //    return false;
+        //}
+
+        // ----------------------------------------------------------------------------------------
+        public void Disconnect(ParameterIndex p1, ParameterIndex p2)
+        {
+            //if (IsList)
+            //{
+            //    List.Remove(node);
+            //}
+            //else
+            //{
+            //    if (m_primitiveType != null)
+            //    {
+            //        var primitiveValue = ConnectedNode.PrimitiveValue;
+            //        m_fieldInfo.SetValue(m_node, graph.CreateFixedValue(m_primitiveType));
+
+            //        // When we delete a connection we try to retain the value
+            //        // of the old node to the new one.
+            //        if (primitiveValue != null)
+            //        {
+            //            ConnectedNode.PrimitiveValue = primitiveValue;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        m_fieldInfo.SetValue(m_node, null);
+            //    }
+            //}
         }
     }
 }
