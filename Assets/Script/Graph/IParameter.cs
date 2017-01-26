@@ -21,6 +21,7 @@ namespace Spell.Graph
         bool IsList { get; }
         IList List { get; }
         Vector2 Size { get; }
+        BaseParameter Parameter { get; }
 
         bool CanConnectToParameter(IParameterInfo parameter);
         bool ConnectToParameter(IParameterInfo parameter);

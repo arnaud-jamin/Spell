@@ -10,7 +10,8 @@ namespace Spell.Graph
         public SimpleAction()
         {
             var outAction = AddOutAction("Out");
-            var inAction = AddInAction("In", () =>
+
+            AddInAction("In", () =>
             {
                 Execute();
                 outAction.Execute();

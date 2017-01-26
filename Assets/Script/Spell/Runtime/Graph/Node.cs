@@ -13,7 +13,7 @@ namespace Spell.Graph
         public virtual Type PrimitiveType { get { return null; } }
         public virtual object PrimitiveValue { get { return null; }  set { } }
 
-        private List<NodeParameter> m_parameters = new List<NodeParameter>();
+        private List<BaseParameter> m_parameters = new List<BaseParameter>();
 
         protected InValue<T> AddInValue<T>(string name, T defaultValue)
         {

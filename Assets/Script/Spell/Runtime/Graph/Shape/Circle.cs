@@ -9,12 +9,13 @@ namespace Spell.Graph
 
         public Circle()
         {
-            var Position = AddInValue("Position", Vector3.zero);
-            var Radius = AddInValue("Radius", 1.0f);
-            var Shape = AddOutValue("Shape", null, () =>
+            var position = AddInValue("Position", Vector3.zero);
+            var radius = AddInValue("Radius", 1.0f);
+
+            AddOutValue("Shape", null, () =>
             {
-                m_circleShape.Position = Position.Value;
-                m_circleShape.Radius = Radius.Value;
+                m_circleShape.Position = position.Value;
+                m_circleShape.Radius = radius.Value;
                 return m_circleShape;
             });
         }

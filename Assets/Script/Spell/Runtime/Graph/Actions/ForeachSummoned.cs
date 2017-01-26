@@ -11,7 +11,8 @@ namespace Spell.Graph
             var outLoop = AddOutAction("Loop");
             var outFinished = AddOutAction("Finished");
             var outIterator = AddOutValue<GameObject>("Iterator", null);
-            var inAction = AddInAction("In", () =>
+
+            AddInAction("In", () =>
             {
                 var summoner = inSummoner.Value;
                 if (summoner == null)
@@ -21,7 +22,7 @@ namespace Spell.Graph
                 for (var i = 0; i < caster.Summoned.Count; ++i)
                 {
                     var summoned = caster.Summoned[i];
-                    outIterator.Value = summoned;
+                    outIterator.PrimitiveValue = summoned;
                     outLoop.Execute();
                 }
 

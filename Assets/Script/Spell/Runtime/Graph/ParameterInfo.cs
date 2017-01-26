@@ -18,6 +18,7 @@ namespace Spell.Graph
         private Type m_primitiveType;
         private Vector2 m_size;
         private string m_name;
+        private BaseParameter m_param;
 
         // ----------------------------------------------------------------------------------------
         public string Name { get { return m_name; } }
@@ -31,6 +32,7 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         public FieldInfo FieldInfo { get { return m_fieldInfo;  } }
         public Type PrimitiveType { get { return m_primitiveType; } }
+        public BaseParameter Parameter { get { return m_param; } }
 
         // ----------------------------------------------------------------------------------------
         public ParameterInfo(Node node, FieldInfo fieldInfo)
@@ -41,23 +43,6 @@ namespace Spell.Graph
 
             var sideAttribute = fieldInfo.GetCustomAttributes(typeof(ParameterSideAttribute), false).FirstOrDefault() as ParameterSideAttribute;
             m_side = (sideAttribute != null) ? sideAttribute.Side : ParameterSide.Left;
-
-            if (typeof(InAction).IsAssignableFrom(fieldInfo.FieldType))
-            {
-                m_side = ParameterSide.Left;
-            }
-            else if (typeof(OutAction).IsAssignableFrom(fieldInfo.FieldType))
-            {
-                m_side = ParameterSide.Right;
-            }
-            else if (typeof(InValue).IsAssignableFrom(fieldInfo.FieldType))
-            {
-                m_side = ParameterSide.Left;
-            }
-            else if (typeof(OutValue).IsAssignableFrom(fieldInfo.FieldType))
-            {
-                m_side = ParameterSide.Right;
-            }
 
             m_isList = m_fieldInfo.FieldType.IsGenericType && m_fieldInfo.FieldType.GetGenericTypeDefinition() == typeof(List<>);
 
@@ -76,8 +61,9 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        public ParameterInfo(Node node, NodeParameter param)
+        public ParameterInfo(Node node, BaseParameter param)
         {
+            m_param = param;
             m_node = node;
             m_fieldInfo = null;
             m_name = param.Name;
@@ -92,13 +78,18 @@ namespace Spell.Graph
             {
                 m_side = ParameterSide.Right;
             }
-            else if (typeof(InValue).IsAssignableFrom(param.GetType()))
+            else if (typeof(InValue<>).IsAssignableFrom(param.GetType()))
             {
                 m_side = ParameterSide.Left;
             }
-            else if (typeof(OutValue).IsAssignableFrom(param.GetType()))
+            else if (typeof(OutValue<>).IsAssignableFrom(param.GetType()))
             {
                 m_side = ParameterSide.Right;
+            }
+
+            if (param is BaseValue)
+            {
+                m_primitiveType = ((BaseValue)param).ValueType;
             }
 
             m_isList = false;

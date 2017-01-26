@@ -181,54 +181,54 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        public void DrawField(INode node, Rect rect)
+        public void DrawField(BaseValue parameter, Rect rect)
         {
 #if UNITY_EDITOR
 
-            if (node.PrimitiveType == typeof(string))
+            if (parameter.ValueType == typeof(string))
             {
-                node.PrimitiveValue = EditorGUI.TextField(rect, (string)node.PrimitiveValue);
+                parameter.PrimitiveValue = EditorGUI.TextField(rect, (string)parameter.PrimitiveValue);
             }
-            else if (typeof(UnityEngine.Object).IsAssignableFrom(node.PrimitiveType))
+            else if (typeof(UnityEngine.Object).IsAssignableFrom(parameter.ValueType))
             {
-                node.PrimitiveValue = EditorGUI.ObjectField(rect, (UnityEngine.Object)node.PrimitiveValue, node.PrimitiveType, false);
+                parameter.PrimitiveValue = EditorGUI.ObjectField(rect, (UnityEngine.Object)parameter.PrimitiveValue, parameter.ValueType, false);
             }
-            else if (node.PrimitiveValue != null)
+            else if (parameter.PrimitiveValue != null)
             {
-                if (node.PrimitiveType == typeof(bool))
+                if (parameter.ValueType == typeof(bool))
                 {
-                    node.PrimitiveValue = EditorGUI.Toggle(rect, (bool)node.PrimitiveValue, "Toggle");
+                    parameter.PrimitiveValue = EditorGUI.Toggle(rect, (bool)parameter.PrimitiveValue, "Toggle");
                 }
-                else if (node.PrimitiveType == typeof(int))
+                else if (parameter.ValueType == typeof(int))
                 {
-                    node.PrimitiveValue = EditorGUI.IntField(rect, GUIContent.none, (int)node.PrimitiveValue, "NodeFieldValue");
+                    parameter.PrimitiveValue = EditorGUI.IntField(rect, GUIContent.none, (int)parameter.PrimitiveValue, "NodeFieldValue");
                 }
-                else if (node.PrimitiveType == typeof(float))
+                else if (parameter.ValueType == typeof(float))
                 {
-                    node.PrimitiveValue = EditorGUI.FloatField(rect, GUIContent.none, (float)node.PrimitiveValue, "NodeFieldValue");
+                    parameter.PrimitiveValue = EditorGUI.FloatField(rect, GUIContent.none, (float)parameter.PrimitiveValue, "NodeFieldValue");
                 }
-                else if (node.PrimitiveType == typeof(Vector2))
+                else if (parameter.ValueType == typeof(Vector2))
                 {
-                    node.PrimitiveValue = EditorHelper.Vector2Field(rect, (Vector2)node.PrimitiveValue, "NodeFieldNameLeft", "NodeFieldValue");
+                    parameter.PrimitiveValue = EditorHelper.Vector2Field(rect, (Vector2)parameter.PrimitiveValue, "NodeFieldNameLeft", "NodeFieldValue");
                 }
-                else if (node.PrimitiveType == typeof(Vector3))
+                else if (parameter.ValueType == typeof(Vector3))
                 {
-                    node.PrimitiveValue = EditorHelper.Vector3Field(rect, (Vector3)node.PrimitiveValue, "NodeFieldNameLeft", "NodeFieldValue");
+                    parameter.PrimitiveValue = EditorHelper.Vector3Field(rect, (Vector3)parameter.PrimitiveValue, "NodeFieldNameLeft", "NodeFieldValue");
                 }
-                else if (node.PrimitiveType == typeof(Color))
+                else if (parameter.ValueType == typeof(Color))
                 {
                     GUI.skin = null;
-                    node.PrimitiveValue = EditorGUI.ColorField(rect, GUIContent.none, (Color)node.PrimitiveValue, false, true, false, new ColorPickerHDRConfig(0, 0, 0, 0));
+                    parameter.PrimitiveValue = EditorGUI.ColorField(rect, GUIContent.none, (Color)parameter.PrimitiveValue, false, true, false, new ColorPickerHDRConfig(0, 0, 0, 0));
                 }
-                else if (node.PrimitiveType.IsEnum)
+                else if (parameter.ValueType.IsEnum)
                 {
-                    if (node.PrimitiveType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0)
+                    if (parameter.ValueType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0)
                     {
-                        node.PrimitiveValue = EditorGUI.MaskField(rect, (int)node.PrimitiveValue, Enum.GetNames(node.PrimitiveType), "NodeFieldValue");
+                        parameter.PrimitiveValue = EditorGUI.MaskField(rect, (int)parameter.PrimitiveValue, Enum.GetNames(parameter.ValueType), "NodeFieldValue");
                     }
                     else
                     {
-                        node.PrimitiveValue = EditorGUI.Popup(rect, (int)node.PrimitiveValue, Enum.GetNames(node.PrimitiveType), "NodeFieldValue");
+                        parameter.PrimitiveValue = EditorGUI.Popup(rect, (int)parameter.PrimitiveValue, Enum.GetNames(parameter.ValueType), "NodeFieldValue");
                     }
                 }
             }

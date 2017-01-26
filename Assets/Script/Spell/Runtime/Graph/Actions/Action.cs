@@ -3,38 +3,38 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
-    public class NodeParameter
+    public class BaseParameter
     {
         private string m_name;
 
         public string Name { get { return m_name; } }
 
-        public NodeParameter()
+        public BaseParameter()
         {
         }
 
-        public NodeParameter(string name)
+        public BaseParameter(string name)
         {
             m_name = name;
         }
     }
 
-    public class OutValue : NodeParameter
+
+    public abstract class BaseValue : BaseParameter
     {
-        public OutValue(string name)
-            : base(name)
-        {
-        }
+        public BaseValue(string name) : base(name) { }
+        public abstract object PrimitiveValue { get; set; }
+        public virtual Type ValueType { get { return null; } }
     }
 
-    public class InValue : NodeParameter
+    public abstract class BaseValue<T> : BaseValue
     {
-        public InValue(string name) : base(name)
-        {
-        }
+        public BaseValue(string name) : base(name) { }
+        public abstract T Value { get; set; }
+        public override Type ValueType { get { return typeof(T); } }
     }
 
-    public class InAction : NodeParameter
+    public class InAction : BaseParameter
     {
         public Action Action;
 
@@ -52,7 +52,7 @@ namespace Spell.Graph
         }
     }
 
-    public class OutAction : NodeParameter
+    public class OutAction : BaseParameter
     {
         public InAction InAction;
 
@@ -69,7 +69,7 @@ namespace Spell.Graph
         }
     }
 
-    public class InValue<T> : InValue
+    public class InValue<T> : BaseValue<T>
     {
         public OutValue<T> OutValue = null;
         private T m_defaultValue;
@@ -79,7 +79,13 @@ namespace Spell.Graph
             m_defaultValue = defaultValue;
         }
 
-        public T Value
+        public override object PrimitiveValue
+        {
+            get { return Value; }
+            set { Value = (T)value; }
+        }
+
+        public override T Value
         {
             get
             {
@@ -92,14 +98,16 @@ namespace Spell.Graph
                     return m_defaultValue;
                 }
             }
+
+            set
+            {
+            }
         }
     }
 
-    public class OutValue<T> : OutValue
+    public class OutValue<T> : BaseValue<T>
     {
-        public Func<T> Func = null;
-        private T defaultValue;
-        private Func<T> func;
+        private Func<T> m_func;
         private T m_defaultValue;
 
         public OutValue(string name, T defaultValue) : base(name)
@@ -109,17 +117,23 @@ namespace Spell.Graph
 
         public OutValue(string name, T defaultValue, Func<T> func) : base(name)
         {
-            this.defaultValue = defaultValue;
-            this.func = func;
+            m_defaultValue = defaultValue;
+            m_func = func;
         }
 
-        public T Value
+        public override object PrimitiveValue
+        {
+            get { return Value; }
+            set { Value = (T)value; }
+        }
+
+        public override T Value
         {
             get
             {
-                if (Func != null)
+                if (m_func != null)
                 {
-                    return Func();
+                    return m_func();
                 }
                 else
                 {

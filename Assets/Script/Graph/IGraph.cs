@@ -22,7 +22,7 @@ namespace Spell.Graph
         Color GetNodeColor(INode node);
         Color GetParameterColor(IParameterInfo parameter);
         Vector2 GetPrimitiveNodeSize(INode node);
-        void DrawField(INode node, Rect rect);
+        void DrawField(BaseValue node, Rect rect);
 
         INode CreateNode(Type type);
         INode CreateFixedValue(Type valueType);

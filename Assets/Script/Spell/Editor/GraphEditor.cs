@@ -403,7 +403,7 @@ namespace Spell.Graph
                 //-------------------------
                 var inputRect = false ? new Rect(handleRect.size.x, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2)
                                       : new Rect(1, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2);
-                DrawField(nodeInfo.node, inputRect);
+                //DrawField(nodeInfo.node, inputRect);
             }
             //-------------------------
             // Multi Pin Node
@@ -453,7 +453,7 @@ namespace Spell.Graph
                         {
                             fieldValueRect = pin.parameter.Side == ParameterSide.Left ? new Rect(pin.pinLocalRect.xMax + nodeInfo.fieldNameMaxWidth + s_controlMargin * 2, pin.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y)
                                                                                       : new Rect(pin.pinLocalRect.xMin - s_controlMargin - nodeInfo.fieldValueMaxWidth, pin.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y);
-                            DrawField(pin.parameter.ConnectedNode, fieldValueRect);
+                            DrawField(pin.parameter, fieldValueRect);
                             hasFieldValue = true;
                         }
                     }
@@ -471,13 +471,36 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        private void DrawField(INode node, Rect containerRect)
+        //private void DrawField(INode node, Rect containerRect)
+        //{
+        //    EditorGUI.BeginChangeCheck();
+
+        //    GUI.SetNextControlName(s_fieldControlName);
+        //    GUI.color = Color.white;
+        //    //m_graph.DrawField(node, new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height));
+        //    m_graph.DrawField(node, new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height));
+
+        //    GUI.skin = m_skin;
+
+        //    if (EditorGUI.EndChangeCheck())
+        //    {
+        //        RecordAndSave("Set Node Parameter");
+        //    }
+        //}
+
+        // ----------------------------------------------------------------------------------------
+        private void DrawField(IParameterInfo parameterInfo, Rect containerRect)
         {
+            var baseValue = parameterInfo.Parameter as BaseValue;
+            if (baseValue == null)
+                return;
+
             EditorGUI.BeginChangeCheck();
 
             GUI.SetNextControlName(s_fieldControlName);
             GUI.color = Color.white;
-            m_graph.DrawField(node, new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height));
+            //m_graph.DrawField(node, new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height));
+            m_graph.DrawField(baseValue, new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height));
 
             GUI.skin = m_skin;
 

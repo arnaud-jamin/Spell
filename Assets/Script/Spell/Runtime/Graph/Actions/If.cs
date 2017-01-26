@@ -8,18 +8,19 @@ namespace Spell.Graph
     {
         public If()
         {
-            var Condition = AddInValue("Condition", false);
-            var True = AddOutAction("True");
-            var False = AddOutAction("False");
-            var inAction = AddInAction("In", () =>
+            var condition = AddInValue("Condition", false);
+            var trueAction = AddOutAction("True");
+            var falseAction = AddOutAction("False");
+
+            AddInAction("In", () =>
             {
-                if (Condition.Value)
+                if (condition.Value)
                 {
-                    True.Execute();
+                    trueAction.Execute();
                 }
                 else
                 {
-                    False.Execute();
+                    falseAction.Execute();
                 }
             });
         }

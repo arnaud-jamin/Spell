@@ -14,7 +14,7 @@ namespace Spell.Graph
             var Finished = AddOutAction("Finished");
             var Iterator = AddOutValue<GameObject>("Iterator", null);
 
-            var In = AddInAction("In", () =>
+            AddInAction("In", () =>
             {
                 var shape = Shape.Value;
                 if (shape == null)
