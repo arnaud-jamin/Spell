@@ -432,7 +432,7 @@ namespace Spell.Graph
                         pinBorderStyle = enable ? "NodePinBorderEnable" : "NodePinBorderDisable";
                     }
 
-                    GUI.backgroundColor = pin.parameter.Color;
+                    GUI.backgroundColor = pin.color;
                     GUI.Box(pin.pinLocalRect, GUIContent.none, pinStyle);
                     GUI.backgroundColor = Color.white;
                     GUI.Box(pin.pinLocalRect, GUIContent.none, pinBorderStyle);
@@ -443,9 +443,9 @@ namespace Spell.Graph
                     //---------------------
                     var hasFieldValue = false;
                     var fieldValueRect = new Rect(0, pin.pinLocalRect.y, 0, 0);
-                    var fieldSize = pin.parameter.Size;
+                    var fieldSize = pin.size;
 
-                    if (pin.parameter.Side == ParameterSide.Left && pin.parameter.ConnectedNode != null)
+                    if (pin.parameter.Side == ParameterSide.Left)
                     {
                         GUI.color = Color.white;
                         GUI.backgroundColor = Color.white;
@@ -453,7 +453,7 @@ namespace Spell.Graph
                         {
                             fieldValueRect = pin.parameter.Side == ParameterSide.Left ? new Rect(pin.pinLocalRect.xMax + nodeInfo.fieldNameMaxWidth + s_controlMargin * 2, pin.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y)
                                                                                       : new Rect(pin.pinLocalRect.xMin - s_controlMargin - nodeInfo.fieldValueMaxWidth, pin.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y);
-                            DrawField(pin.parameter, fieldValueRect);
+                            DrawField(pin.nodeInfo.index, pin.index, fieldValueRect);
                             hasFieldValue = true;
                         }
                     }
@@ -489,18 +489,14 @@ namespace Spell.Graph
         //}
 
         // ----------------------------------------------------------------------------------------
-        private void DrawField(IParameterInfo parameterInfo, Rect containerRect)
+        private void DrawField(int nodeIndex, int parameterIndex, Rect containerRect)
         {
-            var baseValue = parameterInfo.Parameter as BaseValue;
-            if (baseValue == null)
-                return;
-
             EditorGUI.BeginChangeCheck();
 
             GUI.SetNextControlName(s_fieldControlName);
             GUI.color = Color.white;
             //m_graph.DrawField(node, new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height));
-            m_graph.DrawField(baseValue, new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height));
+            m_graph.DrawField(nodeIndex, parameterIndex, new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height));
 
             GUI.skin = m_skin;
 
@@ -537,7 +533,7 @@ namespace Spell.Graph
                 Utils.Swap(ref start, ref end);
             }
 
-            var color = connection == m_selectedConnection ? connection.parameter.parameter.Color.NewAlpha(1.0f) : connection.parameter.parameter.Color.NewAlpha(0.75f);
+            var color = connection == m_selectedConnection ? connection.parameter.color.NewAlpha(1.0f) : connection.parameter.color.NewAlpha(0.75f);
             var width = connection == m_selectedConnection ? s_selectedConnectionWidth : s_connectionWidth;
             DrawConnection(start, end, color, width);
 
@@ -660,7 +656,7 @@ namespace Spell.Graph
                 nodeInfo.color = m_graph.GetNodeColor(node);
 
                 Vector2 nodeSize;
-                ComputeNodeSize(node, out nodeSize, out nodeInfo.fieldValueMaxWidth, out nodeInfo.fieldNameMaxWidth);
+                ComputeNodeSize(i, node, out nodeSize, out nodeInfo.fieldValueMaxWidth, out nodeInfo.fieldNameMaxWidth);
                 nodeInfo.rect = new Rect(node.GraphPosition, nodeSize);
                 nodeInfo.connectionPosition = node.GraphPosition + new Vector2(nodeSize.x - 5, s_nodeHeaderHeight * 0.5f);
 
@@ -723,6 +719,8 @@ namespace Spell.Graph
                         fieldPosition = fieldPosition,
                         pinLocalRect = pinLocalRect,
                         pinGlobalRect = new Rect(nodeInfo.rect.position + pinLocalRect.position, pinLocalRect.size),
+                        color = m_graph.GetParameterColor(i, j),
+                        size = m_graph.GetParameterSize(i, j)
                     };
                     nodeInfo.parameters.Add(pin);
 
@@ -766,7 +764,7 @@ namespace Spell.Graph
                         }
                     }
 
-                    fieldPosition.y += parameter.Size.y + s_nodeFieldVerticalSpacing;
+                    fieldPosition.y += pin.size.y + s_nodeFieldVerticalSpacing;
                 }
             }
 
@@ -827,7 +825,7 @@ namespace Spell.Graph
 
         // ----------------------------------------------------------------------------------------
         // TODO: we don't need to request GetFields one again. See ComputeNodeInfo.
-        private void ComputeNodeSize(INode node, out Vector2 nodeSize, out float fieldValueMaxWidth, out float fieldNameMaxWidth)
+        private void ComputeNodeSize(int nodeIndex, INode node, out Vector2 nodeSize, out float fieldValueMaxWidth, out float fieldNameMaxWidth)
         {
             fieldNameMaxWidth = 0;
             fieldValueMaxWidth = 0;
@@ -840,7 +838,7 @@ namespace Spell.Graph
 
             if (parameters.Count == 0)
             {
-                nodeSize = m_graph.GetPrimitiveNodeSize(node) + new Vector2(2, 2);
+                nodeSize = Vector2.zero; //m_graph.GetPrimitiveNodeSize(node) + new Vector2(2, 2);
             }
             else
             {
@@ -852,7 +850,7 @@ namespace Spell.Graph
                     m_fieldNameStyle.CalcMinMaxWidth(new GUIContent(parameter.Name), out minWidth, out maxWidth);
                     fieldNameMaxWidth = Mathf.Max(fieldNameMaxWidth, maxWidth);
 
-                    var fieldSize = parameter.Size;
+                    var fieldSize = m_graph.GetParameterSize(nodeIndex, i);
                     fieldValueMaxWidth = Mathf.Max(fieldValueMaxWidth, fieldSize.x);
                     nodeSize.y += fieldSize.y + s_nodeFieldVerticalSpacing;
 
@@ -861,7 +859,7 @@ namespace Spell.Graph
                     {
                         if (parameterSide != nodeSides.Value)
                         {
-                            sideCount = 2;
+                            //sideCount = 2;
                         }
                     }
                     else

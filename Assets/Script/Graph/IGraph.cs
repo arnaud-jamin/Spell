@@ -20,9 +20,9 @@ namespace Spell.Graph
         float ViewZoom { get; set; }
 
         Color GetNodeColor(INode node);
-        Color GetParameterColor(IParameterInfo parameter);
-        Vector2 GetPrimitiveNodeSize(INode node);
-        void DrawField(BaseValue node, Rect rect);
+        Color GetParameterColor(int nodeIndex, int parameterIndex);
+        Vector2 GetParameterSize(int nodeIndex, int parameterIndex);
+        void DrawField(int nodeIndex, int parameterIndex, Rect rect);
 
         INode CreateNode(Type type);
         INode CreateFixedValue(Type valueType);

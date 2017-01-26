@@ -12,6 +12,7 @@ namespace Spell.Graph
         public string VariableName { get; set; }
         public virtual Type PrimitiveType { get { return null; } }
         public virtual object PrimitiveValue { get { return null; }  set { } }
+        public List<BaseParameter> Parameters { get { return m_parameters; } }
 
         private List<BaseParameter> m_parameters = new List<BaseParameter>();
 

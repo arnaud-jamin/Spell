@@ -31,6 +31,8 @@ namespace Spell.Graph
         public Rect pinLocalRect;
         public Rect pinGlobalRect;
         public IParameterInfo parameter;
+        public Color color;
+        public Vector2 size;
     }
 
     public class NodeConnection

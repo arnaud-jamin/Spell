@@ -59,24 +59,48 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        public Color GetParameterColor(IParameterInfo parameter)
+        public Color GetParameterColor(int nodeIndex, int parameterIndex)
         {
-            return GetTypeColor(((ParameterInfo)parameter).PrimitiveType);
+            var parameter = GetParameter(nodeIndex, parameterIndex);
+            if (parameter == null)
+                return new Color(0.2f, 0.2f, 0.2f);
+
+            return GetTypeColor(parameter.GetType());
         }
 
         // ----------------------------------------------------------------------------------------
-        public Vector2 GetPrimitiveNodeSize(INode node)
+        public Vector2 GetParameterSize(int nodeIndex, int parameterIndex)
         {
-            return GetFieldSize(node.GetType());
+            var parameter = GetParameter(nodeIndex, parameterIndex);
+
+            var inValue = parameter as InValue;
+            if (inValue != null)
+            {
+                return GetFieldSize(inValue.ValueType);
+            }
+
+            var outValue = parameter as InValue;
+            if (outValue != null)
+            {
+                return GetFieldSize(outValue.ValueType);
+            }
+
+            return new Vector2(0, 16);
         }
 
         // ----------------------------------------------------------------------------------------
         public static Color GetTypeColor(Type type)
         {
-            if (typeof(float).IsAssignableFrom(type))   return new Color(0.2f, 0.2f, 0.5f);
-            if (typeof(int).IsAssignableFrom(type))     return new Color(0.8f, 0.8f, 0.0f);
-            if (typeof(Action).IsAssignableFrom(type))  return new Color(0.5f, 0.2f, 0.2f);
-            if (typeof(Shape).IsAssignableFrom(type))   return new Color(0.2f, 0.5f, 0.2f);
+            if (typeof(InValue<float>).IsAssignableFrom(type))      return new Color(0.2f, 0.2f, 0.5f);
+            if (typeof(OutValue<float>).IsAssignableFrom(type))     return new Color(0.2f, 0.2f, 0.5f);
+
+            if (typeof(InValue<int>).IsAssignableFrom(type))        return new Color(0.8f, 0.8f, 0.0f);
+            if (typeof(OutValue<int>).IsAssignableFrom(type))       return new Color(0.8f, 0.8f, 0.0f);
+
+            if (typeof(InValue<Shape>).IsAssignableFrom(type))      return new Color(0.2f, 0.5f, 0.2f);
+            if (typeof(OutValue<Shape>).IsAssignableFrom(type))     return new Color(0.2f, 0.5f, 0.2f);
+
+            if (typeof(BaseAction).IsAssignableFrom(type))          return new Color(0.5f, 0.2f, 0.2f);
 
             return new Color(0.2f, 0.2f, 0.2f);
         }
@@ -181,58 +205,30 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        public void DrawField(BaseValue parameter, Rect rect)
+        private BaseParameter GetParameter(int nodeIndex, int parameterIndex)
         {
-#if UNITY_EDITOR
+            if (nodeIndex < 0 && nodeIndex >= m_nodes.Count)
+                return null;
 
-            if (parameter.ValueType == typeof(string))
-            {
-                parameter.PrimitiveValue = EditorGUI.TextField(rect, (string)parameter.PrimitiveValue);
-            }
-            else if (typeof(UnityEngine.Object).IsAssignableFrom(parameter.ValueType))
-            {
-                parameter.PrimitiveValue = EditorGUI.ObjectField(rect, (UnityEngine.Object)parameter.PrimitiveValue, parameter.ValueType, false);
-            }
-            else if (parameter.PrimitiveValue != null)
-            {
-                if (parameter.ValueType == typeof(bool))
-                {
-                    parameter.PrimitiveValue = EditorGUI.Toggle(rect, (bool)parameter.PrimitiveValue, "Toggle");
-                }
-                else if (parameter.ValueType == typeof(int))
-                {
-                    parameter.PrimitiveValue = EditorGUI.IntField(rect, GUIContent.none, (int)parameter.PrimitiveValue, "NodeFieldValue");
-                }
-                else if (parameter.ValueType == typeof(float))
-                {
-                    parameter.PrimitiveValue = EditorGUI.FloatField(rect, GUIContent.none, (float)parameter.PrimitiveValue, "NodeFieldValue");
-                }
-                else if (parameter.ValueType == typeof(Vector2))
-                {
-                    parameter.PrimitiveValue = EditorHelper.Vector2Field(rect, (Vector2)parameter.PrimitiveValue, "NodeFieldNameLeft", "NodeFieldValue");
-                }
-                else if (parameter.ValueType == typeof(Vector3))
-                {
-                    parameter.PrimitiveValue = EditorHelper.Vector3Field(rect, (Vector3)parameter.PrimitiveValue, "NodeFieldNameLeft", "NodeFieldValue");
-                }
-                else if (parameter.ValueType == typeof(Color))
-                {
-                    GUI.skin = null;
-                    parameter.PrimitiveValue = EditorGUI.ColorField(rect, GUIContent.none, (Color)parameter.PrimitiveValue, false, true, false, new ColorPickerHDRConfig(0, 0, 0, 0));
-                }
-                else if (parameter.ValueType.IsEnum)
-                {
-                    if (parameter.ValueType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0)
-                    {
-                        parameter.PrimitiveValue = EditorGUI.MaskField(rect, (int)parameter.PrimitiveValue, Enum.GetNames(parameter.ValueType), "NodeFieldValue");
-                    }
-                    else
-                    {
-                        parameter.PrimitiveValue = EditorGUI.Popup(rect, (int)parameter.PrimitiveValue, Enum.GetNames(parameter.ValueType), "NodeFieldValue");
-                    }
-                }
-            }
-#endif
+            var node = m_nodes[nodeIndex] as Node;
+            if (node == null)
+                return null;
+
+            if (parameterIndex < 0 && parameterIndex >= node.Parameters.Count)
+                return null;
+
+            var parameter = node.Parameters[parameterIndex];
+            return parameter;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public void DrawField(int nodeIndex, int parameterIndex, Rect rect)
+        {
+            var parameter = GetParameter(nodeIndex, parameterIndex);
+            if (parameter == null)
+                return;
+
+            parameter.DrawField(rect);
         }
     }
 }

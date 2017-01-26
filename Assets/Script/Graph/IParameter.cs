@@ -15,13 +15,10 @@ namespace Spell.Graph
     public interface IParameterInfo
     {
         string Name { get; }
-        Color Color { get; }
         ParameterSide Side { get; }
         INode ConnectedNode { get; }
         bool IsList { get; }
         IList List { get; }
-        Vector2 Size { get; }
-        BaseParameter Parameter { get; }
 
         bool CanConnectToParameter(IParameterInfo parameter);
         bool ConnectToParameter(IParameterInfo parameter);

@@ -22,7 +22,7 @@ namespace Spell.Graph
                 for (var i = 0; i < caster.Summoned.Count; ++i)
                 {
                     var summoned = caster.Summoned[i];
-                    outIterator.PrimitiveValue = summoned;
+                    outIterator.Value = summoned;
                     outLoop.Execute();
                 }
 
