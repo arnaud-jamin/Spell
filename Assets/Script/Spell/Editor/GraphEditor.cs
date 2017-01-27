@@ -412,7 +412,7 @@ namespace Spell.Graph
             {
                 // Node Title
                 GUI.backgroundColor = nodeInfo.color;
-                GUI.Box(new Rect(0, 0, nodeInfo.rect.size.x, 16), nodeInfo.derivedTypeInfo.name, "NodeTitle");
+                GUI.Box(new Rect(0, 0, nodeInfo.rect.size.x, 16), nodeInfo.name, "NodeTitle");
                 GUI.backgroundColor = Color.white;
 
                 // Node Fields
@@ -650,9 +650,9 @@ namespace Spell.Graph
             {
                 var node = m_graph.Nodes[i];
                 var nodeInfo = new NodeInfo();
+                nodeInfo.name = node.GetType().Name;
                 nodeInfo.index = i;
                 nodeInfo.node = node;
-                nodeInfo.derivedTypeInfo = NodeTypeInfo.GetNodeInfo(node.GetType());
                 nodeInfo.color = m_graph.GetNodeColor(i);
 
                 Vector2 nodeSize;
@@ -1129,7 +1129,7 @@ namespace Spell.Graph
                         else
                         {
                             var selectedPin = m_draggedPin;
-                            CreateNodeMenu(m_graph.GetAssignableNodes(selectedPin.parameter), m_worldMousePosition, 
+                            CreateNodeMenu(m_graph.GetAssignableNodes(selectedPin.parameterIndex), m_worldMousePosition, 
                                            newNode => { ConnectParameterToNode(selectedPin, new NodeInfo() { node = newNode }); });
                             m_draggedPin = null;
                             e.Use();
@@ -1360,6 +1360,8 @@ namespace Spell.Graph
         private void RebuildPinListIndices(NodePin pin)
         {
             var list = pin.parameter.List;
+            if (list == null)
+                return;
 
             var tempArray = new INode[list.Count];
             list.CopyTo(tempArray, 0);

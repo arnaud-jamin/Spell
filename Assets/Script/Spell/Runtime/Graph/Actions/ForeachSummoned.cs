@@ -3,7 +3,7 @@
 namespace Spell.Graph
 {
     [NodeMenuItem("Action")]
-    public class ForeachSummoned : Node
+    public class ForeachSummoned : ActionNode
     {
         public override Color Color { get { return Graph.ActionColor; } }
 

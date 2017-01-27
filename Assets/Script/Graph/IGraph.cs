@@ -33,10 +33,9 @@ namespace Spell.Graph
         int GetInstanceID();
 
         List<NodeTypeInfo> GetAllNodes();
-        List<NodeTypeInfo> GetAssignableNodes(IParameterInfo parameter);
-
-        bool CanConnectParameters(ParameterIndex p1, ParameterIndex p2);
-        bool ConnectParameters(ParameterIndex p1, ParameterIndex p2);
-        void Disconnect(ParameterIndex p1, ParameterIndex p2);
+        List<NodeTypeInfo> GetAssignableNodes(ParameterIndex parameter);
+        bool CanConnectParameters(ParameterIndex src, ParameterIndex dst);
+        bool ConnectParameters(ParameterIndex src, ParameterIndex dst);
+        void Disconnect(ParameterIndex src, ParameterIndex dst);
     }
 }

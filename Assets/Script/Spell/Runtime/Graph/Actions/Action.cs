@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FullSerializer;
+using System;
 using UnityEditor;
 using UnityEngine;
 
@@ -6,8 +7,11 @@ namespace Spell.Graph
 {
     public class BaseParameter
     {
-        public int Order;
-        public string Name;
+        [fsIgnore]
+        private string m_name;
+
+        [fsIgnore]
+        public string Name { get { return m_name; } set { m_name = value; } }
 
         public virtual void DrawField(Rect rect)
         {

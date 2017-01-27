@@ -4,10 +4,8 @@ using UnityEngine;
 namespace Spell.Graph
 {
     [NodeMenuItem("Action")]
-    public class Damage : Node
+    public class Damage : ActionNode
     {
-        public override Color Color { get { return Graph.ActionColor; } }
-
         public Damage()
         {
             var amount = AddInValue<float>("Amount", 0);

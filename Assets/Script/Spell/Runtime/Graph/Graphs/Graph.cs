@@ -17,6 +17,10 @@ namespace Spell.Graph
         public static readonly Color IntColor = new Color(0.8f, 0.8f, 0.0f);
         public static readonly Color ShapeColor = new Color(0.2f, 0.5f, 0.2f);
         public static readonly Color ActionColor = new Color(0.5f, 0.2f, 0.2f);
+        public static readonly Color AbilityColor = new Color(0.5f, 0.5f, 0.8f);
+
+        // ----------------------------------------------------------------------------------------
+        private static Dictionary<Type, NodeTypeInfo> s_nodeInfoCache = new Dictionary<Type, NodeTypeInfo>();
 
         // ----------------------------------------------------------------------------------------
         [fsIgnore]
@@ -126,9 +130,20 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        public List<NodeTypeInfo> GetAssignableNodes(IParameterInfo parameter)
+        public List<NodeTypeInfo> GetAssignableNodes(ParameterIndex parameterIndex)
         {
-            return GetAssignableNodes((parameter as ParameterInfo).FieldInfo.FieldType);
+            var parameter = GetParameter(parameterIndex);
+
+            if (parameter is ValueParameter)
+            {
+                return GetAssignableNodes(parameter as ValueParameter);
+            }
+            else if (parameter is ActionParameter)
+            {
+                return GetAssignableNodes(typeof(ActionNode));
+            }
+
+            return new List<NodeTypeInfo>();
         }
 
         // ----------------------------------------------------------------------------------------
@@ -145,10 +160,51 @@ namespace Spell.Graph
             var assembly = Assembly.GetAssembly(type);
             var allTypes = assembly.GetTypes();
             var nodeInfos = allTypes.Where(t => type.IsAssignableFrom(t) && t.IsAbstract == false && t.IsInterface == false)
-                                    .Select(t => NodeTypeInfo.GetNodeInfo(t))
+                                    .Select(t => GetNodeInfo(t))
                                     .Where(t => t.excludeFromMenu == false)
                                     .OrderBy(t => t.menuPath + "/" + t.name).ToList();
             return nodeInfos;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        private List<NodeTypeInfo> GetAssignableNodes(ValueParameter inValue)
+        {
+            // TODO: collapse things like 'Action/' and 'Action/Select' to '' and 'Select'
+
+            var assembly = Assembly.GetAssembly(inValue.GetType());
+            var allTypes = assembly.GetTypes();
+            var nodeInfos = allTypes.Where(t => t.IsAbstract == false 
+                                                && t.IsInterface == false
+                                                && typeof(INode).IsAssignableFrom(t)
+                                                && t.GetFields().FirstOrDefault(f => f.FieldType.IsAssignableFrom(inValue.ValueType)) != null)
+                                    .Select(t => GetNodeInfo(t))
+                                    .Where(t => t.excludeFromMenu == false)
+                                    .OrderBy(t => t.menuPath + "/" + t.name).ToList();
+            return nodeInfos;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public static NodeTypeInfo GetNodeInfo(Type type)
+        {
+            NodeTypeInfo info;
+            if (s_nodeInfoCache.TryGetValue(type, out info))
+                return info;
+
+            info = new NodeTypeInfo();
+            info.type = type;
+
+            var nameAttribute = Attribute.GetCustomAttribute(type, typeof(NameAttribute), true) as NameAttribute;
+            info.name = nameAttribute != null ? nameAttribute.Name : type.Name;
+
+            var nodeMenuItemAttribute = Attribute.GetCustomAttribute(type, typeof(NodeMenuItemAttribute), true) as NodeMenuItemAttribute;
+            info.menuPath = nodeMenuItemAttribute != null ? nodeMenuItemAttribute.MenuPath : string.Empty;
+
+            var excludeFromMenuAttribute = Attribute.GetCustomAttribute(type, typeof(ExcludeFromMenuAttribute), false) as ExcludeFromMenuAttribute;
+            info.excludeFromMenu = excludeFromMenuAttribute != null;
+
+            s_nodeInfoCache[type] = info;
+
+            return info;
         }
 
         // ----------------------------------------------------------------------------------------
@@ -185,25 +241,25 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        public bool CanConnectParameters(ParameterIndex p1, ParameterIndex p2)
+        public bool CanConnectParameters(ParameterIndex srcParam, ParameterIndex dstParam)
         {
-            var param1 = GetParameter(p1);
-            var param2 = GetParameter(p2);
+            var src = GetParameter(srcParam);
+            var dst = GetParameter(dstParam);
 
-            if (param1 is ValueParameter && param2 is ValueParameter)
+            if (src is ValueParameter && dst is ValueParameter)
             {
-                if (param1 is InValue && param2 is OutValue)
+                if (src is InValue && dst is OutValue)
                 {
-                    return ((InValue)param1).ValueType.IsAssignableFrom(((OutValue)param2).ValueType);
+                    return ((InValue)src).ValueType.IsAssignableFrom(((OutValue)dst).ValueType);
                 }
-                else if (param1 is OutValue && param1 is InValue)
+                else if (src is OutValue && src is InValue)
                 {
-                    return ((InValue)param2).ValueType.IsAssignableFrom(((OutValue)param1).ValueType);
+                    return ((InValue)dst).ValueType.IsAssignableFrom(((OutValue)src).ValueType);
                 }
             }
-            else if (param1 is ActionParameter && param2 is ActionParameter)
+            else if (src is ActionParameter && dst is ActionParameter)
             {
-                if ((param1 is InAction && param2 is OutAction) || (param1 is OutValue && param1 is InValue))
+                if ((src is InAction && dst is OutAction) || (src is OutValue && src is InValue))
                 {
                     return true;
                 }
@@ -213,7 +269,7 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        public bool ConnectParameters(ParameterIndex p1, ParameterIndex p2)
+        public bool ConnectParameters(ParameterIndex src, ParameterIndex dst)
         {
             return true;
         }
@@ -275,7 +331,7 @@ namespace Spell.Graph
         //}
 
         // ----------------------------------------------------------------------------------------
-        public void Disconnect(ParameterIndex p1, ParameterIndex p2)
+        public void Disconnect(ParameterIndex src, ParameterIndex dst)
         {
             //if (IsList)
             //{

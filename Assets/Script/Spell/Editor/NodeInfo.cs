@@ -19,6 +19,7 @@ namespace Spell.Graph
         public float fieldNameMaxWidth;
         public bool isMultiSided;
         public Color color;
+        public string name;
     }
 
     public class NodePin

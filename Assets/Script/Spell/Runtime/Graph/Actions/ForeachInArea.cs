@@ -3,10 +3,8 @@
 namespace Spell.Graph
 {
     [NodeMenuItem("Action")]
-    public class ForeachInArea : Node
+    public class ForeachInArea : ActionNode
     {
-        public override Color Color { get { return Graph.ActionColor; } }
-
         private static Collider[] s_colliders = new Collider[256];
 
         public ForeachInArea()

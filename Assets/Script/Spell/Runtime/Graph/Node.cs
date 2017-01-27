@@ -6,6 +6,11 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
+    public abstract class ActionNode : Node
+    {
+        public override Color Color { get { return Graph.ActionColor; } }
+    }
+
     public abstract class Node : INode
     {
         protected GameObject m_owner;
@@ -22,7 +27,7 @@ namespace Spell.Graph
         protected List<InAction> m_inActions = new List<InAction>();
         protected List<OutAction> m_outActions = new List<OutAction>();
 
-        protected InValue<T> AddInValue<T>(string name, T defaultValue, int order = 0)
+        protected InValue<T> AddInValue<T>(string name, T defaultValue)
         {
             var inValue = new InValue<T> { Name = name, DefaultValue = defaultValue };
             m_inValues.Add(inValue);
@@ -30,7 +35,7 @@ namespace Spell.Graph
             return inValue;
         }
 
-        protected OutValue<T> AddOutValue<T>(string name, T defaultValue, Func<T> func = null, int order = 0)
+        protected OutValue<T> AddOutValue<T>(string name, T defaultValue, Func<T> func = null)
         {
             var outValue = new OutValue<T> { Name = name, DefaultValue = defaultValue, Func = func };
             m_outValues.Add(outValue);
@@ -38,7 +43,7 @@ namespace Spell.Graph
             return outValue;
         }
 
-        protected InAction AddInAction(string name, Action action, int order = 0)
+        protected InAction AddInAction(string name, Action action)
         {
             var inAction = new InAction { Name = name, Action = action };
             m_inActions.Add(inAction);
@@ -46,7 +51,7 @@ namespace Spell.Graph
             return inAction;
         }
 
-        protected OutAction AddOutAction(string name, int order = 0)
+        protected OutAction AddOutAction(string name)
         {
             var outAction  = new OutAction { Name = name };
             m_outActions.Add(outAction);

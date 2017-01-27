@@ -6,13 +6,22 @@ namespace Spell.Graph
 {
     public class Ability : Node
     {
-        public Expression<string> Name = new TextValue();
-        public Expression<Sprite> Icon = new SpriteValue();
-        public Expression<float> ManaCost = new FloatValue();
-        public Expression<float> Cooldown = new FloatValue();
-        public Expression<CastTargetType> CastTargetType = new CastTargetTypeValue();
+        public InValue<string> Name;
+        public InValue<Sprite> Icon;
+        public InValue<float> ManaCost;
+        public InValue<float> Cooldown;
+        public InValue<CastTargetType> CastTargetType;
+        public OutAction Action;
 
-        [ParameterSide(ParameterSide.Right)]
-        public List<Action> Actions = new List<Action>();
+        public override Color Color { get { return Graph.AbilityColor; } }
+
+        public Ability()
+        {
+            Name = AddInValue<string>("Name", "Ability");
+            Icon = AddInValue<Sprite>("DamageType", null);
+            ManaCost = AddInValue<float>("ManaCost", 100);
+            Cooldown = AddInValue<float>("Cooldown", 10);
+            Action = AddOutAction("Action");
+        }
     }
 }

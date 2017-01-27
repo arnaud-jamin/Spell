@@ -28,6 +28,7 @@ namespace Spell.Graph
             if (GUILayout.Button("Clear"))
             {
                 graph.Clear();
+                graph.Save();
             }
 
             m_scroll = EditorGUILayout.BeginScrollView(m_scroll);
