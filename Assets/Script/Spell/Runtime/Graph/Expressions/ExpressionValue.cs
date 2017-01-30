@@ -70,6 +70,39 @@ namespace Spell.Graph
         public SpriteValue(Sprite value) : base(value) { }
     }
 
+    [Flags]
+    public enum AllianceType
+    {
+        Self,
+        Allies,
+        Enemies,
+        Neutral,
+    }
+
+    [NodeMenuItem("Values")]
+    public class Alliance : ExpressionValue<AllianceType>
+    {
+        public Alliance() : base() { }
+        public Alliance(AllianceType value) : base(value) { }
+    }
+
+    public enum PositionType
+    {
+        CasterPosition,
+        TargetPosition,
+    }
+
+    [NodeMenuItem("Values")]
+    public class Position : Expression<Vector3>
+    {
+        public ExpressionValue<PositionType> Type = new ExpressionValue<PositionType>();
+
+        public override Vector3 Evaluate()
+        {
+            return Vector3.zero;
+        }
+    }
+
     [NodeMenuItem("Values")]
     [Name("Vector3")]
     public class Vector3Value : ExpressionValue<Vector3>
@@ -131,10 +164,21 @@ namespace Spell.Graph
         public CastTargetTypeValue(CastTargetType value) : base(value) { }
     }
 
-    public enum Alliance
+    public enum StatType
     {
-        Friendly = 1,
-        Enemy = 2,
-        All = 4,
+        MaxHealth,
+        Damage,
+        MoveSpeed,
+        AttackSpeed,
+        Armor,
     }
+
+    [NodeMenuItem("Values")]
+    [Name("StatType")]
+    public class StatTypeValue : ExpressionValue<StatType>
+    {
+        public StatTypeValue() : base() { }
+        public StatTypeValue(StatType value) : base(value) { }
+    }
+
 }

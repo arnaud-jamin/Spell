@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Spell
 {
-    public class Buff 
+    public class BuffTemp
     {
     }
 }

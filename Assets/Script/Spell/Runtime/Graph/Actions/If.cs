@@ -28,6 +28,5 @@ namespace Spell.Graph
                 }
             }
         }
-
     }
 }

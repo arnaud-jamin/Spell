@@ -11,7 +11,7 @@ namespace Spell
         }
 
         //-----------------------------------------------------------------------------------------
-        public void AddBuff(Buff buff)
+        public void AddBuff(BuffTemp buff)
         {
         }
 

@@ -39,6 +39,10 @@ namespace Spell.Graph
         public static void CreateCasterGraph() { CreateGraph<Caster>(); }
 
         // ----------------------------------------------------------------------------------------
+        [MenuItem("Assets/Create/Spell/Buff")]
+        public static void CreateBuffGraph() { CreateGraph<Buff>(); }
+
+        // ----------------------------------------------------------------------------------------
         public static void CreateGraph<RootType>() where RootType : INode
         {
             var graph = ScriptableObjectHelper.CreateAsset<Graph>(typeof(RootType).Name);
