@@ -280,7 +280,7 @@ namespace Spell.Graph
             set
             {
                 var param = value as InValue<T>;
-                if (value == null)
+                if (param == null)
                     return;
 
                 param.ConnectedParameter = this;

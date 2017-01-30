@@ -22,6 +22,11 @@ namespace Spell.Graph
             ManaCost = AddInValue<float>("ManaCost", 100);
             Cooldown = AddInValue<float>("Cooldown", 10);
             Action = AddOutAction("Action");
+
+            AddOutValue<Ability>("Ability", () =>
+            {
+                return this;
+            });
         }
     }
 }
