@@ -4,13 +4,13 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
-    [NodeMenuItem("Action/Composite")]
+    [NodeMenuItem("Action")]
     public class ForeachInArea : Action
     {
         private static Collider[] s_colliders = new Collider[256];
 
         public Shape Shape = null;
-        public Action Action = null;
+        public List<Action> Actions = new List<Action>();
         public GameObjectValue Selection = new GameObjectValue();
 
         public override void Execute()
@@ -24,7 +24,11 @@ namespace Spell.Graph
             {
                 var collider = s_colliders[i];
                 Selection.Value = collider.attachedRigidbody.gameObject;
-                Action.Execute();
+
+                for (int j = 0; j < Actions.Count; ++j)
+                {
+                    Actions[j].Execute();
+                }
             }
         }
 

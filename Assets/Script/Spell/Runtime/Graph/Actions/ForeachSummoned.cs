@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
-    [NodeMenuItem("Action/Composite")]
+    [NodeMenuItem("Action")]
     public class ForeachSummoned : Action
     {
         public Expression<GameObject> Source = new GameObjectValue();
-        public Action Action = null;
+        public List<Action> Actions = new List<Action>();
         public GameObjectValue Selection = new GameObjectValue();
 
         public override void Execute()
@@ -23,7 +23,11 @@ namespace Spell.Graph
             {
                 var summoned = caster.Summoned[i];
                 Selection.Value = summoned;
-                Action.Execute();
+
+                for (int j = 0; j < Actions.Count; ++j)
+                {
+                    Actions[j].Execute();
+                }
             }
         }
     }
