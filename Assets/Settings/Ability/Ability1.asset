@@ -12,32 +12,24 @@ MonoBehaviour:
   m_Name: Ability1
   m_EditorClassIdentifier: 
   m_json: "{\r\n    \"m_rootType\": \"Spell.Graph.Ability\",\r\n    \"m_root\": {\r\n
-    \       \"Name\": {\r\n            \"Value\": null,\r\n            \"GraphPosition\":
-    {\r\n                \"x\": 0.0,\r\n                \"y\": 0.0\r\n            },\r\n
-    \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.TextValue\"\r\n
-    \       },\r\n        \"Icon\": {\r\n            \"Value\": {\r\n\r\n            },\r\n
-    \           \"GraphPosition\": {\r\n                \"x\": 0.0,\r\n                \"y\":
-    0.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
-    \"Spell.Graph.SpriteValue\"\r\n        },\r\n        \"ManaCost\": {\r\n            \"Value\":
-    0.0,\r\n            \"GraphPosition\": {\r\n                \"x\": 0.0,\r\n                \"y\":
-    0.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
-    \"Spell.Graph.FloatValue\"\r\n        },\r\n        \"Cooldown\": {\r\n            \"Value\":
-    0.0,\r\n            \"GraphPosition\": {\r\n                \"x\": 0.0,\r\n                \"y\":
-    0.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
-    \"Spell.Graph.FloatValue\"\r\n        },\r\n        \"CastTargetType\": {\r\n
-    \           \"Value\": \"Target\",\r\n            \"GraphPosition\": {\r\n                \"x\":
-    0.0,\r\n                \"y\": 0.0\r\n            },\r\n            \"VariableName\":
-    null,\r\n            \"$type\": \"Spell.Graph.CastTargetTypeValue\"\r\n        },\r\n
-    \       \"Actions\": [],\r\n        \"GraphPosition\": {\r\n            \"x\":
-    363.0,\r\n            \"y\": 279.0\r\n        },\r\n        \"VariableName\":
-    null,\r\n        \"$type\": \"Spell.Graph.Ability\"\r\n    },\r\n    \"m_nodes\":
-    [\r\n        {\r\n            \"GraphPosition\": {\r\n                \"x\": 523.0,\r\n
-    \               \"y\": 377.0\r\n            },\r\n            \"VariableName\":
-    null,\r\n            \"$type\": \"Spell.Graph.Box\"\r\n        },\r\n        {\r\n
-    \           \"GraphPosition\": {\r\n                \"x\": 994.0,\r\n                \"y\":
-    371.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
-    \"Spell.Graph.ForeachInArea\"\r\n        }\r\n    ],\r\n    \"m_viewOffset\":
-    {\r\n        \"x\": 251.0,\r\n        \"y\": 84.0\r\n    },\r\n    \"m_viewZoom\":
-    1.0\r\n}"
-  m_viewOffset: {x: 251, y: 84}
+    \       \"Name\": {\r\n            \"DefaultValue\": \"Ability\"\r\n        },\r\n
+    \       \"Icon\": {\r\n            \"DefaultValue\": null\r\n        },\r\n        \"ManaCost\":
+    {\r\n            \"DefaultValue\": 100.0\r\n        },\r\n        \"Cooldown\":
+    {\r\n            \"DefaultValue\": 10.0\r\n        },\r\n        \"CastTargetType\":
+    null,\r\n        \"Action\": {\r\n\r\n        },\r\n        \"GraphPosition\":
+    {\r\n            \"x\": 519.0,\r\n            \"y\": 176.0\r\n        },\r\n        \"VariableName\":
+    null,\r\n        \"$type\": \"Spell.Graph.Ability\",\r\n        \"$id\": \"1\"\r\n
+    \   },\r\n    \"m_nodes\": [\r\n        {\r\n            \"$ref\": \"1\"\r\n        },\r\n
+    \       {\r\n            \"GraphPosition\": {\r\n                \"x\": 144.0,\r\n
+    \               \"y\": 408.0\r\n            },\r\n            \"VariableName\":
+    null,\r\n            \"$type\": \"Spell.Graph.Add\"\r\n        },\r\n        {\r\n
+    \           \"Value\": \"Physical\",\r\n            \"GraphPosition\": {\r\n                \"x\":
+    417.0,\r\n                \"y\": 174.0\r\n            },\r\n            \"VariableName\":
+    null,\r\n            \"$type\": \"Spell.Graph.DamageTypeValue\"\r\n        },\r\n
+    \       {\r\n            \"GraphPosition\": {\r\n                \"x\": 812.0,\r\n
+    \               \"y\": 134.0\r\n            },\r\n            \"VariableName\":
+    null,\r\n            \"$type\": \"Spell.Graph.Damage\"\r\n        }\r\n    ],\r\n
+    \   \"m_viewOffset\": {\r\n        \"x\": 0.0,\r\n        \"y\": 0.0\r\n    },\r\n
+    \   \"m_viewZoom\": 1.0\r\n}"
+  m_viewOffset: {x: 0, y: 0}
   m_viewZoom: 1

@@ -12,26 +12,15 @@ MonoBehaviour:
   m_Name: Ability2
   m_EditorClassIdentifier: 
   m_json: "{\r\n    \"m_rootType\": \"Spell.Graph.Ability\",\r\n    \"m_root\": {\r\n
-    \       \"Name\": {\r\n            \"Value\": null,\r\n            \"GraphPosition\":
-    {\r\n                \"x\": 103.0,\r\n                \"y\": 106.0\r\n            },\r\n
-    \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.TextValue\"\r\n
-    \       },\r\n        \"Icon\": {\r\n            \"Value\": null,\r\n            \"GraphPosition\":
-    {\r\n                \"x\": 104.0,\r\n                \"y\": 139.0\r\n            },\r\n
-    \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.SpriteValue\"\r\n
-    \       },\r\n        \"ManaCost\": {\r\n            \"Value\": 0.0,\r\n            \"GraphPosition\":
-    {\r\n                \"x\": 0.0,\r\n                \"y\": 0.0\r\n            },\r\n
-    \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.FloatValue\"\r\n
-    \       },\r\n        \"Cooldown\": {\r\n            \"Value\": 0.0,\r\n            \"GraphPosition\":
-    {\r\n                \"x\": 0.0,\r\n                \"y\": 0.0\r\n            },\r\n
-    \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.FloatValue\"\r\n
-    \       },\r\n        \"CastTargetType\": {\r\n            \"Value\": \"Target\",\r\n
-    \           \"GraphPosition\": {\r\n                \"x\": 0.0,\r\n                \"y\":
-    0.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
-    \"Spell.Graph.CastTargetTypeValue\"\r\n        },\r\n        \"Actions\": [\r\n
-    \           {\r\n\r\n            }\r\n        ],\r\n        \"GraphPosition\":
-    {\r\n            \"x\": 368.0,\r\n            \"y\": 121.0\r\n        },\r\n        \"VariableName\":
-    null,\r\n        \"$type\": \"Spell.Graph.Ability\",\r\n        \"$id\": \"1\"\r\n
-    \   },\r\n    \"m_nodes\": [\r\n        {\r\n            \"$ref\": \"1\"\r\n        },\r\n
+    \       \"Name\": {\r\n            \"DefaultValue\": \"Ability\"\r\n        },\r\n
+    \       \"Icon\": {\r\n            \"DefaultValue\": null\r\n        },\r\n        \"ManaCost\":
+    {\r\n            \"DefaultValue\": 100.0\r\n        },\r\n        \"Cooldown\":
+    {\r\n            \"DefaultValue\": 10.0\r\n        },\r\n        \"CastTargetType\":
+    {\r\n            \"DefaultValue\": \"Target\"\r\n        },\r\n        \"Action\":
+    {\r\n\r\n        },\r\n        \"GraphPosition\": {\r\n            \"x\": 368.0,\r\n
+    \           \"y\": 121.0\r\n        },\r\n        \"VariableName\": null,\r\n
+    \       \"$type\": \"Spell.Graph.Ability\",\r\n        \"$id\": \"1\"\r\n    },\r\n
+    \   \"m_nodes\": [\r\n        {\r\n            \"$ref\": \"1\"\r\n        },\r\n
     \       {\r\n            \"GraphPosition\": {\r\n                \"x\": 738.0,\r\n
     \               \"y\": 395.0\r\n            },\r\n            \"VariableName\":
     null,\r\n            \"$type\": \"Spell.Graph.ForeachInArea\"\r\n        }\r\n

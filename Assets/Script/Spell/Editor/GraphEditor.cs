@@ -66,18 +66,20 @@ namespace Spell.Graph
 
         // Persistent infos
         private List<int> m_selectedNodes = new List<int>();
-        private NodePin m_draggedPin;
-        private NodeConnection m_selectedConnection;
+        private NodePin m_draggedHandle;
+        private int m_selectedConnectionIndex = -1;
         private bool m_isDraggingSelectedNodes;
         private NodePin m_pinToRebuildIndices;
+
 
         // Info recomputed every repaint
         private Vector2 m_worldMousePosition;
         private List<NodeInfo> m_nodeInfos = new List<NodeInfo>();
         private List<NodeConnection> m_connections = new List<NodeConnection>();
+        private List<Connection> m_connections2 = new List<Connection>();
         private NodeInfo m_nodeAtMousePosition;
-        private NodePin m_pinAtMousePosition;
-        private NodeConnection m_connectionAtMousePosition;
+        private NodePin m_parameterAtMousePosition;
+        private int m_connectionAtMousePosition;
 
         // Rect Selection
         private bool m_isRectSelectionInitiated;
@@ -406,7 +408,7 @@ namespace Spell.Graph
                 //DrawField(nodeInfo.node, inputRect);
             }
             //-------------------------
-            // Multi Pin Node
+            // Multi Parameter Node
             //-------------------------
             else
             {
@@ -415,45 +417,43 @@ namespace Spell.Graph
                 GUI.Box(new Rect(0, 0, nodeInfo.rect.size.x, 16), nodeInfo.name, "NodeTitle");
                 GUI.backgroundColor = Color.white;
 
-                // Node Fields
+                // Node Parameters
                 for (int i = 0; i < nodeInfo.parameters.Count; ++i)
                 {
-                    var pin = nodeInfo.parameters[i];
+                    var parameter = nodeInfo.parameters[i];
+                    var pinSkinPrefix = parameter.parameter.Type == ParameterType.Action ? "PinAction" : "PinValue";
 
-                    //---------------------
-                    // Field Pin
-                    //---------------------
-                    var pinStyle = "NodePinNormal";
-                    var pinBorderStyle = "NodePinBorderNormal";
-                    if (m_draggedPin != null && pin != m_draggedPin)
+                    var mode = "Normal";
+                    if (m_draggedHandle != null && parameter != m_draggedHandle)
                     {
-                        var enable = m_graph.CanConnectParameters(m_draggedPin.parameterIndex, pin.parameterIndex);
-                        pinStyle = enable ? "NodePinEnable" : "NodePinDisable";
-                        pinBorderStyle = enable ? "NodePinBorderEnable" : "NodePinBorderDisable";
+                        mode = m_graph.CanConnectParameters(m_draggedHandle.parameterIndex, parameter.parameterIndex) ? "Enable" : "Disable";
                     }
-
-                    GUI.backgroundColor = pin.color;
-                    GUI.Box(pin.pinLocalRect, GUIContent.none, pinStyle);
+                    
+                    //---------------------
+                    // Parameter Handle
+                    //---------------------
+                    GUI.backgroundColor = parameter.color;
+                    GUI.Box(parameter.pinLocalRect, GUIContent.none, pinSkinPrefix + mode);
                     GUI.backgroundColor = Color.white;
-                    GUI.Box(pin.pinLocalRect, GUIContent.none, pinBorderStyle);
-                    EditorGUIUtility.AddCursorRect(pin.pinLocalRect, MouseCursor.ArrowPlus);
+                    GUI.Box(parameter.pinLocalRect, GUIContent.none, pinSkinPrefix + "Border" + mode);
+                    EditorGUIUtility.AddCursorRect(parameter.pinLocalRect, MouseCursor.ArrowPlus);
 
                     //---------------------
-                    // Field Value
+                    // Parameter Value
                     //---------------------
                     var hasFieldValue = false;
-                    var fieldValueRect = new Rect(0, pin.pinLocalRect.y, 0, 0);
-                    var fieldSize = pin.size;
+                    var fieldValueRect = new Rect(0, parameter.pinLocalRect.y, 0, 0);
+                    var fieldSize = parameter.size;
 
-                    if (pin.parameter.Side == ParameterSide.Left)
+                    if (parameter.parameter.Side == ParameterSide.Left)
                     {
                         GUI.color = Color.white;
                         GUI.backgroundColor = Color.white;
-                        if (pin.isAttached)
+                        if (parameter.isAttached)
                         {
-                            fieldValueRect = pin.parameter.Side == ParameterSide.Left ? new Rect(pin.pinLocalRect.xMax + nodeInfo.fieldNameMaxWidth + s_controlMargin * 2, pin.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y)
-                                                                                      : new Rect(pin.pinLocalRect.xMin - s_controlMargin - nodeInfo.fieldValueMaxWidth, pin.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y);
-                            DrawField(pin.parameterIndex, fieldValueRect);
+                            fieldValueRect = parameter.parameter.Side == ParameterSide.Left ? new Rect(parameter.pinLocalRect.xMax + nodeInfo.fieldNameMaxWidth + s_controlMargin * 2, parameter.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y)
+                                                                                      : new Rect(parameter.pinLocalRect.xMin - s_controlMargin - nodeInfo.fieldValueMaxWidth, parameter.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y);
+                            DrawField(parameter.parameterIndex, fieldValueRect);
                             hasFieldValue = true;
                         }
                     }
@@ -462,10 +462,10 @@ namespace Spell.Graph
                     // Field Name
                     //---------------------
                     var fieldWidth = hasFieldValue ? nodeInfo.fieldValueMaxWidth + s_controlMargin : 0;
-                    var nodeFieldNameStyle = pin.parameter.Side == ParameterSide.Left ? "NodeFieldNameLeft" : "NodeFieldNameRight";
-                    var nodeFieldNameRect = pin.parameter.Side == ParameterSide.Left ? new Rect(pin.pinLocalRect.xMax + s_controlMargin, pin.fieldPosition.y, nodeInfo.fieldNameMaxWidth, fieldSize.y)
-                                                                                     : new Rect(pin.pinLocalRect.xMin - s_controlMargin - nodeInfo.fieldNameMaxWidth - fieldWidth, pin.fieldPosition.y, nodeInfo.fieldNameMaxWidth, fieldSize.y);
-                    GUI.Label(nodeFieldNameRect, pin.parameter.Name, nodeFieldNameStyle);
+                    var nodeFieldNameStyle = parameter.parameter.Side == ParameterSide.Left ? "NodeFieldNameLeft" : "NodeFieldNameRight";
+                    var nodeFieldNameRect = parameter.parameter.Side == ParameterSide.Left ? new Rect(parameter.pinLocalRect.xMax + s_controlMargin, parameter.fieldPosition.y, nodeInfo.fieldNameMaxWidth, fieldSize.y)
+                                                                                     : new Rect(parameter.pinLocalRect.xMin - s_controlMargin - nodeInfo.fieldNameMaxWidth - fieldWidth, parameter.fieldPosition.y, nodeInfo.fieldNameMaxWidth, fieldSize.y);
+                    GUI.Label(nodeFieldNameRect, parameter.parameter.Name, nodeFieldNameStyle);
                 }
             }
         }
@@ -510,32 +510,43 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         private void DrawConnections()
         {
-            for (var i = 0; i < m_connections.Count; ++i)
+            for (var i = 0; i < m_connections2.Count; ++i)
             {
-                var connection = m_connections[i];
-                var endPosition = GetConnectionEndPosition(connection);
-                DrawConnection(connection, endPosition, connection.parameter.parameter.IsList);
+                var connection = m_connections2[i];
+                DrawConnection(connection, false);
             }
 
-            if (m_draggedPin != null)
+            if (m_draggedHandle != null)
             {
-                DrawConnection(new NodeConnection { parameter = m_draggedPin }, Event.current.mousePosition);
+                DrawConnection(new Connection { src = m_draggedHandle.parameterIndex, }, true);
             }
         }
 
         // ----------------------------------------------------------------------------------------
-        void DrawConnection(NodeConnection connection, Vector2 end, bool drawIndex = false)
+        void DrawConnection(Connection connection, bool drawNewConnection = false, bool drawIndex = false)
         {
-            var start = connection.parameter.pinGlobalRect.center;
+            var startParam = GetParameter(connection.src);
+            var startPosition = startParam.pinGlobalRect.center;
 
-            if (connection.parameter.parameter.Side == ParameterSide.Left)
+            Vector2 endPosition;
+            if (drawNewConnection)
             {
-                Utils.Swap(ref start, ref end);
+                endPosition = m_worldMousePosition;
+            }
+            else
+            {
+                var endParam = GetParameter(connection.dst);
+                endPosition = endParam.pinGlobalRect.center;
             }
 
-            var color = connection == m_selectedConnection ? connection.parameter.color.NewAlpha(1.0f) : connection.parameter.color.NewAlpha(0.75f);
-            var width = connection == m_selectedConnection ? s_selectedConnectionWidth : s_connectionWidth;
-            DrawConnection(start, end, color, width);
+            if (startParam.parameter.Side == ParameterSide.Left)
+            {
+                Utils.Swap(ref startPosition, ref endPosition);
+            }
+
+            var color = connection.index == m_selectedConnectionIndex ? startParam.color.NewAlpha(1.0f) : startParam.color.NewAlpha(0.75f);
+            var width = connection.index == m_selectedConnectionIndex ? s_selectedConnectionWidth : s_connectionWidth;
+            DrawConnection(startPosition, endPosition, color, width);
 
             if (drawIndex)
             {
@@ -544,7 +555,7 @@ namespace Spell.Graph
                 m_connectionIndexStyle.CalcMinMaxWidth(content, out minWidth, out maxWidth);
                 var height = m_connectionIndexStyle.CalcHeight(content, maxWidth);
                 var size = new Vector2(maxWidth, height) + s_connectionIndexPadding * 2;
-                var position = (start + (end - start) * 0.5f) - size * 0.5f;
+                var position = (startPosition + (endPosition - startPosition) * 0.5f) - size * 0.5f;
                 GUI.Box(new Rect(position, size), content, m_connectionIndexStyle);
             }
         }
@@ -612,9 +623,9 @@ namespace Spell.Graph
                 rect.y += 20;
             }
 
-            if (m_pinAtMousePosition != null)
+            if (m_parameterAtMousePosition != null)
             {
-                GUI.Box(rect, "Pin:" + m_pinAtMousePosition.pinGlobalRect.position.ToString());
+                GUI.Box(rect, "Pin:" + m_parameterAtMousePosition.pinGlobalRect.position.ToString());
                 rect.y += 20;
             }
 
@@ -669,8 +680,8 @@ namespace Spell.Graph
             }
 
             m_nodeAtMousePosition = null;
-            m_pinAtMousePosition = null;
-            m_connectionAtMousePosition = null;
+            m_parameterAtMousePosition = null;
+            m_connectionAtMousePosition = -1;
 
             for (var i = 0; i < m_nodeInfos.Count; ++i)
             {
@@ -732,40 +743,40 @@ namespace Spell.Graph
                     //-----------------------------------------------------------------------------
                     if (pin.pinGlobalRect.Contains(m_worldMousePosition))
                     {
-                        m_pinAtMousePosition = pin;
+                        m_parameterAtMousePosition = pin;
                     }
 
                     //-----------------------------------------------------------------------------
                     // Compute the field connection infos. If the field is a list of Node, it can 
                     // have multiple connections. It cannot have any if the field is attached.
                     //-----------------------------------------------------------------------------
-                    if (pin.isAttached == false && parameter.IsList == false)
-                    {
-                        var connection = new NodeConnection()
-                        {
-                            parameter = pin,
-                            index = 0,
-                            connectedNode = connectedNodeIndex,
-                            connectedParameter = connectedParameterIndex
-                        };
+                    //if (pin.isAttached == false && parameter.IsList == false)
+                    //{
+                    //    var connection = new NodeConnection()
+                    //    {
+                    //        parameter = pin,
+                    //        index = 0,
+                    //        connectedNode = connectedNodeIndex,
+                    //        connectedParameter = connectedParameterIndex
+                    //    };
 
-                        pin.connections.Add(connection);
-                        m_connections.Add(connection);
-                    }
-                    else if (parameter.IsList)
-                    {
-                        var connectedNodes = parameter.List;
-                        for (var k = 0; k < connectedNodes.Count; ++k)
-                        {
-                            var connectedNode = connectedNodes[k] as INode;
-                            var listConnectedNodeIndex = m_graph.Nodes.IndexOf(connectedNode);
-                            if (listConnectedNodeIndex != -1)
-                            {
-                                var connection = new NodeConnection() { connectedNode = listConnectedNodeIndex, index = k, parameter = pin };
-                                pin.connections.Add(connection);
-                            }
-                        }
-                    }
+                    //    pin.connections.Add(connection);
+                    //    m_connections.Add(connection);
+                    //}
+                    //else if (parameter.IsList)
+                    //{
+                    //    var connectedNodes = parameter.List;
+                    //    for (var k = 0; k < connectedNodes.Count; ++k)
+                    //    {
+                    //        var connectedNode = connectedNodes[k] as INode;
+                    //        var listConnectedNodeIndex = m_graph.Nodes.IndexOf(connectedNode);
+                    //        if (listConnectedNodeIndex != -1)
+                    //        {
+                    //            var connection = new NodeConnection() { connectedNode = listConnectedNodeIndex, index = k, parameter = pin };
+                    //            pin.connections.Add(connection);
+                    //        }
+                    //    }
+                    //}
 
                     fieldPosition.y += pin.size.y + s_nodeFieldVerticalSpacing;
                 }
@@ -774,23 +785,21 @@ namespace Spell.Graph
             //-------------------------------------------------------------------------
             // Save the connection where the mouse is.
             //-------------------------------------------------------------------------
-            for (int i = 0; i < m_connections.Count; ++i)
+            m_connections2.Clear();
+            m_graph.GetConnections(m_connections2);
+            for (int i = 0; i < m_connections2.Count; ++i)
             {
-                var connection = m_connections[i];
+                var connection = m_connections2[i];
                 if (IsNearConnection(m_worldMousePosition, connection))
                 {
-                    m_connectionAtMousePosition = connection;
+                    m_connectionAtMousePosition = connection.index;
+                    break;
                 }
             }
 
-            if (m_draggedPin != null)
+            if (m_draggedHandle != null)
             {
-                m_draggedPin = m_nodeInfos[m_draggedPin.nodeInfo.index].parameters[m_draggedPin.index];
-            }
-
-            if (m_selectedConnection != null)
-            {
-                m_selectedConnection = m_nodeInfos[m_selectedConnection.parameter.nodeInfo.index].parameters[m_selectedConnection.parameter.index].connections[m_selectedConnection.index];
+                m_draggedHandle = m_nodeInfos[m_draggedHandle.nodeInfo.index].parameters[m_draggedHandle.index];
             }
 
             if (m_pinToRebuildIndices != null)
@@ -924,20 +933,29 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        bool IsNearConnection(Vector2 position, NodeConnection connection)
+        bool IsNearConnection(Vector2 position, Connection connection)
         {
-            var start = connection.parameter.pinGlobalRect.center;
-            var end = GetConnectionEndPosition(connection);
+            var startParam = GetParameter(connection.src);
+            var startPos = startParam.pinGlobalRect.center;
 
-            if (connection.parameter.parameter.Side == ParameterSide.Left)
+            var endParam = GetParameter(connection.dst);
+            var endPos = endParam.pinGlobalRect.center;
+
+            if (startParam.parameter.Side == ParameterSide.Left)
             {
-                Utils.Swap(ref start, ref end);
+                Utils.Swap(ref startPos, ref endPos);
             }
 
             Vector2 startTangent, endTangent;
-            GetConnectionTangents(start, end, out startTangent, out endTangent);
-            var distance = HandleUtility.DistancePointBezier(position, start, end, startTangent, endTangent);
+            GetConnectionTangents(startPos, endPos, out startTangent, out endTangent);
+            var distance = HandleUtility.DistancePointBezier(position, startPos, endPos, startTangent, endTangent);
             return (distance <= s_connectionSelectionDistance);
+        }
+
+        // ----------------------------------------------------------------------------------------
+        NodePin GetParameter(ParameterIndex paramerterIndex)
+        {
+            return m_nodeInfos[paramerterIndex.nodeIndex].parameters[paramerterIndex.parameterIndex];
         }
 
         #endregion
@@ -1023,13 +1041,13 @@ namespace Spell.Graph
             {
                 if (e.button == 0)
                 {
-                    m_selectedConnection = null;
-                    m_draggedPin = null;
+                    m_selectedConnectionIndex = -1;
+                    m_draggedHandle = null;
 
                     // Handle pin clicking to create a new connection.
-                    if (m_pinAtMousePosition != null)
+                    if (m_parameterAtMousePosition != null)
                     {
-                        m_draggedPin = m_pinAtMousePosition;
+                        m_draggedHandle = m_parameterAtMousePosition;
                         e.Use();
                     }
                     else if (m_nodeAtMousePosition != null)
@@ -1049,9 +1067,9 @@ namespace Spell.Graph
                     }
                     // Handle connection selection. Check if the mouse is over a node to prevent 
                     // selecting a connection if below a block. Otherwise can't move the block
-                    else if ((m_draggedPin == null) && (m_nodeAtMousePosition == null) && m_connectionAtMousePosition != null)
+                    else if ((m_draggedHandle == null) && (m_nodeAtMousePosition == null) && m_connectionAtMousePosition != -1)
                     {
-                        m_selectedConnection = m_connectionAtMousePosition;
+                        m_selectedConnectionIndex = m_connectionAtMousePosition;
                         m_selectedNodes.Clear();
                         e.Use();
                     }
@@ -1112,26 +1130,26 @@ namespace Spell.Graph
                     {
 
                     }
-                    else if (m_draggedPin != null)
+                    else if (m_draggedHandle != null)
                     {
-                        if (m_pinAtMousePosition != null && m_pinAtMousePosition != m_draggedPin)
+                        if (m_parameterAtMousePosition != null && m_parameterAtMousePosition != m_draggedHandle)
                         {
-                            ConnectParameterToParameter(m_draggedPin, m_pinAtMousePosition);
-                            m_draggedPin = null;
+                            ConnectParameterToParameter(m_draggedHandle, m_parameterAtMousePosition);
+                            m_draggedHandle = null;
                             e.Use();
                         }
                         else if (m_nodeAtMousePosition != null)
                         {
-                            ConnectParameterToNode(m_draggedPin, m_nodeAtMousePosition);
-                            m_draggedPin = null;
+                            ConnectParameterToNode(m_draggedHandle, m_nodeAtMousePosition);
+                            m_draggedHandle = null;
                             e.Use();
                         }
                         else
                         {
-                            var selectedPin = m_draggedPin;
+                            var selectedPin = m_draggedHandle;
                             CreateNodeMenu(m_graph.GetAssignableNodes(selectedPin.parameterIndex), m_worldMousePosition, 
                                            newNode => { ConnectParameterToNode(selectedPin, new NodeInfo() { node = newNode }); });
-                            m_draggedPin = null;
+                            m_draggedHandle = null;
                             e.Use();
                         }
                     }
@@ -1149,7 +1167,7 @@ namespace Spell.Graph
             {
                 if (e.button == 0)
                 {
-                    if (m_draggedPin == null && m_isRectSelectionInitiated == false)
+                    if (m_draggedHandle == null && m_isRectSelectionInitiated == false)
                     {
                         m_isDraggingSelectedNodes = true;
 
@@ -1231,10 +1249,8 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         private void ConnectParameterToParameter(NodePin source, NodePin dest)
         {
-            if (m_graph.ConnectParameters(source.parameterIndex, dest.parameterIndex))
-            {
-                m_pinToRebuildIndices = source;
-            }
+            m_graph.ConnectParameters(source.parameterIndex, dest.parameterIndex);
+            m_pinToRebuildIndices = source;
             RecordAndSave("Connect");
         }
 
@@ -1271,9 +1287,10 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         private void DeleteSelection()
         {
-            if (m_selectedConnection != null)
+            if (m_selectedConnectionIndex != -1)
             {
-                DeleteConnection(m_selectedConnection);
+                var connection = m_connections2[m_selectedConnectionIndex];
+                DeleteConnection(connection);
             }
             else
             {
@@ -1288,15 +1305,13 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        private void DeleteConnection(NodeConnection connection)
+        private void DeleteConnection(Connection connection)
         {
-            var parameter = connection.parameter.parameter;
-            var node = GetConnectedNode(connection);
-            m_graph.Disconnect(connection.parameter.parameterIndex, new ParameterIndex());
+            m_graph.DeleteConnection(connection);
 
-            if (m_selectedConnection == connection)
+            if (m_selectedConnectionIndex == connection.index)
             {
-                m_selectedConnection = null;
+                m_selectedConnectionIndex = -1;
             }
         }
 
@@ -1308,34 +1323,25 @@ namespace Spell.Graph
 
             m_graph.Nodes.Remove(nodeInfo.node);
 
-            var references = FindNodeReferences(nodeInfo);
-            for (var j = 0; j < references.Count; ++j)
+            var connections = FindNodeConnections(nodeInfo);
+            for (var j = 0; j < connections.Count; ++j)
             {
-                var reference = references[j];
-                DeleteConnection(reference);
+                DeleteConnection(connections[j]);
             }
 
             m_selectedNodes.Remove(nodeInfo.index);
         }
 
         // ----------------------------------------------------------------------------------------
-        private List<NodeConnection> FindNodeReferences(NodeInfo nodeToFind)
+        private List<Connection> FindNodeConnections(NodeInfo node)
         {
-            var connections = new List<NodeConnection>();
-            for (var i = 0; i < m_nodeInfos.Count; ++i)
+            var connections = new List<Connection>();
+            for (var i = 0; i < m_connections2.Count; ++i)
             {
-                var nodeInfo = m_nodeInfos[i];
-                for (var j = 0; j < nodeInfo.parameters.Count; ++j)
+                var connection = m_connections2[i];
+                if ((connection.src.nodeIndex == node.index) || (connection.dst.nodeIndex == node.index))
                 {
-                    var pin = nodeInfo.parameters[j];
-                    for (var k = 0; k < pin.connections.Count; ++k)
-                    {
-                        var connection = pin.connections[k];
-                        if (connection.connectedNode == nodeToFind.index)
-                        {
-                            connections.Add(connection);
-                        }
-                    }
+                    connections.Add(connection);
                 }
             }
 
@@ -1345,13 +1351,14 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         private void RebuildListIndices(NodeInfo nodeInfo)
         {
-            var references = FindNodeReferences(nodeInfo);
-            for (var i = 0; i < references.Count; ++i)
+            var connections = FindNodeConnections(nodeInfo);
+            for (var i = 0; i < connections.Count; ++i)
             {
-                var reference = references[i];
-                if (reference.parameter.parameter.IsList)
+                var connection = connections[i];
+                var param = GetParameter(connection.src);
+                if (param.parameter.IsList)
                 {
-                    RebuildPinListIndices(reference.parameter);
+                    RebuildPinListIndices(param);
                 }
             }
         }

@@ -14,7 +14,7 @@ namespace Spell.Graph
             var position = AddInValue("Position", Vector3.zero);
             var radius = AddInValue("Radius", 1.0f);
 
-            AddOutValue<Shape>("Shape", null, () =>
+            AddOutValue<Shape>("Shape", () =>
             {
                 m_circleShape.Position = position.Value;
                 m_circleShape.Radius = radius.Value;

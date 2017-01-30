@@ -245,33 +245,39 @@ namespace Spell.Graph
         {
             var src = GetParameter(srcParam);
             var dst = GetParameter(dstParam);
-
-            if (src is ValueParameter && dst is ValueParameter)
-            {
-                if (src is InValue && dst is OutValue)
-                {
-                    return ((InValue)src).ValueType.IsAssignableFrom(((OutValue)dst).ValueType);
-                }
-                else if (src is OutValue && src is InValue)
-                {
-                    return ((InValue)dst).ValueType.IsAssignableFrom(((OutValue)src).ValueType);
-                }
-            }
-            else if (src is ActionParameter && dst is ActionParameter)
-            {
-                if ((src is InAction && dst is OutAction) || (src is OutValue && src is InValue))
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return src.CanConnectTo(dst);
         }
 
         // ----------------------------------------------------------------------------------------
-        public bool ConnectParameters(ParameterIndex src, ParameterIndex dst)
+        public void ConnectParameters(ParameterIndex srcParam, ParameterIndex dstParam)
         {
-            return true;
+            var src = GetParameter(srcParam);
+            var dst = GetParameter(dstParam);
+            src.ConnectedParameter = dst;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public void GetConnections(List<Connection> connections)
+        {
+            for (var srcNodeIndex = 0; srcNodeIndex < m_nodes.Count; ++srcNodeIndex)
+            {
+                var node = m_nodes[srcNodeIndex] as Node;
+                for (var srcParameterIndex = 0; srcParameterIndex < node.Parameters.Count; ++srcParameterIndex)
+                {
+                    var parameter = node.Parameters[srcParameterIndex];
+                    var connectedParameter = parameter.ConnectedParameter;
+                    if (connectedParameter != null)
+                    {
+                        var dstNodeIndex = m_nodes.IndexOf(connectedParameter.Node);
+                        connections.Add(new Connection()
+                        {
+                            index = connections.Count,
+                            src = new ParameterIndex() { nodeIndex = srcNodeIndex, parameterIndex = srcParameterIndex },
+                            dst = new ParameterIndex() { nodeIndex = dstNodeIndex, parameterIndex = connectedParameter.Index }
+                        });
+                    }
+                }
+            }
         }
 
         // ----------------------------------------------------------------------------------------
@@ -281,57 +287,57 @@ namespace Spell.Graph
         //    if (currentValue == node)
         //        return false;
 
-        //    if (IsList && typeof(INode).IsAssignableFrom(m_primitiveType))
-        //        return true;
+            //    if (IsList && typeof(INode).IsAssignableFrom(m_primitiveType))
+            //        return true;
 
-        //    if (m_fieldInfo.FieldType.IsAssignableFrom(node.GetType()))
-        //        return true;
+            //    if (m_fieldInfo.FieldType.IsAssignableFrom(node.GetType()))
+            //        return true;
 
-        //    return false;
-        //}
+            //    return false;
+            //}
 
-        // ----------------------------------------------------------------------------------------
-        //public bool ConnectToNode(INode nodeToConnect)
-        //{
-        //    var currentValue = ConnectedNode;
-        //    if (currentValue == nodeToConnect)
-        //        return false;
+            // ----------------------------------------------------------------------------------------
+            //public bool ConnectToNode(INode nodeToConnect)
+            //{
+            //    var currentValue = ConnectedNode;
+            //    if (currentValue == nodeToConnect)
+            //        return false;
 
-        //    // TODO: manage cycles:
-        //    //parameter.connections.Add(new NodeConnection() { connectedNode = value, index = 0, pin = parameter });
-        //    //var isCreatingCycle = IsCreatingCycle(value, value);
-        //    //parameter.connections.RemoveAt(parameter.connections.Count - 1);
-        //    //if (isCreatingCycle)
-        //    //    return;
+            //    // TODO: manage cycles:
+            //    //parameter.connections.Add(new NodeConnection() { connectedNode = value, index = 0, pin = parameter });
+            //    //var isCreatingCycle = IsCreatingCycle(value, value);
+            //    //parameter.connections.RemoveAt(parameter.connections.Count - 1);
+            //    //if (isCreatingCycle)
+            //    //    return;
 
-        //    if (IsList)
-        //    {
-        //        if (typeof(INode).IsAssignableFrom(m_primitiveType))
-        //        {
-        //            var list = List;
-        //            if (list.Contains(nodeToConnect) == false)
-        //            {
-        //                list.Add(nodeToConnect);
-        //                return true;
-        //            }
-        //        }
-        //    }
-        //    else if (m_fieldInfo.FieldType.IsAssignableFrom(nodeToConnect.GetType()))
-        //    {
-        //        m_fieldInfo.SetValue(m_node, nodeToConnect);
+            //    if (IsList)
+            //    {
+            //        if (typeof(INode).IsAssignableFrom(m_primitiveType))
+            //        {
+            //            var list = List;
+            //            if (list.Contains(nodeToConnect) == false)
+            //            {
+            //                list.Add(nodeToConnect);
+            //                return true;
+            //            }
+            //        }
+            //    }
+            //    else if (m_fieldInfo.FieldType.IsAssignableFrom(nodeToConnect.GetType()))
+            //    {
+            //        m_fieldInfo.SetValue(m_node, nodeToConnect);
 
-        //        // When we create a connection we try to retain the value
-        //        // of the old node to the new one.
-        //        if (currentValue != null && currentValue.PrimitiveValue != null)
-        //        {
-        //            nodeToConnect.PrimitiveValue = currentValue.PrimitiveValue;
-        //        }
-        //    }
-        //    return false;
-        //}
+            //        // When we create a connection we try to retain the value
+            //        // of the old node to the new one.
+            //        if (currentValue != null && currentValue.PrimitiveValue != null)
+            //        {
+            //            nodeToConnect.PrimitiveValue = currentValue.PrimitiveValue;
+            //        }
+            //    }
+            //    return false;
+            //}
 
-        // ----------------------------------------------------------------------------------------
-        public void Disconnect(ParameterIndex src, ParameterIndex dst)
+            // ----------------------------------------------------------------------------------------
+        public void DeleteConnection(Connection connection)
         {
             //if (IsList)
             //{

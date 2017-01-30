@@ -12,6 +12,19 @@ namespace Spell.Graph
         Left,
     }
 
+    public enum ParameterType
+    {
+        Value,
+        Action,
+    }
+
+    public struct Connection
+    {
+        public int index;
+        public ParameterIndex src;
+        public ParameterIndex dst;
+    }
+
     public struct ParameterIndex
     {
         public ParameterIndex(int nodeIndex, int parameterIndex)
@@ -28,6 +41,7 @@ namespace Spell.Graph
     {
         string Name { get; }
         ParameterSide Side { get; }
+        ParameterType Type { get; }
         INode ConnectedNode { get; }
         bool IsList { get; }
         IList List { get; }

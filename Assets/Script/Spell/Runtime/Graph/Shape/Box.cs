@@ -17,7 +17,7 @@ namespace Spell.Graph
             var width = AddInValue("Width", 1.0f);
             var height = AddInValue("Height", 1.0f);
 
-            AddOutValue<Shape>("Shape", null, () =>
+            AddOutValue<Shape>("Shape", () =>
             {
                 m_boxShape.Position = position.Value;
                 m_boxShape.Rotation = rotation.Value;

@@ -29,15 +29,17 @@ namespace Spell.Graph
 
         protected InValue<T> AddInValue<T>(string name, T defaultValue)
         {
-            var inValue = new InValue<T> { Name = name, DefaultValue = defaultValue };
+            var inValue = new InValue<T> { Node = this, Name = name, DefaultValue = defaultValue };
+            inValue.Node = this;
             m_inValues.Add(inValue);
             RefreshParameterList();
             return inValue;
         }
 
-        protected OutValue<T> AddOutValue<T>(string name, T defaultValue, Func<T> func = null)
+        protected OutValue<T> AddOutValue<T>(string name, Func<T> func = null)
         {
-            var outValue = new OutValue<T> { Name = name, DefaultValue = defaultValue, Func = func };
+            var outValue = new OutValue<T> { Node = this, Name = name, Func = func };
+            outValue.Node = this;
             m_outValues.Add(outValue);
             RefreshParameterList();
             return outValue;
@@ -45,7 +47,8 @@ namespace Spell.Graph
 
         protected InAction AddInAction(string name, Action action)
         {
-            var inAction = new InAction { Name = name, Action = action };
+            var inAction = new InAction { Node = this, Name = name, Action = action };
+            inAction.Node = this;
             m_inActions.Add(inAction);
             RefreshParameterList();
             return inAction;
@@ -53,7 +56,8 @@ namespace Spell.Graph
 
         protected OutAction AddOutAction(string name)
         {
-            var outAction  = new OutAction { Name = name };
+            var outAction  = new OutAction { Node = this, Name = name };
+            outAction.Node = this;
             m_outActions.Add(outAction);
             RefreshParameterList();
             return outAction;
@@ -63,24 +67,28 @@ namespace Spell.Graph
         {
             m_parameters.Clear();
 
-            foreach (var action in m_inActions)
+            for (int i = 0; i < m_inActions.Count; ++i)
             {
-                m_parameters.Add(action);
+                m_inActions[i].Index = m_parameters.Count;
+                m_parameters.Add(m_inActions[i]);
             }
 
-            foreach (var inValue in m_inValues)
+            for (int i = 0; i < m_inValues.Count; ++i)
             {
-                m_parameters.Add(inValue);
+                m_inValues[i].Index = m_parameters.Count;
+                m_parameters.Add(m_inValues[i]);
             }
 
-            foreach (var action in m_outActions)
+            for (int i = 0; i < m_outActions.Count; ++i)
             {
-                m_parameters.Add(action);
+                m_outActions[i].Index = m_parameters.Count;
+                m_parameters.Add(m_outActions[i]);
             }
 
-            foreach (var outValue in m_outValues)
+            for (int i = 0; i < m_outValues.Count; ++i)
             {
-                m_parameters.Add(outValue);
+                m_outValues[i].Index = m_parameters.Count;
+                m_parameters.Add(m_outValues[i]);
             }
         }
 

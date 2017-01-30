@@ -11,7 +11,27 @@ namespace Spell.Graph
         private string m_name;
 
         [fsIgnore]
+        private int m_index;
+
+        [fsIgnore]
+        private Node m_node;
+
+        [fsIgnore]
         public string Name { get { return m_name; } set { m_name = value; } }
+
+        [fsIgnore]
+        public int Index { get { return m_index; } set { m_index = value; } }
+
+        [fsIgnore]
+        public Node Node { get { return m_node; } set { m_node = value; } }
+
+        [fsIgnore]
+        public virtual BaseParameter ConnectedParameter { get { return null; } set { } }
+
+        public virtual bool CanConnectTo(BaseParameter param)
+        {
+            return false;
+        }
 
         public virtual void DrawField(Rect rect)
         {
@@ -26,6 +46,7 @@ namespace Spell.Graph
         {
             return new Vector2(100, 16);
         }
+
     }
 
     public abstract class ValueParameter : BaseParameter
@@ -75,6 +96,11 @@ namespace Spell.Graph
     {
         public Action Action;
 
+        public override bool CanConnectTo(BaseParameter param)
+        {
+            return (param is OutAction);
+        }
+
         public void Execute()
         {
             if (Action != null)
@@ -86,31 +112,77 @@ namespace Spell.Graph
 
     public class OutAction : ActionParameter
     {
-        public InAction InAction;
+        private InAction m_inAction;
+
+        public override bool CanConnectTo(BaseParameter param)
+        {
+            return (param is InAction);
+        }
+
+        public override BaseParameter ConnectedParameter
+        {
+            get { return m_inAction; }
+
+            set
+            {
+                if (value == null)
+                {
+                    m_inAction = null;
+                }
+                else
+                {
+                    m_inAction = value as InAction;
+                }
+            }
+        }
 
         public void Execute()
         {
-            if (InAction != null)
+            if (m_inAction != null)
             {
-                InAction.Execute();
+                m_inAction.Execute();
             }
         }
     }
 
     public class InValue<T> : InValue
     {
-        public OutValue<T> OutValue = null;
+        private OutValue<T> m_outValue = null;
         public T DefaultValue;
 
         public override Type ValueType { get { return typeof(T); } }
+
+        public override bool CanConnectTo(BaseParameter param)
+        {
+            if (param == null)
+                return true;
+
+            return param is OutValue<T>;
+        }
+
+        public override BaseParameter ConnectedParameter
+        {
+            get { return m_outValue; }
+            set
+            {
+                if (value == null)
+                {
+                    m_outValue = null;
+                }
+                else
+                { 
+                    m_outValue = value as OutValue<T>;
+                }
+            }
+        }
 
         public T Value
         {
             get
             {
-                if (OutValue != null)
+                if (m_outValue != null)
                 {
-                    return OutValue.Value;
+                    return m_outValue.Value;
                 }
                 else
                 {
@@ -192,6 +264,28 @@ namespace Spell.Graph
         public T DefaultValue;
 
         public override Type ValueType { get { return typeof(T); } }
+
+        public override bool CanConnectTo(BaseParameter param)
+        {
+            if (param == null)
+                return true;
+
+            return param is InValue<T>;
+        }
+
+        public override BaseParameter ConnectedParameter
+        {
+            get { return null; }
+
+            set
+            {
+                var param = value as InValue<T>;
+                if (value == null)
+                    return;
+
+                param.ConnectedParameter = this;
+            }
+        }
 
         public T Value
         {

@@ -13,6 +13,7 @@ namespace Spell.Graph
         private Node m_node;
         private FieldInfo m_fieldInfo;
         private ParameterSide m_side;
+        private ParameterType m_type;
         private bool m_isList;
         private Type m_primitiveType;
         private string m_name;
@@ -21,6 +22,7 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         public string Name { get { return m_name; } }
         public ParameterSide Side { get { return m_side; } }
+        public ParameterType Type { get { return m_type; } }
         public INode ConnectedNode { get { return m_fieldInfo != null ? m_fieldInfo.GetValue(m_node) as INode : null; } }
         public bool IsList { get { return m_isList; } }
         public IList List { get { return m_fieldInfo != null ? m_fieldInfo.GetValue(m_node) as IList : null; } }
@@ -66,18 +68,22 @@ namespace Spell.Graph
             if (typeof(InAction).IsAssignableFrom(param.GetType()))
             {
                 m_side = ParameterSide.Left;
+                m_type = ParameterType.Action;
             }
             else if (typeof(OutAction).IsAssignableFrom(param.GetType()))
             {
                 m_side = ParameterSide.Right;
+                m_type = ParameterType.Action;
             }
             else if (typeof(InValue).IsAssignableFrom(param.GetType()))
             {
                 m_side = ParameterSide.Left;
+                m_type = ParameterType.Value;
             }
             else if (typeof(OutValue).IsAssignableFrom(param.GetType()))
             {
                 m_side = ParameterSide.Right;
+                m_type = ParameterType.Value;
             }
 
             m_isList = false;
