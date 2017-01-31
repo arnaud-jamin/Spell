@@ -31,7 +31,7 @@ namespace Spell.Graph
 
         [SerializeField]
         private float m_viewZoom = 1.0f;
-        
+
         // ----------------------------------------------------------------------------------------
         public INode Root { get { return m_root; } set { m_root = value; } }
         public List<INode> Nodes { get { return m_nodes; } }
@@ -111,6 +111,12 @@ namespace Spell.Graph
             var data = fsJsonParser.Parse(m_json);
             var obj = (object)this;
             m_serializer.TryDeserialize(data, GetType(), ref obj).AssertSuccessWithoutWarnings();
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public void SetIteratorValue(IteratorType iterator, GameObject gameObject)
+        {
+
         }
     }
 }

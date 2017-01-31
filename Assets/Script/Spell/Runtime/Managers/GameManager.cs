@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Spell.Graph;
 
 namespace Spell
 {
@@ -12,6 +13,7 @@ namespace Spell
 
         //-----------------------------------------------------------------------------------------
         private Dictionary<int, GameObject> m_prefabMap = new Dictionary<int, GameObject>();
+
         //private List<Player> m_players = new List<Player>();
         private Player m_activePlayer = null;
 
@@ -114,6 +116,12 @@ namespace Spell
             GameObject gameObject = null;
             m_prefabMap.TryGetValue(instanceID, out gameObject);
             return gameObject;
+        }
+
+        //-----------------------------------------------------------------------------------------
+        public GameObject GetTarget(TargetType target)
+        {
+            return null;
         }
     }
 }

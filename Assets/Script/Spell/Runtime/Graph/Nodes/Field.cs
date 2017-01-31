@@ -12,6 +12,6 @@ namespace Spell.Graph
         public Action OnStay = null;
         public Action OnTick = null;
         public Action OnExit = null;
-        public GameObjectValue Selection = new GameObjectValue();
+        public Expression<IteratorType> Iterator = new ExpressionValue<IteratorType>();
     }
 }

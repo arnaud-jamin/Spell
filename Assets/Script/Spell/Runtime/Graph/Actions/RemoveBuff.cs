@@ -6,7 +6,7 @@ namespace Spell.Graph
     public class RemoveBuff : Action
     {
         public Expression<Buff> Buff = null;
-        public Expression<GameObject> Target = new GameObjectValue();
+        public Expression<TargetType> Target = new ExpressionValue<TargetType>();
 
         public override void Execute()
         {

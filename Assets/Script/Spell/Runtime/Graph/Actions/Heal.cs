@@ -7,18 +7,20 @@ namespace Spell.Graph
     public class Heal : Action
     {
         public Expression<float> Amount = new FloatValue();
-        public Expression<GameObject> Target = new GameObjectValue();
+        public Expression<TargetType> Target = new ExpressionValue<TargetType>();
 
         public override void Execute()
         {
-            var target = Target.Evaluate();
-            var amount = Amount.Evaluate();
+            var target = GameManager.GetTarget(Target.Evaluate());
+            if (target == null)
+                return;
 
             var health = target.GetComponent<Health>();
-            if (health != null)
-            {
-                health.Modify(new Health.Modifier { amount = amount, source = m_owner, canResurrect = false });
-            }
+            if (health == null)
+                return;
+
+            var amount = Amount.Evaluate();
+            health.Modify(new Health.Modifier { amount = amount, source = m_owner, canResurrect = false });
         }
     }
 }

@@ -120,15 +120,6 @@ namespace Spell.Graph
     }
 
     [NodeMenuItem("Values")]
-    [Name("GameObject")]
-    public class GameObjectValue : ExpressionValue<GameObject>
-    {
-        public GameObjectValue() : base(null)
-        {
-        }
-    }
-
-    [NodeMenuItem("Values")]
     [Name("Object")]
     public class ObjectValue : ExpressionValue<ObjectNode>
     {
@@ -140,6 +131,22 @@ namespace Spell.Graph
     {
         Physical,
         Magical,
+    }
+
+    public enum IteratorType
+    {
+        Iterator1,
+        Iterator2,
+        Iterator3,
+    }
+
+    public enum TargetType
+    {
+        Caster,
+        CastTarget,
+        Iterator1,
+        Iterator2,
+        Iterator3,
     }
 
     [NodeMenuItem("Values")]

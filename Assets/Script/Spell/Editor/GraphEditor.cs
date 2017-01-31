@@ -468,7 +468,7 @@ namespace Spell.Graph
             if (node.ValueType == typeof(string))
             {
                 GUI.SetNextControlName(s_fieldControlName);
-                node.BoxedValue = EditorGUI.TextField(rect, (string)node.BoxedValue);
+                node.BoxedValue = EditorGUI.TextField(rect, (string)node.BoxedValue, new GUIStyle("NodeFieldValue"));
             }
             else if (typeof(UnityEngine.Object).IsAssignableFrom(node.ValueType))
             {
@@ -478,7 +478,8 @@ namespace Spell.Graph
             {
                 if (node.ValueType == typeof(bool))
                 {
-                    node.BoxedValue = EditorGUI.Toggle(rect, (bool)node.BoxedValue, "Toggle");
+                    var choices = new string[] { "False", "True" };
+                    node.BoxedValue = (EditorGUI.Popup(rect, (bool)node.BoxedValue ? 1 : 0, choices, "NodeFieldCombo") > 0);
                 }
                 else if (node.ValueType == typeof(int))
                 {
@@ -506,11 +507,11 @@ namespace Spell.Graph
                 {
                     if (node.ValueType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0)
                     {
-                        node.BoxedValue = EditorGUI.MaskField(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType), "NodeFieldValue");
+                        node.BoxedValue = EditorGUI.MaskField(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType), "NodeFieldCombo");
                     }
                     else
                     {
-                        node.BoxedValue = EditorGUI.Popup(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType), "NodeFieldValue");
+                        node.BoxedValue = EditorGUI.Popup(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType), "NodeFieldCombo");
                     }
                 }
             }
@@ -827,7 +828,7 @@ namespace Spell.Graph
             else if (type == typeof(int))           { return new Vector2(75, 16); }
             else if (type == typeof(Vector3))       { return new Vector2(150, 16); }
             else if (type == typeof(GameObject))    { return new Vector2(100, 16); }
-            else if (type.IsEnum)                   { return new Vector2(75, 16); }
+            else if (type.IsEnum)                   { return new Vector2(100, 16); }
             else                                    { return new Vector2(100, 16); }
         }
 

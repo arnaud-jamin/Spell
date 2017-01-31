@@ -7,22 +7,24 @@ namespace Spell.Graph
     [NodeMenuItem("Action")]
     public class ForeachSummoned : Action
     {
-        public Expression<GameObject> Source = new GameObjectValue();
+        public Expression<TargetType> Summoner = new ExpressionValue<TargetType>();
         public List<Action> Actions = new List<Action>();
-        public GameObjectValue Selection = new GameObjectValue();
+        public ExpressionValue<IteratorType> Iterator = new ExpressionValue<IteratorType>();
 
         public override void Execute()
         {
-            var source = Source.Evaluate();
-            if (source == null)
+            var summoner = GameManager.GetTarget(Summoner.Evaluate());
+            if (summoner == null)
                 return;
 
-            var caster = source.GetComponent<Spell.Caster>();
+            var caster = summoner.GetComponent<Spell.Caster>();
+            if (caster == null)
+                return;
 
             for (var i = 0; i < caster.Summoned.Count; ++i)
             {
                 var summoned = caster.Summoned[i];
-                Selection.Value = summoned;
+                Graph.SetIteratorValue(Iterator.Evaluate(), summoned);
 
                 for (int j = 0; j < Actions.Count; ++j)
                 {
