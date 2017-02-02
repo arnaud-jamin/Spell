@@ -423,11 +423,14 @@ namespace Spell.Graph
                     //---------------------
                     // Field Pin
                     //---------------------
-                    GUI.backgroundColor = pin.typeInfo.color;
-                    GUI.Box(pin.pinLocalRect, GUIContent.none, "NodePin");
-                    GUI.backgroundColor = Color.white;
-                    GUI.Box(pin.pinLocalRect, GUIContent.none, "NodePinBorder");
-                    EditorGUIUtility.AddCursorRect(pin.pinLocalRect, MouseCursor.ArrowPlus);
+                    if (pin.canBeConnected)
+                    { 
+                        GUI.backgroundColor = pin.typeInfo.color;
+                        GUI.Box(pin.pinLocalRect, GUIContent.none, "NodePin");
+                        GUI.backgroundColor = Color.white;
+                        GUI.Box(pin.pinLocalRect, GUIContent.none, "NodePinBorder");
+                        EditorGUIUtility.AddCursorRect(pin.pinLocalRect, MouseCursor.ArrowPlus);
+                    }
 
                     //---------------------
                     // Field Value
@@ -747,6 +750,7 @@ namespace Spell.Graph
                     var fieldTypeInfo = m_graph.GetTypeInfo(fieldType);
                     var isFieldAttached = fieldValueNodeIndex == -1;
                     var fieldSize = ComputeFieldSize(fieldType);
+                    var canBeConnected = (field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof(ExpressionValue<>)) == false;
 
                     var pinX = fieldTypeInfo.side == NodeSide.Left ? s_controlMargin : nodeInfo.rect.size.x - s_nodePinSize.x - s_nodePinOffset.x;
                     var pinLocalRect = new Rect(pinX, fieldPosition.y + s_nodePinOffset.y, s_nodePinSize.x, s_nodePinSize.y);
@@ -760,6 +764,7 @@ namespace Spell.Graph
                         typeInfo = fieldTypeInfo,
                         isList = isFieldList,
                         isAttached = isFieldAttached && isFieldList == false,
+                        canBeConnected = canBeConnected,
                         connections = new List<NodeConnection>(),
                         fieldPosition = fieldPosition,
                         pinLocalRect = pinLocalRect,

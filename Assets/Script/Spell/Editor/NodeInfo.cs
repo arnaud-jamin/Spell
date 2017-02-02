@@ -33,6 +33,7 @@ namespace Spell.Graph
         public Vector2 fieldPosition;
         public Rect pinLocalRect;
         public Rect pinGlobalRect;
+        public bool canBeConnected;
     }
 
     public class NodeConnection

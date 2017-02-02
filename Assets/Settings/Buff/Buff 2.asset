@@ -11,6 +11,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 302d8054e5d707b469a85238d22383dd, type: 3}
   m_Name: Buff 2
   m_EditorClassIdentifier: 
-  m_json: 
+  m_json: "{\r\n    \"m_rootType\": \"Spell.Graph.Buff\",\r\n    \"m_root\": {\r\n
+    \       \"Name\": {\r\n            \"Value\": null,\r\n            \"GraphPosition\":
+    {\r\n                \"x\": 0.0,\r\n                \"y\": 0.0\r\n            },\r\n
+    \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.TextValue\"\r\n
+    \       },\r\n        \"Icon\": {\r\n            \"Value\": null,\r\n            \"GraphPosition\":
+    {\r\n                \"x\": 0.0,\r\n                \"y\": 0.0\r\n            },\r\n
+    \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.SpriteValue\"\r\n
+    \       },\r\n        \"Duration\": {\r\n            \"Value\": 0.0,\r\n            \"GraphPosition\":
+    {\r\n                \"x\": 0.0,\r\n                \"y\": 0.0\r\n            },\r\n
+    \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.FloatValue\"\r\n
+    \       },\r\n        \"Actions\": [],\r\n        \"GraphPosition\": {\r\n            \"x\":
+    200.0,\r\n            \"y\": 200.0\r\n        },\r\n        \"VariableName\":
+    null,\r\n        \"$type\": \"Spell.Graph.Buff\",\r\n        \"$id\": \"1\"\r\n
+    \   },\r\n    \"m_nodes\": [\r\n        {\r\n            \"$ref\": \"1\"\r\n        }\r\n
+    \   ],\r\n    \"m_viewOffset\": {\r\n        \"x\": 0.0,\r\n        \"y\": 0.0\r\n
+    \   },\r\n    \"m_viewZoom\": 1.0\r\n}"
   m_viewOffset: {x: 0, y: 0}
   m_viewZoom: 1
