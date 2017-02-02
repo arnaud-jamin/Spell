@@ -17,5 +17,20 @@ namespace Spell.Graph
             var height = Height.Evaluate();
             return Physics.OverlapBoxNonAlloc(position, new Vector3(width, 1, height), colliders, Quaternion.Euler(0, rotation, 0), mask, queryTriggerInteraction);
         }
+
+        public override Collider CreateCollider(GameObject gameObject)
+        {
+            var collider = gameObject.AddComponent<BoxCollider>();
+            collider.size = new Vector3(Width.Evaluate(), 0, Height.Evaluate());
+            return collider;
+        }
+
+        public override void UpdateCollider(Collider collider)
+        {
+            if (collider is BoxCollider)
+            {
+                ((BoxCollider)collider).size = new Vector3(Width.Evaluate(), 0, Height.Evaluate());
+            }
+        }
     }
 }

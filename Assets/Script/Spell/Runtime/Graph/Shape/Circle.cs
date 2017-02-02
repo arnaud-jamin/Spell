@@ -14,5 +14,20 @@ namespace Spell.Graph
             var radius = Radius.Evaluate();
             return Physics.OverlapSphereNonAlloc(position, radius, colliders);
         }
+
+        public override Collider CreateCollider(GameObject gameObject)
+        {
+            var collider = gameObject.AddComponent<SphereCollider>();
+            collider.radius = Radius.Evaluate();
+            return collider;
+        }
+
+        public override void UpdateCollider(Collider collider)
+        {
+            if (collider is SphereCollider)
+            {
+                ((SphereCollider)collider).radius = Radius.Evaluate();
+            }
+        }
     }
 }

@@ -37,10 +37,11 @@ MonoBehaviour:
     0.0,\r\n                                \"y\": 0.0\r\n                            },\r\n
     \                           \"VariableName\": null,\r\n                            \"$type\":
     \"Spell.Graph.FloatValue\"\r\n                        },\r\n                        \"Target\":
-    {\r\n                            \"Value\": null,\r\n                            \"GraphPosition\":
+    {\r\n                            \"Value\": \"Caster\",\r\n                            \"GraphPosition\":
     {\r\n                                \"x\": 0.0,\r\n                                \"y\":
     0.0\r\n                            },\r\n                            \"VariableName\":
-    null,\r\n                            \"$type\": \"Spell.Graph.GameObjectValue\"\r\n
+    null,\r\n                            \"$type\": \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
     \                       },\r\n                        \"GraphPosition\": {\r\n
     \                           \"x\": 651.0,\r\n                            \"y\":
     233.0\r\n                        },\r\n                        \"VariableName\":
@@ -78,10 +79,11 @@ MonoBehaviour:
     0.0\r\n                            },\r\n                            \"VariableName\":
     null,\r\n                            \"$type\": \"Spell.Graph.DamageTypeValue\"\r\n
     \                       },\r\n                        \"Target\": {\r\n                            \"Value\":
-    null,\r\n                            \"GraphPosition\": {\r\n                                \"x\":
+    \"Caster\",\r\n                            \"GraphPosition\": {\r\n                                \"x\":
     0.0,\r\n                                \"y\": 0.0\r\n                            },\r\n
     \                           \"VariableName\": null,\r\n                            \"$type\":
-    \"Spell.Graph.GameObjectValue\"\r\n                        },\r\n                        \"GraphPosition\":
+    \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType, Assembly-CSharp, Version=0.0.0.0,
+    Culture=neutral, PublicKeyToken=null]]\"\r\n                        },\r\n                        \"GraphPosition\":
     {\r\n                            \"x\": 656.0,\r\n                            \"y\":
     438.0\r\n                        },\r\n                        \"VariableName\":
     null,\r\n                        \"$type\": \"Spell.Graph.Damage\",\r\n                        \"$id\":

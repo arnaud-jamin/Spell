@@ -60,6 +60,10 @@ namespace Spell.Graph
             {
                 return new BaseTypeInfo() { color = new Color(0.5f, 0.2f, 0.2f), side = NodeSide.Right };
             }
+            else if (typeof(BuffAction).IsAssignableFrom(type))
+            {
+                return new BaseTypeInfo() { color = new Color(0.4f, 0.0f, 0.3f), side = NodeSide.Right };
+            }
             else if (typeof(Shape).IsAssignableFrom(type))
             {
                 return new BaseTypeInfo() { color = new Color(0.2f, 0.5f, 0.2f), side = NodeSide.Right };
@@ -98,19 +102,31 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         public void Save()
         {
-            fsData data;
-            m_serializer.TrySerialize(GetType(), this, out data).AssertSuccessWithoutWarnings();
-            //m_json = fsJsonPrinter.CompressedJson(data);
-            m_json = fsJsonPrinter.PrettyJson(data);
-            EditorUtility.SetDirty(this);
+            try
+            {
+                fsData data;
+                m_serializer.TrySerialize(GetType(), this, out data).AssertSuccessWithoutWarnings();
+                //m_json = fsJsonPrinter.CompressedJson(data);
+                m_json = fsJsonPrinter.PrettyJson(data);
+                EditorUtility.SetDirty(this);
+            }
+            catch
+            {
+            }
         }
 
         // ----------------------------------------------------------------------------------------
         public void Load()
         {
-            var data = fsJsonParser.Parse(m_json);
-            var obj = (object)this;
-            m_serializer.TryDeserialize(data, GetType(), ref obj).AssertSuccessWithoutWarnings();
+            try
+            {
+                var data = fsJsonParser.Parse(m_json);
+                var obj = (object)this;
+                m_serializer.TryDeserialize(data, GetType(), ref obj).AssertSuccessWithoutWarnings();
+            }
+            catch
+            {
+            }
         }
 
         // ----------------------------------------------------------------------------------------

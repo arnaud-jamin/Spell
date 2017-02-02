@@ -32,20 +32,20 @@ namespace Spell.Graph
 
         // ----------------------------------------------------------------------------------------
         [MenuItem("Assets/Create/Spell/Ability")]
-        public static void CreateAbilityGraph() { CreateGraph<Ability>(); }
+        public static void CreateAbilityGraph() { CreateGraph<AbilityGraph, Ability>(); }
 
         // ----------------------------------------------------------------------------------------
         [MenuItem("Assets/Create/Spell/Caster")]
-        public static void CreateCasterGraph() { CreateGraph<Caster>(); }
+        public static void CreateCasterGraph() { CreateGraph<CasterGraph, Caster>(); }
 
         // ----------------------------------------------------------------------------------------
         [MenuItem("Assets/Create/Spell/Buff")]
-        public static void CreateBuffGraph() { CreateGraph<Buff>(); }
+        public static void CreateBuffGraph() { CreateGraph<BuffGraph, Buff>(); }
 
         // ----------------------------------------------------------------------------------------
-        public static void CreateGraph<RootType>() where RootType : INode
+        public static void CreateGraph<GraphType, RootType>() where GraphType: Graph where RootType : INode
         {
-            var graph = ScriptableObjectHelper.CreateAsset<Graph>(typeof(RootType).Name);
+            var graph = ScriptableObjectHelper.CreateAsset<GraphType>(typeof(RootType).Name);
             graph.RootType = typeof(RootType);
             graph.Root = graph.CreateNode(graph.RootType);
             graph.Save();

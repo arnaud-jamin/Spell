@@ -11,6 +11,7 @@ namespace Spell.Graph
         Multiplicative,
     }
 
+    [NodeMenuItem("Buff Actions")]
     public class StatModifier : BuffAction
     {
         public Expression<StatType> Stat = new StatTypeValue(StatType.Damage);

@@ -12,6 +12,7 @@ namespace Spell.Graph
         public Shape Shape = null;
         public Expression<AllianceType> Alliance = new Alliance(AllianceType.Enemies);
         public List<Action> Actions = new List<Action>();
+        public ExpressionValue<IteratorType> Iterator = new ExpressionValue<IteratorType>();
 
         public override void Execute()
         {
@@ -23,6 +24,7 @@ namespace Spell.Graph
             for (var i = 0; i < count; ++i)
             {
                 var collider = s_colliders[i];
+                Graph.SetIteratorValue(Iterator.Evaluate(), collider.gameObject);
 
                 for (int j = 0; j < Actions.Count; ++j)
                 {

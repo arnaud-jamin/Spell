@@ -58,25 +58,30 @@ MonoBehaviour:
     0.0\r\n                                    },\r\n                                    \"VariableName\":
     null,\r\n                                    \"$type\": \"Spell.Graph.DamageTypeValue\"\r\n
     \                               },\r\n                                \"Target\":
-    {\r\n                                    \"Value\": null,\r\n                                    \"GraphPosition\":
+    {\r\n                                    \"Value\": \"Caster\",\r\n                                    \"GraphPosition\":
     {\r\n                                        \"x\": 0.0,\r\n                                        \"y\":
     0.0\r\n                                    },\r\n                                    \"VariableName\":
-    null,\r\n                                    \"$type\": \"Spell.Graph.GameObjectValue\"\r\n
+    null,\r\n                                    \"$type\": \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
     \                               },\r\n                                \"GraphPosition\":
     {\r\n                                    \"x\": 774.0,\r\n                                    \"y\":
     378.0\r\n                                },\r\n                                \"VariableName\":
     null,\r\n                                \"$type\": \"Spell.Graph.Damage\",\r\n
     \                               \"$id\": \"15\"\r\n                            }\r\n
-    \                       ],\r\n                        \"GraphPosition\": {\r\n
-    \                           \"x\": 544.0,\r\n                            \"y\":
-    324.0\r\n                        },\r\n                        \"VariableName\":
-    null,\r\n                        \"$type\": \"Spell.Graph.ForeachInArea\",\r\n
-    \                       \"$id\": \"9\"\r\n                    },\r\n                    {\r\n
-    \                       \"Buff\": null,\r\n                        \"Target\":
-    {\r\n                            \"Value\": null,\r\n                            \"GraphPosition\":
+    \                       ],\r\n                        \"Iterator\": {\r\n                            \"Value\":
+    \"Iterator1\",\r\n                            \"GraphPosition\": {\r\n                                \"x\":
+    0.0,\r\n                                \"y\": 0.0\r\n                            },\r\n
+    \                           \"VariableName\": null\r\n                        },\r\n
+    \                       \"GraphPosition\": {\r\n                            \"x\":
+    544.0,\r\n                            \"y\": 324.0\r\n                        },\r\n
+    \                       \"VariableName\": null,\r\n                        \"$type\":
+    \"Spell.Graph.ForeachInArea\",\r\n                        \"$id\": \"9\"\r\n                    },\r\n
+    \                   {\r\n                        \"Buff\": null,\r\n                        \"Target\":
+    {\r\n                            \"Value\": \"Caster\",\r\n                            \"GraphPosition\":
     {\r\n                                \"x\": 0.0,\r\n                                \"y\":
     0.0\r\n                            },\r\n                            \"VariableName\":
-    null,\r\n                            \"$type\": \"Spell.Graph.GameObjectValue\"\r\n
+    null,\r\n                            \"$type\": \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
     \                       },\r\n                        \"GraphPosition\": {\r\n
     \                           \"x\": 570.0,\r\n                            \"y\":
     326.0\r\n                        },\r\n                        \"VariableName\":

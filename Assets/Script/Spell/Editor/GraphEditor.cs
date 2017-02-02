@@ -13,7 +13,7 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         #region Settings
         // ----------------------------------------------------------------------------------------
-        private readonly static float s_closeZoom = 2.0f;
+        private readonly static float s_closeZoom = 1.0f;
         private readonly static float s_farZoom = 0.25f;
         private readonly static float s_zoomDelta = 0.1f;
 
@@ -240,7 +240,7 @@ namespace Spell.Graph
 
             CreateNodeInfos();
 
-            m_zoomRect = BeginZoom(m_screenRect);
+            m_zoomRect = BeginZoom();
             {
                 m_viewRect = new Rect(ViewOffset, m_zoomRect.size);
 
@@ -275,8 +275,9 @@ namespace Spell.Graph
             {
                 var menu = new GenericMenu();
                 menu.AddItem(new GUIContent("Clear"), false, () => { ShowClear(); });
-                menu.AddItem(new GUIContent("New/Ability"), false, () => { ScriptableObjectHelper.CreateGraph<Ability>(); });
-                menu.AddItem(new GUIContent("New/Caster"), false, () => { ScriptableObjectHelper.CreateGraph<Caster>(); });
+                menu.AddItem(new GUIContent("New Graph/Ability"), false, () => { ScriptableObjectHelper.CreateGraph<AbilityGraph, Ability>(); });
+                menu.AddItem(new GUIContent("New Graph/Buff"), false, () => { ScriptableObjectHelper.CreateGraph<BuffGraph, Buff>(); });
+                menu.AddItem(new GUIContent("New Graph/Caster"), false, () => { ScriptableObjectHelper.CreateGraph<CasterGraph, Caster>(); });
                 if (ShowDebug)
                 {
                     menu.AddSeparator("");
@@ -402,7 +403,7 @@ namespace Spell.Graph
                 //-------------------------
                 var inputRect = nodeInfo.baseTypeInfo.side == NodeSide.Right ? new Rect(handleRect.size.x, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2)
                                                                              : new Rect(1, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2);
-                DrawField(nodeInfo.node, inputRect);
+                DrawField(nodeInfo.node, nodeInfo, inputRect);
             }
             //-------------------------
             // Multi Pin Node
@@ -441,7 +442,7 @@ namespace Spell.Graph
                     {
                         fieldValueRect = pin.typeInfo.side == NodeSide.Left ? new Rect(pin.pinLocalRect.xMax + nodeInfo.fieldNameMaxWidth + s_controlMargin * 2, pin.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y)
                                                                             : new Rect(pin.pinLocalRect.xMin - s_controlMargin - nodeInfo.fieldValueMaxWidth, pin.fieldPosition.y, nodeInfo.fieldValueMaxWidth, fieldSize.y);
-                        DrawField(fieldValue, fieldValueRect);
+                        DrawField(fieldValue, nodeInfo, fieldValueRect);
                         hasFieldValue = true;
                     }
 
@@ -458,60 +459,59 @@ namespace Spell.Graph
         }
 
         // ----------------------------------------------------------------------------------------
-        private void DrawField(INode node, Rect containerRect)
+        private void DrawField(INode parameter, NodeInfo parentNodeInfo, Rect rect)
         {
             GUI.color = Color.white;
-            var rect = new Rect(containerRect.position.x, containerRect.position.y, containerRect.width, containerRect.height);
 
             EditorGUI.BeginChangeCheck();
 
-            if (node.ValueType == typeof(string))
+            if (parameter.ValueType == typeof(string))
             {
                 GUI.SetNextControlName(s_fieldControlName);
-                node.BoxedValue = EditorGUI.TextField(rect, (string)node.BoxedValue, new GUIStyle("NodeFieldValue"));
+                parameter.BoxedValue = EditorGUI.TextField(rect, (string)parameter.BoxedValue, new GUIStyle("NodeFieldValue"));
             }
-            else if (typeof(UnityEngine.Object).IsAssignableFrom(node.ValueType))
+            else if (typeof(UnityEngine.Object).IsAssignableFrom(parameter.ValueType))
             {
-                node.BoxedValue = EditorGUI.ObjectField(rect, (UnityEngine.Object)node.BoxedValue, node.ValueType, false);
+                parameter.BoxedValue = EditorGUI.ObjectField(rect, (UnityEngine.Object)parameter.BoxedValue, parameter.ValueType, false);
             }
-            else if (node.BoxedValue != null)
+            else if (parameter.BoxedValue != null)
             {
-                if (node.ValueType == typeof(bool))
+                if (parameter.ValueType == typeof(bool))
                 {
                     var choices = new string[] { "False", "True" };
-                    node.BoxedValue = (EditorGUI.Popup(rect, (bool)node.BoxedValue ? 1 : 0, choices, "NodeFieldCombo") > 0);
+                    parameter.BoxedValue = (EditorGUI.Popup(rect, (bool)parameter.BoxedValue ? 1 : 0, choices, "NodeFieldCombo") > 0);
                 }
-                else if (node.ValueType == typeof(int))
+                else if (parameter.ValueType == typeof(int))
                 {
-                    node.BoxedValue = EditorGUI.IntField(rect, GUIContent.none, (int)node.BoxedValue, "NodeFieldValue");
+                    parameter.BoxedValue = EditorGUI.IntField(rect, GUIContent.none, (int)parameter.BoxedValue, "NodeFieldValue");
                 }
-                else if (node.ValueType == typeof(float))
+                else if (parameter.ValueType == typeof(float))
                 {
-                    node.BoxedValue = EditorGUI.FloatField(rect, GUIContent.none, (float)node.BoxedValue, "NodeFieldValue");
+                    parameter.BoxedValue = EditorGUI.FloatField(rect, GUIContent.none, (float)parameter.BoxedValue, "NodeFieldValue");
                 }
-                else if (node.ValueType == typeof(Vector2))
+                else if (parameter.ValueType == typeof(Vector2))
                 {
-                    node.BoxedValue = EditorHelper.Vector2Field(rect, (Vector2)node.BoxedValue, new GUIStyle("NodeFieldNameLeft"), new GUIStyle("NodeFieldValue"));
+                    parameter.BoxedValue = EditorHelper.Vector2Field(rect, (Vector2)parameter.BoxedValue, new GUIStyle("NodeFieldNameLeft"), new GUIStyle("NodeFieldValue"));
                 }
-                else if (node.ValueType == typeof(Vector3))
+                else if (parameter.ValueType == typeof(Vector3))
                 {
-                    node.BoxedValue = EditorHelper.Vector3Field(rect, (Vector3)node.BoxedValue, new GUIStyle("NodeFieldNameLeft"), new GUIStyle("NodeFieldValue"));
+                    parameter.BoxedValue = EditorHelper.Vector3Field(rect, (Vector3)parameter.BoxedValue, new GUIStyle("NodeFieldNameLeft"), new GUIStyle("NodeFieldValue"));
                 }
-                else if (node.ValueType == typeof(Color))
+                else if (parameter.ValueType == typeof(Color))
                 {
                     GUI.skin = null;
-                    node.BoxedValue = EditorGUI.ColorField(rect, GUIContent.none, (Color)node.BoxedValue, false, true, false, new ColorPickerHDRConfig(0, 0, 0, 0));
+                    parameter.BoxedValue = EditorGUI.ColorField(rect, GUIContent.none, (Color)parameter.BoxedValue, false, true, false, new ColorPickerHDRConfig(0, 0, 0, 0));
                     GUI.skin = m_skin;
                 }
-                else if (node.ValueType.IsEnum)
+                else if (parameter.ValueType.IsEnum)
                 {
-                    if (node.ValueType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0)
+                    if (parameter.ValueType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0)
                     {
-                        node.BoxedValue = EditorGUI.MaskField(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType), "NodeFieldCombo");
+                        parameter.BoxedValue = EditorGUI.MaskField(rect, (int)parameter.BoxedValue, Enum.GetNames(parameter.ValueType), "NodeFieldCombo");
                     }
                     else
                     {
-                        node.BoxedValue = EditorGUI.Popup(rect, (int)node.BoxedValue, Enum.GetNames(node.ValueType), "NodeFieldCombo");
+                        EnumField(rect, WorldToScreen(rect.position + parentNodeInfo.node.GraphPosition), parameter, "NodeFieldCombo");
                     }
                 }
             }
@@ -519,6 +519,29 @@ namespace Spell.Graph
             if (EditorGUI.EndChangeCheck())
             {
                 RecordAndSave("Set Node Parameter");
+            }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public void EnumField(Rect rect, Vector2 menuScreenPosition, INode parameter, GUIStyle style)
+        {
+            var currentValue = (int)parameter.BoxedValue;
+            var options = Enum.GetNames(parameter.ValueType);
+            var menu = new GenericMenu();
+            for (var i = 0; i < options.Length; i++)
+            {
+                menu.AddItem(new GUIContent(options[i]), false, (index) => 
+                {
+                    parameter.BoxedValue = index;
+                    RecordAndSave("Set Node Parameter");
+                }, i);
+            }
+
+            if (GUI.Button(rect, options[currentValue], style))
+            {
+                EndZoom();
+                menu.DropDown(new Rect(menuScreenPosition, Vector2.zero));
+                BeginZoom();
             }
         }
 
@@ -1406,7 +1429,7 @@ namespace Spell.Graph
         #region View Management
 
         // ----------------------------------------------------------------------------------------
-        Rect BeginZoom(Rect screenRect)
+        Rect BeginZoom()
         {
             GUI.EndGroup();
 
@@ -1415,7 +1438,7 @@ namespace Spell.Graph
             var m2 = Matrix4x4.Scale(new Vector3(ViewZoom, ViewZoom, 1f));
             GUI.matrix = m1 * m2 * m1.inverse * GUI.matrix;
 
-            var zoomRect = screenRect;
+            var zoomRect = m_screenRect;
             zoomRect.size /= ViewZoom;
 
             GUI.BeginGroup(zoomRect);
@@ -1438,6 +1461,12 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         void ZoomAtCursor(Vector2 screenPosition, float zoomDelta)
         {
+            // This check prevent to have small pan movements when zooming in when already fully 
+            // zoomed in or zooming out and already fully zoomed out.
+            if ((zoomDelta > 0 && ViewZoom >= s_closeZoom)
+             || (zoomDelta < 0 && ViewZoom <= s_farZoom))
+                return;
+
             var worldPosition = m_worldMousePosition;
             ViewZoom += zoomDelta;
             var newScreenPosition = WorldToScreen(worldPosition);

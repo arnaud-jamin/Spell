@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
+    [NodeMenuItem("Buff Actions")]
     public class Tick : BuffAction
     {
         public Expression<float> Time = new FloatValue(0.5f);

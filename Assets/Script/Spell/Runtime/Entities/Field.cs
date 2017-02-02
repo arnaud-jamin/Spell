@@ -8,7 +8,7 @@ namespace Spell.Entities
         // ----------------------------------------------------------------------------------------
         private Graph.Field m_fieldNode;
         private float m_duration;
-        //private Collider m_collider;
+        private Collider m_collider;
         //private Caster m_creator;
 
         // ----------------------------------------------------------------------------------------
@@ -18,19 +18,9 @@ namespace Spell.Entities
             m_fieldNode = fieldNode;
             m_duration = m_fieldNode.Duration.Evaluate();
 
-            if (m_fieldNode is CircleField)
+            if (m_fieldNode.Shape != null)
             {
-                var circleField = m_fieldNode as CircleField;
-                var spehreCollider = gameObject.AddComponent<SphereCollider>();
-                spehreCollider.radius = circleField.Radius.Evaluate();
-                //m_collider = spehreCollider;
-            }
-            else if (m_fieldNode is BoxField)
-            {
-                var boxField = m_fieldNode as BoxField;
-                var boxCollider = gameObject.AddComponent<BoxCollider>();
-                boxCollider.size = new Vector3(boxField.Width.Evaluate(), 0, boxField.Height.Evaluate());
-                //m_collider = boxCollider;
+                m_collider = m_fieldNode.Shape.CreateCollider(gameObject);
             }
         }
 
@@ -58,6 +48,11 @@ namespace Spell.Entities
         // ----------------------------------------------------------------------------------------
         public void FixedUpdate()
         {
+            if (m_fieldNode.Shape != null && m_collider != null)
+            {
+                m_fieldNode.Shape.UpdateCollider(m_collider);
+            }
+
             m_duration -= Time.deltaTime;
             if (m_duration <= 0)
             {
