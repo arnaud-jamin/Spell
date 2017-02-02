@@ -7,7 +7,7 @@ namespace Spell.Graph
     [NodeMenuItem("Action")]
     public class ForeachSummoned : Action
     {
-        public Expression<TargetType> Summoner = new ExpressionValue<TargetType>();
+        public ExpressionValue<TargetType> Summoner = new ExpressionValue<TargetType>();
         public List<Action> Actions = new List<Action>();
         public ExpressionValue<IteratorType> Iterator = new ExpressionValue<IteratorType>();
 

@@ -95,7 +95,10 @@ namespace Spell.Graph
     [NodeMenuItem("Values")]
     public class Position : Expression<Vector3>
     {
-        public ExpressionValue<PositionType> Type = new ExpressionValue<PositionType>();
+        public PositionType Type = PositionType.CasterPosition;
+
+        public override object BoxedValue { get { return Type; } set  { Type = (PositionType)value; } }
+        public override Type BoxedValueType { get { return typeof(PositionType); } }
 
         public override Vector3 Evaluate()
         {

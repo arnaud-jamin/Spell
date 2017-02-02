@@ -468,49 +468,51 @@ namespace Spell.Graph
 
             EditorGUI.BeginChangeCheck();
 
-            if (parameter.ValueType == typeof(string))
+            var parameterType = parameter.BoxedValueType;
+
+            if (parameterType == typeof(string))
             {
                 GUI.SetNextControlName(s_fieldControlName);
                 parameter.BoxedValue = EditorGUI.TextField(rect, (string)parameter.BoxedValue, new GUIStyle("NodeFieldValue"));
             }
-            else if (typeof(UnityEngine.Object).IsAssignableFrom(parameter.ValueType))
+            else if (typeof(UnityEngine.Object).IsAssignableFrom(parameterType))
             {
-                parameter.BoxedValue = EditorGUI.ObjectField(rect, (UnityEngine.Object)parameter.BoxedValue, parameter.ValueType, false);
+                parameter.BoxedValue = EditorGUI.ObjectField(rect, (UnityEngine.Object)parameter.BoxedValue, parameterType, false);
             }
             else if (parameter.BoxedValue != null)
             {
-                if (parameter.ValueType == typeof(bool))
+                if (parameterType == typeof(bool))
                 {
                     var choices = new string[] { "False", "True" };
                     parameter.BoxedValue = (EditorGUI.Popup(rect, (bool)parameter.BoxedValue ? 1 : 0, choices, "NodeFieldCombo") > 0);
                 }
-                else if (parameter.ValueType == typeof(int))
+                else if (parameterType == typeof(int))
                 {
                     parameter.BoxedValue = EditorGUI.IntField(rect, GUIContent.none, (int)parameter.BoxedValue, "NodeFieldValue");
                 }
-                else if (parameter.ValueType == typeof(float))
+                else if (parameterType == typeof(float))
                 {
                     parameter.BoxedValue = EditorGUI.FloatField(rect, GUIContent.none, (float)parameter.BoxedValue, "NodeFieldValue");
                 }
-                else if (parameter.ValueType == typeof(Vector2))
+                else if (parameterType == typeof(Vector2))
                 {
                     parameter.BoxedValue = EditorHelper.Vector2Field(rect, (Vector2)parameter.BoxedValue, new GUIStyle("NodeFieldNameLeft"), new GUIStyle("NodeFieldValue"));
                 }
-                else if (parameter.ValueType == typeof(Vector3))
+                else if (parameterType == typeof(Vector3))
                 {
                     parameter.BoxedValue = EditorHelper.Vector3Field(rect, (Vector3)parameter.BoxedValue, new GUIStyle("NodeFieldNameLeft"), new GUIStyle("NodeFieldValue"));
                 }
-                else if (parameter.ValueType == typeof(Color))
+                else if (parameterType == typeof(Color))
                 {
                     GUI.skin = null;
                     parameter.BoxedValue = EditorGUI.ColorField(rect, GUIContent.none, (Color)parameter.BoxedValue, false, true, false, new ColorPickerHDRConfig(0, 0, 0, 0));
                     GUI.skin = m_skin;
                 }
-                else if (parameter.ValueType.IsEnum)
+                else if (parameterType.IsEnum)
                 {
-                    if (parameter.ValueType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0)
+                    if (parameterType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0)
                     {
-                        parameter.BoxedValue = EditorGUI.MaskField(rect, (int)parameter.BoxedValue, Enum.GetNames(parameter.ValueType), "NodeFieldCombo");
+                        parameter.BoxedValue = EditorGUI.MaskField(rect, (int)parameter.BoxedValue, Enum.GetNames(parameterType), "NodeFieldCombo");
                     }
                     else
                     {
@@ -529,7 +531,7 @@ namespace Spell.Graph
         public void EnumField(Rect rect, Vector2 menuScreenPosition, INode parameter, GUIStyle style)
         {
             var currentValue = (int)parameter.BoxedValue;
-            var options = Enum.GetNames(parameter.ValueType);
+            var options = Enum.GetNames(parameter.BoxedValueType);
             var menu = new GenericMenu();
             for (var i = 0; i < options.Length; i++)
             {

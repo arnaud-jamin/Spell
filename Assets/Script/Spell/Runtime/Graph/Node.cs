@@ -20,6 +20,7 @@ namespace Spell.Graph
         public string VariableName { get; set; }
         public virtual Type ValueType { get { return null; } }
         public virtual object BoxedValue { get { return null; }  set { } }
+        public virtual Type BoxedValueType { get { return null; } }
 
         public void Initialize(GameManager gameManager, Graph graph)
         {

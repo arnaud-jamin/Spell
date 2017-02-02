@@ -11,6 +11,7 @@ namespace Spell.Graph
         string VariableName { get; set; }
         Type ValueType { get; }
         object BoxedValue { get; set; }
+        Type BoxedValueType { get; }
         List<FieldInfo> GetFields();
     }
 }

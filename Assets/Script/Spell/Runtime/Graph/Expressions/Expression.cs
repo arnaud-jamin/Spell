@@ -11,5 +11,6 @@ namespace Spell.Graph
         public abstract T Evaluate();
 
         public override Type ValueType { get { return typeof(T); } }
+        public override Type BoxedValueType { get { return typeof(T); } }
     }
 }

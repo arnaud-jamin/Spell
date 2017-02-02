@@ -354,7 +354,7 @@ MonoBehaviour:
     \           },\r\n            \"GraphPosition\": {\r\n                \"x\": 674.0,\r\n
     \               \"y\": 580.0\r\n            },\r\n            \"VariableName\":
     null,\r\n            \"$type\": \"Spell.Graph.StatModifier\"\r\n        }\r\n
-    \   ],\r\n    \"m_viewOffset\": {\r\n        \"x\": 161.0,\r\n        \"y\": 186.0\r\n
-    \   },\r\n    \"m_viewZoom\": 1.0\r\n}"
+    \   ],\r\n    \"m_viewOffset\": {\r\n        \"x\": -91.0,\r\n        \"y\": -4.0\r\n
+    \   },\r\n    \"m_viewZoom\": 0.8\r\n}"
   m_viewOffset: {x: -91, y: -4}
-  m_viewZoom: 0.79999995
+  m_viewZoom: 0.8

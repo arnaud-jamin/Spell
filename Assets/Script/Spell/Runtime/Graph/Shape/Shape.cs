@@ -4,7 +4,7 @@ namespace Spell.Graph
 {
     public abstract class Shape : Node
     {
-        public Expression<Vector3> Position = new Vector3Value();
+        public Expression<Vector3> Position = new Position();
 
         public abstract int GetTouchingColliders(Collider[] colliders, int mask, QueryTriggerInteraction queryTriggerInteraction);
 
