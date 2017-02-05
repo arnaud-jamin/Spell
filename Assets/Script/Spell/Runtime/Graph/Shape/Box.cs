@@ -7,7 +7,7 @@ namespace Spell.Graph
     {
         public Expression<float> Width = new FloatValue(1);
         public Expression<float> Height = new FloatValue(1);
-        public Expression<float> Rotation = new FloatValue();
+        public Expression<float> Rotation = new Rotation();
 
         public override int GetTouchingColliders(Collider[] colliders, int mask, QueryTriggerInteraction queryTriggerInteraction)
         {

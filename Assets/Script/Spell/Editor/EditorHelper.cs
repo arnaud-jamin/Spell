@@ -58,5 +58,93 @@ namespace Spell.Graph
 
             return value;
         }
+
+        // ----------------------------------------------------------------------------------------
+        public static void ZoomedEnumField(System.Action beginZoom, System.Action endZoom, Rect rect, Vector2 menuScreenPosition, GUIStyle style, int index, string[] names, Action<int> action)
+        {
+            if (GUI.Button(rect, names[index], style))
+            {
+                endZoom();
+                var menu = new GenericMenu();
+                for (var i = 0; i < names.Length; i++)
+                {
+                    menu.AddItem(new GUIContent(names[i]), i == index, (it) => { action((int)it); }, i);
+                }
+                menu.DropDown(new Rect(menuScreenPosition, Vector2.zero));
+                beginZoom();
+            }
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public static void ZoomedMaskField(System.Action beginZoom, System.Action endZoom, Rect rect, Vector2 menuScreenPosition, GUIStyle style, int currentValue, string[] names, Action<int> action)
+        {
+            var isEverythingOn = true;
+            var isNothingOn = false;
+
+            var text = string.Empty;
+            var matches = 0;
+            for (var i = 0; i < names.Length; i++)
+            {
+                var itemValue = 1 << i;
+                if ((itemValue & currentValue) != 0)
+                {
+                    if (matches == 0)
+                    {
+                        text = names[i];
+                    }
+                    else if (matches > 1)
+                    {
+                        text = "Mixed";
+                    }
+                    else if (matches == 1)
+                    {
+                        text = text + ", " + names[i];
+                    }
+
+                    matches++;
+                }
+                else
+                {
+                    isEverythingOn = false;
+                }
+            }
+
+            if (isEverythingOn)
+            {
+                text = "Everything";
+            }
+            else if (matches == 0)
+            {
+                isNothingOn = true;
+                text = "Nothing";
+            }
+
+            if (GUI.Button(rect, text, style))
+            {
+                endZoom();
+
+                var menu = new GenericMenu();
+                menu.AddItem(new GUIContent("Nothing"), isNothingOn, () =>
+                {
+                    action(0);
+                });
+
+                menu.AddItem(new GUIContent("Everything"), isEverythingOn, () =>
+                {
+                    action(-1);
+                });
+
+                for (var i = 0; i < names.Length; i++)
+                {
+                    var itemValue = (1 << i);
+                    var isItemOn = (currentValue & itemValue) != 0;
+                    menu.AddItem(new GUIContent(names[i]), isItemOn, () => { action(isItemOn ? currentValue ^ itemValue : currentValue | itemValue); });
+                }
+
+                menu.DropDown(new Rect(menuScreenPosition, Vector2.zero));
+
+                beginZoom();
+            }
+        }
     }
 }

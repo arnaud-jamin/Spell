@@ -13,19 +13,104 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_json: "{\r\n    \"m_rootType\": \"Spell.Graph.Buff\",\r\n    \"m_root\": {\r\n
     \       \"Name\": {\r\n            \"Value\": null,\r\n            \"GraphPosition\":
-    {\r\n                \"x\": 0.0,\r\n                \"y\": 0.0\r\n            },\r\n
+    {\r\n                \"x\": 330.0,\r\n                \"y\": 150.0\r\n            },\r\n
     \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.TextValue\"\r\n
     \       },\r\n        \"Icon\": {\r\n            \"Value\": null,\r\n            \"GraphPosition\":
     {\r\n                \"x\": 0.0,\r\n                \"y\": 0.0\r\n            },\r\n
     \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.SpriteValue\"\r\n
-    \       },\r\n        \"Duration\": {\r\n            \"Value\": 0.0,\r\n            \"GraphPosition\":
-    {\r\n                \"x\": 0.0,\r\n                \"y\": 0.0\r\n            },\r\n
-    \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.FloatValue\"\r\n
-    \       },\r\n        \"Actions\": [],\r\n        \"GraphPosition\": {\r\n            \"x\":
-    190.0,\r\n            \"y\": 112.0\r\n        },\r\n        \"VariableName\":
-    null,\r\n        \"$type\": \"Spell.Graph.Buff\",\r\n        \"$id\": \"1\"\r\n
-    \   },\r\n    \"m_nodes\": [\r\n        {\r\n            \"$ref\": \"1\"\r\n        }\r\n
-    \   ],\r\n    \"m_viewOffset\": {\r\n        \"x\": 0.0,\r\n        \"y\": 0.0\r\n
-    \   },\r\n    \"m_viewZoom\": 1.0\r\n}"
+    \       },\r\n        \"Duration\": {\r\n            \"Time\": {\r\n                \"Object\":
+    {\r\n                    \"Value\": \"Iterator1\",\r\n                    \"GraphPosition\":
+    {\r\n                        \"x\": 0.0,\r\n                        \"y\": 0.0\r\n
+    \                   },\r\n                    \"VariableName\": null,\r\n                    \"$type\":
+    \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType, Assembly-CSharp, Version=0.0.0.0,
+    Culture=neutral, PublicKeyToken=null]]\"\r\n                },\r\n                \"Property\":
+    {\r\n                    \"Value\": \"Rotation\",\r\n                    \"GraphPosition\":
+    {\r\n                        \"x\": 0.0,\r\n                        \"y\": 0.0\r\n
+    \                   },\r\n                    \"VariableName\": null,\r\n                    \"$type\":
+    \"Spell.Graph.ExpressionValue`1[[Spell.Graph.ObjectProperty, Assembly-CSharp,
+    Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n                },\r\n
+    \               \"GraphPosition\": {\r\n                    \"x\": 578.0,\r\n
+    \                   \"y\": 213.0\r\n                },\r\n                \"VariableName\":
+    null,\r\n                \"$type\": \"Spell.Graph.ObjectFloatProperty\",\r\n                \"$id\":
+    \"5\"\r\n            },\r\n            \"Curve\": {\r\n                \"Value\":
+    {\r\n                    \"keys\": [\r\n                        {\r\n                            \"time\":
+    0.0,\r\n                            \"value\": 0.0,\r\n                            \"tangentMode\":
+    0,\r\n                            \"inTangent\": 0.0,\r\n                            \"outTangent\":
+    0.0\r\n                        },\r\n                        {\r\n                            \"time\":
+    1.0,\r\n                            \"value\": 1.0,\r\n                            \"tangentMode\":
+    0,\r\n                            \"inTangent\": 2.0,\r\n                            \"outTangent\":
+    2.0\r\n                        }\r\n                    ],\r\n                    \"preWrapMode\":
+    \"ClampForever\",\r\n                    \"postWrapMode\": \"ClampForever\"\r\n
+    \               },\r\n                \"GraphPosition\": {\r\n                    \"x\":
+    0.0,\r\n                    \"y\": 0.0\r\n                },\r\n                \"VariableName\":
+    null,\r\n                \"$type\": \"Spell.Graph.Curve\"\r\n            },\r\n
+    \           \"GraphPosition\": {\r\n                \"x\": 344.0,\r\n                \"y\":
+    203.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
+    \"Spell.Graph.CurveValue\",\r\n            \"$id\": \"4\"\r\n        },\r\n        \"Actions\":
+    [\r\n            {\r\n                \"Time\": {\r\n                    \"Value\":
+    0.5,\r\n                    \"GraphPosition\": {\r\n                        \"x\":
+    0.0,\r\n                        \"y\": 0.0\r\n                    },\r\n                    \"VariableName\":
+    null,\r\n                    \"$type\": \"Spell.Graph.FloatValue\"\r\n                },\r\n
+    \               \"Actions\": [],\r\n                \"GraphPosition\": {\r\n                    \"x\":
+    335.0,\r\n                    \"y\": 298.0\r\n                },\r\n                \"VariableName\":
+    null,\r\n                \"$type\": \"Spell.Graph.Tick\"\r\n            },\r\n
+    \           {\r\n                \"Time\": {\r\n                    \"Value\":
+    0.5,\r\n                    \"GraphPosition\": {\r\n                        \"x\":
+    0.0,\r\n                        \"y\": 0.0\r\n                    },\r\n                    \"VariableName\":
+    null,\r\n                    \"$type\": \"Spell.Graph.FloatValue\"\r\n                },\r\n
+    \               \"Actions\": [],\r\n                \"GraphPosition\": {\r\n                    \"x\":
+    336.0,\r\n                    \"y\": 313.0\r\n                },\r\n                \"VariableName\":
+    null,\r\n                \"$type\": \"Spell.Graph.Tick\"\r\n            }\r\n
+    \       ],\r\n        \"GraphPosition\": {\r\n            \"x\": 106.0,\r\n            \"y\":
+    151.0\r\n        },\r\n        \"VariableName\": null,\r\n        \"$type\": \"Spell.Graph.Buff\",\r\n
+    \       \"$id\": \"1\"\r\n    },\r\n    \"m_nodes\": [\r\n        {\r\n            \"$ref\":
+    \"1\"\r\n        },\r\n        {\r\n            \"$ref\": \"4\"\r\n        },\r\n
+    \       {\r\n            \"$ref\": \"5\"\r\n        },\r\n        {\r\n            \"Width\":
+    {\r\n                \"Value\": 1.0,\r\n                \"GraphPosition\": {\r\n
+    \                   \"x\": 0.0,\r\n                    \"y\": 0.0\r\n                },\r\n
+    \               \"VariableName\": null,\r\n                \"$type\": \"Spell.Graph.FloatValue\"\r\n
+    \           },\r\n            \"Height\": {\r\n                \"Value\": 1.0,\r\n
+    \               \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n                    \"y\":
+    0.0\r\n                },\r\n                \"VariableName\": null,\r\n                \"$type\":
+    \"Spell.Graph.FloatValue\"\r\n            },\r\n            \"Rotation\": {\r\n
+    \               \"Object\": {\r\n                    \"Value\": \"Caster\",\r\n
+    \                   \"GraphPosition\": {\r\n                        \"x\": 0.0,\r\n
+    \                       \"y\": 0.0\r\n                    },\r\n                    \"VariableName\":
+    null,\r\n                    \"$type\": \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \               },\r\n                \"Property\": {\r\n                    \"Value\":
+    \"Rotation\",\r\n                    \"GraphPosition\": {\r\n                        \"x\":
+    0.0,\r\n                        \"y\": 0.0\r\n                    },\r\n                    \"VariableName\":
+    null,\r\n                    \"$type\": \"Spell.Graph.ExpressionValue`1[[Spell.Graph.ObjectProperty,
+    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
+    \               },\r\n                \"GraphPosition\": {\r\n                    \"x\":
+    833.0,\r\n                    \"y\": 396.0\r\n                },\r\n                \"VariableName\":
+    null,\r\n                \"$type\": \"Spell.Graph.ObjectFloatProperty\",\r\n                \"$id\":
+    \"21\"\r\n            },\r\n            \"Position\": {\r\n                \"X\":
+    {\r\n                    \"Value\": 0.0,\r\n                    \"GraphPosition\":
+    {\r\n                        \"x\": 0.0,\r\n                        \"y\": 0.0\r\n
+    \                   },\r\n                    \"VariableName\": null,\r\n                    \"$type\":
+    \"Spell.Graph.FloatValue\"\r\n                },\r\n                \"Y\": {\r\n
+    \                   \"Value\": 0.0,\r\n                    \"GraphPosition\":
+    {\r\n                        \"x\": 0.0,\r\n                        \"y\": 0.0\r\n
+    \                   },\r\n                    \"VariableName\": null,\r\n                    \"$type\":
+    \"Spell.Graph.FloatValue\"\r\n                },\r\n                \"Z\": {\r\n
+    \                   \"Value\": 0.0,\r\n                    \"GraphPosition\":
+    {\r\n                        \"x\": 0.0,\r\n                        \"y\": 0.0\r\n
+    \                   },\r\n                    \"VariableName\": null,\r\n                    \"$type\":
+    \"Spell.Graph.FloatValue\"\r\n                },\r\n                \"GraphPosition\":
+    {\r\n                    \"x\": 831.0,\r\n                    \"y\": 479.0\r\n
+    \               },\r\n                \"VariableName\": null,\r\n                \"$type\":
+    \"Spell.Graph.Vector3Expression\",\r\n                \"$id\": \"24\"\r\n            },\r\n
+    \           \"Curve\": {\r\n                \"Value\": null,\r\n                \"GraphPosition\":
+    {\r\n                    \"x\": 0.0,\r\n                    \"y\": 0.0\r\n                },\r\n
+    \               \"VariableName\": null,\r\n                \"$type\": \"Spell.Graph.ExpressionValue`1[[UnityEngine.AnimationCurve,
+    UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n            },\r\n
+    \           \"GraphPosition\": {\r\n                \"x\": 516.0,\r\n                \"y\":
+    392.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
+    \"Spell.Graph.Box\"\r\n        },\r\n        {\r\n            \"$ref\": \"21\"\r\n
+    \       },\r\n        {\r\n            \"$ref\": \"24\"\r\n        }\r\n    ],\r\n
+    \   \"m_viewOffset\": {\r\n        \"x\": 0.0,\r\n        \"y\": 0.0\r\n    },\r\n
+    \   \"m_viewZoom\": 1.0\r\n}"
   m_viewOffset: {x: 0, y: 0}
   m_viewZoom: 1

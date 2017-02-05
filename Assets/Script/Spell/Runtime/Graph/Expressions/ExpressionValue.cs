@@ -10,7 +10,6 @@ namespace Spell.Graph
 
         public ExpressionValue()
         {
-            Value = default(T);
         }
 
         public ExpressionValue(T value)
@@ -70,6 +69,27 @@ namespace Spell.Graph
         public SpriteValue(Sprite value) : base(value) { }
     }
 
+    [NodeMenuItem("Values")]
+    public class Curve : ExpressionValue<AnimationCurve>
+    {
+        public Curve()
+        {
+            Value = new AnimationCurve();
+        }
+    }
+
+    [NodeMenuItem("Values")]
+    public class CurveValue : Expression<float>
+    {
+        public Expression<float> Time = new FloatValue(0);
+        public Expression<AnimationCurve> Curve = new Curve();
+
+        public override float Evaluate()
+        {
+            return Curve.Evaluate().Evaluate(Time.Evaluate());
+        }
+    }
+
     [Flags]
     public enum AllianceType
     {
@@ -92,17 +112,58 @@ namespace Spell.Graph
         TargetPosition,
     }
 
+    public enum RotationType
+    {
+        CasterRotation,
+        TargetRotation,
+    }
+
+    public enum ObjectProperty
+    {
+        Level,
+        Rotation,
+        Height,
+    }
+
+
+    [NodeMenuItem("Object")]
+    public class ObjectFloatProperty : Expression<float>
+    {
+        public Expression<TargetType> Object = new ExpressionValue<TargetType>();
+        public Expression<ObjectProperty> Property = new ExpressionValue<ObjectProperty>();
+
+        public override float Evaluate()
+        {
+            return 0;
+        }
+    }
+
     [NodeMenuItem("Values")]
     public class Position : Expression<Vector3>
     {
         public PositionType Type = PositionType.CasterPosition;
 
-        public override object BoxedValue { get { return Type; } set  { Type = (PositionType)value; } }
+        public override object BoxedValue { get { return Type; } set { Type = (PositionType)value; } }
         public override Type BoxedValueType { get { return typeof(PositionType); } }
 
         public override Vector3 Evaluate()
         {
             return Vector3.zero;
+        }
+    }
+
+
+    [NodeMenuItem("Values")]
+    public class Rotation : Expression<float>
+    {
+        public RotationType Type = RotationType.CasterRotation;
+
+        public override object BoxedValue { get { return Type; } set { Type = (RotationType)value; } }
+        public override Type BoxedValueType { get { return typeof(RotationType); } }
+
+        public override float Evaluate()
+        {
+            return 0;
         }
     }
 

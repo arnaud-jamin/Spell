@@ -42,6 +42,9 @@ namespace Spell.Graph
         private readonly static string s_backgroundControlName = "Background";
         private readonly static string s_nodeControlName = "Node";
         private readonly static string s_fieldControlName = "Field";
+        
+
+        private readonly static string s_undoParameterValue = "Change parameter value";
 
         #endregion
 
@@ -240,7 +243,7 @@ namespace Spell.Graph
 
             CreateNodeInfos();
 
-            m_zoomRect = BeginZoom();
+            BeginZoom();
             {
                 m_viewRect = new Rect(ViewOffset, m_zoomRect.size);
 
@@ -508,45 +511,37 @@ namespace Spell.Graph
                     parameter.BoxedValue = EditorGUI.ColorField(rect, GUIContent.none, (Color)parameter.BoxedValue, false, true, false, new ColorPickerHDRConfig(0, 0, 0, 0));
                     GUI.skin = m_skin;
                 }
+                else if (parameterType == typeof(AnimationCurve))
+                {
+                    var animationCurve = parameter.BoxedValue as AnimationCurve;
+                    EditorGUI.CurveField(rect, animationCurve, Color.white, new Rect());
+                }
                 else if (parameterType.IsEnum)
                 {
                     if (parameterType.GetCustomAttributes(typeof(FlagsAttribute), false).Length > 0)
                     {
-                        parameter.BoxedValue = EditorGUI.MaskField(rect, (int)parameter.BoxedValue, Enum.GetNames(parameterType), "NodeFieldCombo");
+                        EditorHelper.ZoomedMaskField(BeginZoom, EndZoom, 
+                                                     rect, WorldToScreen(rect.position + parentNodeInfo.node.GraphPosition),
+                                                     "NodeFieldCombo", 
+                                                     (int)parameter.BoxedValue,
+                                                     Enum.GetNames(parameter.BoxedValueType),
+                                                     (value) => { parameter.BoxedValue = value; });
                     }
                     else
                     {
-                        EnumField(rect, WorldToScreen(rect.position + parentNodeInfo.node.GraphPosition), parameter, "NodeFieldCombo");
+                        EditorHelper.ZoomedEnumField(BeginZoom, EndZoom, 
+                                                     rect, WorldToScreen(rect.position + parentNodeInfo.node.GraphPosition),
+                                                     "NodeFieldCombo",
+                                                     (int)parameter.BoxedValue,
+                                                     Enum.GetNames(parameter.BoxedValueType), 
+                                                     (value) => { parameter.BoxedValue = value; });
                     }
                 }
             }
 
             if (EditorGUI.EndChangeCheck())
             {
-                RecordAndSave("Set Node Parameter");
-            }
-        }
-
-        // ----------------------------------------------------------------------------------------
-        public void EnumField(Rect rect, Vector2 menuScreenPosition, INode parameter, GUIStyle style)
-        {
-            var currentValue = (int)parameter.BoxedValue;
-            var options = Enum.GetNames(parameter.BoxedValueType);
-            var menu = new GenericMenu();
-            for (var i = 0; i < options.Length; i++)
-            {
-                menu.AddItem(new GUIContent(options[i]), false, (index) => 
-                {
-                    parameter.BoxedValue = index;
-                    RecordAndSave("Set Node Parameter");
-                }, i);
-            }
-
-            if (GUI.Button(rect, options[currentValue], style))
-            {
-                EndZoom();
-                menu.DropDown(new Rect(menuScreenPosition, Vector2.zero));
-                BeginZoom();
+                RecordAndSave(s_undoParameterValue);
             }
         }
 
@@ -1436,7 +1431,7 @@ namespace Spell.Graph
         #region View Management
 
         // ----------------------------------------------------------------------------------------
-        Rect BeginZoom()
+        private void BeginZoom()
         {
             GUI.EndGroup();
 
@@ -1451,11 +1446,11 @@ namespace Spell.Graph
             GUI.BeginGroup(zoomRect);
             GUI.BeginGroup(new Rect(-ViewOffset, m_zoomRect.size + ViewOffset));
 
-            return zoomRect;
+            m_zoomRect = zoomRect;
         }
 
         // ----------------------------------------------------------------------------------------
-        void EndZoom()
+        private void EndZoom()
         {
             GUI.EndGroup();
             GUI.EndGroup();
