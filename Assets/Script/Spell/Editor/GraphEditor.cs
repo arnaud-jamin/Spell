@@ -688,6 +688,8 @@ namespace Spell.Graph
             m_nodesBounds.yMin = float.MaxValue;
             m_nodesBounds.yMax = float.MinValue;
 
+            var nodes = m_graph.GetNodes();
+
             m_nodeInfos.Clear();
             for (var i = 0; i < m_graph.Nodes.Count; ++i)
             {
