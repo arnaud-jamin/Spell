@@ -404,8 +404,8 @@ namespace Spell.Graph
                 //-------------------------
                 // Node Input
                 //-------------------------
-                var inputRect = nodeInfo.baseTypeInfo.side == NodeSide.Right ? new Rect(handleRect.size.x, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2)
-                                                                             : new Rect(1, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2);
+                //var inputRect = nodeInfo.baseTypeInfo.side == NodeSide.Right ? new Rect(handleRect.size.x, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2)
+                //                                                             : new Rect(1, 1, nodeInfo.rect.size.x - handleRect.size.x - 1, nodeInfo.rect.size.y - 2);
                 //DrawField(nodeInfo.node, nodeInfo, inputRect);
             }
             //-------------------------
@@ -517,6 +517,7 @@ namespace Spell.Graph
                 else if (fieldType == typeof(Vector3))
                 {
                     var value = EditorHelper.Vector3Field(rect, (Vector3)fieldValue, new GUIStyle("NodeFieldNameLeft"), new GUIStyle("NodeFieldValue"));
+                    field.SetValue(fieldOwner, value);
                 }
                 else if (fieldType == typeof(Color))
                 {

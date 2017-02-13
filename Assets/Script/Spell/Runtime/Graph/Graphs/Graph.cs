@@ -11,9 +11,6 @@ namespace Spell.Graph
     public class Graph : ScriptableObject
     {
         // ----------------------------------------------------------------------------------------
-        [fsIgnore]
-        private fsSerializer m_serializer = new fsSerializer();
-
         [SerializeField]
         [fsIgnore]
         protected string m_json;

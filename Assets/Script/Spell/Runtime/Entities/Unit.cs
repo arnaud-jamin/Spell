@@ -27,12 +27,12 @@ namespace Spell
 
         //-----------------------------------------------------------------------------------------
         private Model m_model;
-        private Stat m_movementSpeedStat;
+        //private Stat m_movementSpeedStat;
         private float m_rotation = 0;
 
         //-----------------------------------------------------------------------------------------
-        [SerializeField]
-        private References m_references = null;
+        //[SerializeField]
+        //private References m_references = null;
 
         [SerializeField]
         private MovementSettings m_movement = null;
@@ -49,7 +49,7 @@ namespace Spell
         public void Initialize(Graph.Unit archetype)
         {
             m_rotation = transform.rotation.eulerAngles.y;
-            m_movementSpeedStat = m_references.stats.GetStat(StatType.MoveSpeed);
+            //m_movementSpeedStat = m_references.stats.GetStat(StatType.MoveSpeed);
 
             m_model = GameplayHelper.Instantiate("Model", archetype.Model, transform, Vector3.zero, Quaternion.identity);
         }

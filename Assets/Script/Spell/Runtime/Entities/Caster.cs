@@ -59,6 +59,9 @@ namespace Spell
         //---------------------------------------------------------------------------------------
         public void Cast(int v, CastParam castParam)
         {
+            if (m_maxMana.Value < 0)
+                return;
+
             if (m_currentMana < 100)
                 return;
         }
