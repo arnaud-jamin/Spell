@@ -55,6 +55,13 @@ namespace Spell
         }
 
         //---------------------------------------------------------------------------------------------
+        public Stat(float initialValue)
+        {
+            SetInitialValue(initialValue);
+            Refresh();
+        }
+
+        //---------------------------------------------------------------------------------------------
         public void Refresh()
         {
             RefreshBaseValue();

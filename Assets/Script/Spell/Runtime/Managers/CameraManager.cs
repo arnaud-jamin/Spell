@@ -25,7 +25,7 @@ namespace Spell
 
             var player = GameManager.ActivePlayer;
             m_mainCamera.transform.rotation = Quaternion.Euler(m_rotation);
-            m_mainCamera.transform.position = player.Character.transform.position + m_offset - m_mainCamera.transform.forward * m_distance;
+            m_mainCamera.transform.position = player.Unit.transform.position + m_offset - m_mainCamera.transform.forward * m_distance;
         }
     }
 }

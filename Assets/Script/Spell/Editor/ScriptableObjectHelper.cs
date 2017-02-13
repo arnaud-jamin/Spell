@@ -11,20 +11,20 @@ namespace Spell.Graph
         public static T CreateAsset<T>(string name) where T : ScriptableObject
         {
             var asset = ScriptableObject.CreateInstance<T>();
-            var path = AssetDatabase.GetAssetPath(Selection.activeObject);
+            var path = UnityEditor.AssetDatabase.GetAssetPath(Selection.activeObject);
             if (path == string.Empty)
             {
                 path = "Assets";
             }
             else if (Path.GetExtension(path) != string.Empty)
             {
-                path = path.Replace(Path.GetFileName(AssetDatabase.GetAssetPath(Selection.activeObject)), string.Empty);
+                path = path.Replace(Path.GetFileName(UnityEditor.AssetDatabase.GetAssetPath(Selection.activeObject)), string.Empty);
             }
 
-            var assetPath = AssetDatabase.GenerateUniqueAssetPath(path + "/" + name + ".asset");
+            var assetPath = UnityEditor.AssetDatabase.GenerateUniqueAssetPath(path + "/" + name + ".asset");
 
-            AssetDatabase.CreateAsset(asset, assetPath);
-            AssetDatabase.SaveAssets();
+            UnityEditor.AssetDatabase.CreateAsset(asset, assetPath);
+            UnityEditor.AssetDatabase.SaveAssets();
             EditorUtility.FocusProjectWindow();
             Selection.activeObject = asset;
             return asset;
@@ -36,14 +36,14 @@ namespace Spell.Graph
 
         // ----------------------------------------------------------------------------------------
         [MenuItem("Assets/Create/Spell/Caster")]
-        public static void CreateCasterGraph() { CreateGraph<CasterGraph, Caster>(); }
+        public static void CreateCasterGraph() { CreateGraph<CasterGraph, Unit>(); }
 
         // ----------------------------------------------------------------------------------------
         [MenuItem("Assets/Create/Spell/Buff")]
         public static void CreateBuffGraph() { CreateGraph<BuffGraph, Buff>(); }
 
         // ----------------------------------------------------------------------------------------
-        public static void CreateGraph<GraphType, RootType>() where GraphType: Graph where RootType : INode
+        public static void CreateGraph<GraphType, RootType>() where GraphType: Graph where RootType : Node
         {
             var graph = ScriptableObjectHelper.CreateAsset<GraphType>(typeof(RootType).Name);
             graph.RootType = typeof(RootType);

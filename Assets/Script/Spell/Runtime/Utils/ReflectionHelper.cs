@@ -10,9 +10,19 @@ namespace Spell
     public static class ReflectionHelper
     {
         // ----------------------------------------------------------------------------------------
-        public static bool HasCustomAttribute<T>(this Type type, bool inherit = false) where T : Attribute
+        public static bool HasCustomAttribute<T>(this MemberInfo type, bool inherit = false) where T : Attribute
         {
             return type.GetCustomAttributes(typeof(T), inherit).Length > 0;
+        }
+
+        // ----------------------------------------------------------------------------------------
+        public static T GetFirstCustomAttribute<T>(this MemberInfo type, bool inherit = false) where T : Attribute
+        {
+            var attributes = type.GetCustomAttributes(typeof(T), inherit);
+            if (attributes.Length > 0)
+                return attributes[0] as T;
+
+            return null;
         }
 
         // ----------------------------------------------------------------------------------------

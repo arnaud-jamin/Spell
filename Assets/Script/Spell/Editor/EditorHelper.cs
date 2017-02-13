@@ -1,12 +1,34 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using UnityEditor;
 using UnityEngine;
 
-namespace Spell.Graph
+namespace Spell
 {
     public class EditorHelper
     {
+        // ----------------------------------------------------------------------------------------
+        public static Type GetPropertyType(SerializedProperty property)
+        {
+            var paths = property.propertyPath.Split('.');
+
+            var type = property.serializedObject.targetObject.GetType();
+            for (var i = 0; i < paths.Length; ++i)
+            {
+                var path = paths[i];
+                var field = type.GetField(path, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+
+                if (field == null)
+                    return null;
+
+                type = field.FieldType;
+            }
+
+            return type;
+        }
+
         // ----------------------------------------------------------------------------------------
         public static Vector2 Vector2Field(Rect rect, Vector2 value, GUIStyle labelStyle, GUIStyle valueStyle)
         {
@@ -133,6 +155,8 @@ namespace Spell.Graph
                 {
                     action(-1);
                 });
+
+                menu.AddSeparator(string.Empty);
 
                 for (var i = 0; i < names.Length; i++)
                 {

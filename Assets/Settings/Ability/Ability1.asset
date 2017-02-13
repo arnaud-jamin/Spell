@@ -31,7 +31,7 @@ MonoBehaviour:
     \       \"Actions\": [],\r\n        \"GraphPosition\": {\r\n            \"x\":
     363.0,\r\n            \"y\": 279.0\r\n        },\r\n        \"VariableName\":
     null,\r\n        \"$type\": \"Spell.Graph.Ability\"\r\n    },\r\n    \"m_nodes\":
-    [\r\n        {\r\n            \"Name\": {\r\n                \"Value\": \"56156\",\r\n
+    [\r\n        {\r\n            \"Name\": {\r\n                \"Value\": null,\r\n
     \               \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n                    \"y\":
     0.0\r\n                },\r\n                \"VariableName\": null,\r\n                \"$type\":
     \"Spell.Graph.TextValue\"\r\n            },\r\n            \"Icon\": {\r\n                \"Value\":
@@ -45,118 +45,34 @@ MonoBehaviour:
     \               \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n                    \"y\":
     0.0\r\n                },\r\n                \"VariableName\": null,\r\n                \"$type\":
     \"Spell.Graph.FloatValue\"\r\n            },\r\n            \"CastTargetType\":
-    {\r\n                \"Value\": \"Ground\",\r\n                \"GraphPosition\":
-    {\r\n                    \"x\": 0.0,\r\n                    \"y\": 0.0\r\n                },\r\n
-    \               \"VariableName\": null,\r\n                \"$type\": \"Spell.Graph.CastTargetTypeValue\"\r\n
-    \           },\r\n            \"Actions\": [\r\n                {\r\n                    \"Amount\":
-    {\r\n                        \"Value\": 0.0,\r\n                        \"GraphPosition\":
-    {\r\n                            \"x\": 0.0,\r\n                            \"y\":
-    0.0\r\n                        },\r\n                        \"VariableName\":
-    null,\r\n                        \"$type\": \"Spell.Graph.FloatValue\"\r\n                    },\r\n
-    \                   \"DamageType\": {\r\n                        \"Value\": \"Physical\",\r\n
-    \                       \"GraphPosition\": {\r\n                            \"x\":
-    0.0,\r\n                            \"y\": 0.0\r\n                        },\r\n
-    \                       \"VariableName\": null,\r\n                        \"$type\":
-    \"Spell.Graph.DamageTypeValue\"\r\n                    },\r\n                    \"Target\":
+    {\r\n                \"Value\": \"Target\",\r\n                \"GraphPosition\":
+    {\r\n                    \"x\": 862.0,\r\n                    \"y\": 363.0\r\n
+    \               },\r\n                \"VariableName\": null,\r\n                \"$type\":
+    \"Spell.Graph.CastTargetTypeValue\"\r\n            },\r\n            \"Actions\":
+    [\r\n                {\r\n                    \"Buff\": null,\r\n                    \"Target\":
     {\r\n                        \"Value\": \"Caster\",\r\n                        \"GraphPosition\":
     {\r\n                            \"x\": 0.0,\r\n                            \"y\":
     0.0\r\n                        },\r\n                        \"VariableName\":
     null,\r\n                        \"$type\": \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType,
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
     \                   },\r\n                    \"GraphPosition\": {\r\n                        \"x\":
-    797.0,\r\n                        \"y\": 214.0\r\n                    },\r\n                    \"VariableName\":
-    null,\r\n                    \"$type\": \"Spell.Graph.Damage\",\r\n                    \"$id\":
-    \"17\"\r\n                },\r\n                {\r\n                    \"Amount\":
-    {\r\n                        \"Value\": 0.0,\r\n                        \"GraphPosition\":
-    {\r\n                            \"x\": 0.0,\r\n                            \"y\":
-    0.0\r\n                        },\r\n                        \"VariableName\":
-    null,\r\n                        \"$type\": \"Spell.Graph.FloatValue\"\r\n                    },\r\n
-    \                   \"DamageType\": {\r\n                        \"Value\": \"Physical\",\r\n
-    \                       \"GraphPosition\": {\r\n                            \"x\":
+    868.0,\r\n                        \"y\": 414.0\r\n                    },\r\n                    \"VariableName\":
+    null,\r\n                    \"$type\": \"Spell.Graph.AddBuff\",\r\n                    \"$id\":
+    \"17\"\r\n                },\r\n                {\r\n                    \"Buff\":
+    null,\r\n                    \"Target\": {\r\n                        \"Value\":
+    \"Caster\",\r\n                        \"GraphPosition\": {\r\n                            \"x\":
     0.0,\r\n                            \"y\": 0.0\r\n                        },\r\n
     \                       \"VariableName\": null,\r\n                        \"$type\":
-    \"Spell.Graph.DamageTypeValue\"\r\n                    },\r\n                    \"Target\":
-    {\r\n                        \"Value\": \"Caster\",\r\n                        \"GraphPosition\":
-    {\r\n                            \"x\": 0.0,\r\n                            \"y\":
-    0.0\r\n                        },\r\n                        \"VariableName\":
-    null,\r\n                        \"$type\": \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType,
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \                   },\r\n                    \"GraphPosition\": {\r\n                        \"x\":
-    797.0,\r\n                        \"y\": 313.0\r\n                    },\r\n                    \"VariableName\":
-    null,\r\n                    \"$type\": \"Spell.Graph.Damage\",\r\n                    \"$id\":
-    \"21\"\r\n                },\r\n                {\r\n                    \"Amount\":
-    {\r\n                        \"Value\": 0.0,\r\n                        \"GraphPosition\":
-    {\r\n                            \"x\": 0.0,\r\n                            \"y\":
-    0.0\r\n                        },\r\n                        \"VariableName\":
-    null,\r\n                        \"$type\": \"Spell.Graph.FloatValue\"\r\n                    },\r\n
-    \                   \"DamageType\": {\r\n                        \"Value\": \"Physical\",\r\n
-    \                       \"GraphPosition\": {\r\n                            \"x\":
-    0.0,\r\n                            \"y\": 0.0\r\n                        },\r\n
-    \                       \"VariableName\": null,\r\n                        \"$type\":
-    \"Spell.Graph.DamageTypeValue\"\r\n                    },\r\n                    \"Target\":
-    {\r\n                        \"Value\": \"Caster\",\r\n                        \"GraphPosition\":
-    {\r\n                            \"x\": 0.0,\r\n                            \"y\":
-    0.0\r\n                        },\r\n                        \"VariableName\":
-    null,\r\n                        \"$type\": \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType,
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \                   },\r\n                    \"GraphPosition\": {\r\n                        \"x\":
-    798.0,\r\n                        \"y\": 407.0\r\n                    },\r\n                    \"VariableName\":
-    null,\r\n                    \"$type\": \"Spell.Graph.Damage\",\r\n                    \"$id\":
-    \"25\"\r\n                }\r\n            ],\r\n            \"GraphPosition\":
-    {\r\n                \"x\": 313.0,\r\n                \"y\": 188.0\r\n            },\r\n
-    \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.Ability\"\r\n
-    \       },\r\n        {\r\n            \"$ref\": \"17\"\r\n        },\r\n        {\r\n
-    \           \"$ref\": \"21\"\r\n        },\r\n        {\r\n            \"$ref\":
-    \"25\"\r\n        },\r\n        {\r\n            \"Amount\": {\r\n                \"Value\":
-    0.0,\r\n                \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n
-    \                   \"y\": 0.0\r\n                },\r\n                \"VariableName\":
-    null,\r\n                \"$type\": \"Spell.Graph.FloatValue\"\r\n            },\r\n
-    \           \"DamageType\": {\r\n                \"Value\": \"Physical\",\r\n
-    \               \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n                    \"y\":
-    0.0\r\n                },\r\n                \"VariableName\": null,\r\n                \"$type\":
-    \"Spell.Graph.DamageTypeValue\"\r\n            },\r\n            \"Target\": {\r\n
-    \               \"Value\": \"Iterator1\",\r\n                \"GraphPosition\":
-    {\r\n                    \"x\": 0.0,\r\n                    \"y\": 0.0\r\n                },\r\n
-    \               \"VariableName\": null,\r\n                \"$type\": \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType,
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \           },\r\n            \"GraphPosition\": {\r\n                \"x\": 844.0,\r\n
-    \               \"y\": 541.0\r\n            },\r\n            \"VariableName\":
-    null,\r\n            \"$type\": \"Spell.Graph.Damage\"\r\n        },\r\n        {\r\n
-    \           \"Width\": {\r\n                \"Value\": 1.0,\r\n                \"GraphPosition\":
-    {\r\n                    \"x\": 0.0,\r\n                    \"y\": 0.0\r\n                },\r\n
-    \               \"VariableName\": null,\r\n                \"$type\": \"Spell.Graph.FloatValue\"\r\n
-    \           },\r\n            \"Height\": {\r\n                \"Value\": 1.0,\r\n
-    \               \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n                    \"y\":
-    0.0\r\n                },\r\n                \"VariableName\": null,\r\n                \"$type\":
-    \"Spell.Graph.FloatValue\"\r\n            },\r\n            \"Rotation\": {\r\n
-    \               \"Value\": 0.0,\r\n                \"GraphPosition\": {\r\n                    \"x\":
-    0.0,\r\n                    \"y\": 0.0\r\n                },\r\n                \"VariableName\":
-    null,\r\n                \"$type\": \"Spell.Graph.FloatValue\"\r\n            },\r\n
-    \           \"Position\": {\r\n                \"Value\": {\r\n                    \"x\":
-    0.0,\r\n                    \"y\": 0.0,\r\n                    \"z\": 0.0\r\n
-    \               },\r\n                \"GraphPosition\": {\r\n                    \"x\":
-    0.0,\r\n                    \"y\": 0.0\r\n                },\r\n                \"VariableName\":
-    null,\r\n                \"$type\": \"Spell.Graph.Vector3Value\"\r\n            },\r\n
-    \           \"GraphPosition\": {\r\n                \"x\": 582.0,\r\n                \"y\":
-    484.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
-    \"Spell.Graph.Box\",\r\n            \"$id\": \"33\"\r\n        },\r\n        {\r\n
-    \           \"Shape\": {\r\n                \"$ref\": \"33\"\r\n            },\r\n
-    \           \"Duration\": {\r\n                \"Value\": 0.0,\r\n                \"GraphPosition\":
-    {\r\n                    \"x\": 0.0,\r\n                    \"y\": 0.0\r\n                },\r\n
-    \               \"VariableName\": null,\r\n                \"$type\": \"Spell.Graph.FloatValue\"\r\n
-    \           },\r\n            \"Tick\": {\r\n                \"Value\": 0.5,\r\n
-    \               \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n                    \"y\":
-    0.0\r\n                },\r\n                \"VariableName\": null,\r\n                \"$type\":
-    \"Spell.Graph.FloatValue\"\r\n            },\r\n            \"OnEnter\": null,\r\n
-    \           \"OnStay\": null,\r\n            \"OnTick\": null,\r\n            \"OnExit\":
-    null,\r\n            \"Iterator\": {\r\n                \"Value\": \"Iterator1\",\r\n
-    \               \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n                    \"y\":
-    0.0\r\n                },\r\n                \"VariableName\": null,\r\n                \"$type\":
-    \"Spell.Graph.ExpressionValue`1[[Spell.Graph.IteratorType, Assembly-CSharp, Version=0.0.0.0,
-    Culture=neutral, PublicKeyToken=null]]\"\r\n            },\r\n            \"GraphPosition\":
-    {\r\n                \"x\": 319.0,\r\n                \"y\": 496.0\r\n            },\r\n
-    \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.Field\"\r\n
-    \       }\r\n    ],\r\n    \"m_viewOffset\": {\r\n        \"x\": 251.0,\r\n        \"y\":
-    84.0\r\n    },\r\n    \"m_viewZoom\": 1.0\r\n}"
-  m_viewOffset: {x: 251, y: 84}
+    \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType, Assembly-CSharp, Version=0.0.0.0,
+    Culture=neutral, PublicKeyToken=null]]\"\r\n                    },\r\n                    \"GraphPosition\":
+    {\r\n                        \"x\": 867.0,\r\n                        \"y\": 525.0\r\n
+    \                   },\r\n                    \"VariableName\": null,\r\n                    \"$type\":
+    \"Spell.Graph.AddBuff\",\r\n                    \"$id\": \"19\"\r\n                }\r\n
+    \           ],\r\n            \"GraphPosition\": {\r\n                \"x\": 426.0,\r\n
+    \               \"y\": 360.0\r\n            },\r\n            \"VariableName\":
+    null,\r\n            \"$type\": \"Spell.Graph.Ability\"\r\n        },\r\n        {\r\n
+    \           \"$ref\": \"17\"\r\n        },\r\n        {\r\n            \"$ref\":
+    \"19\"\r\n        }\r\n    ],\r\n    \"m_viewOffset\": {\r\n        \"x\": 216.0,\r\n
+    \       \"y\": 98.0\r\n    },\r\n    \"m_viewZoom\": 1.0\r\n}"
+  m_viewOffset: {x: 216, y: 98}
   m_viewZoom: 1

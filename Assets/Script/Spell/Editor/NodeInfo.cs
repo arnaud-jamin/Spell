@@ -9,7 +9,7 @@ namespace Spell.Graph
     public class NodeInfo
     {
         public int index;
-        public INode node;
+        public Node node;
         public Rect rect;
         public List<NodePin> pins = new List<NodePin>();
         public NodeTypeInfo derivedTypeInfo;
@@ -33,7 +33,9 @@ namespace Spell.Graph
         public Vector2 fieldPosition;
         public Rect pinLocalRect;
         public Rect pinGlobalRect;
-        public bool canBeConnected;
+        public bool hasPin;
+        public FieldInfo controlledField;
+        public object controlledFieldOwner;
     }
 
     public class NodeConnection

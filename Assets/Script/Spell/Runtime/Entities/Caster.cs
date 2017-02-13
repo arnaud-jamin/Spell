@@ -16,27 +16,51 @@ namespace Spell
     {
         public Vector3 castPosition;
         public Vector3 effectPosition;
-        public Character source;
-        public Character target;
+        public Unit source;
+        public Unit target;
         public Ability ability;
     }
 
-    public class Caster : Component
+    public class Caster : MonoBehaviour
     {
-        private List<GameObject> m_summoned = new List<GameObject>();
-
-        public List<GameObject> Summoned { get { return m_summoned; } }
-
-        public void Initialize()
+        //-----------------------------------------------------------------------------------------
+        [Serializable]
+        public class References
         {
+            [AutoFind]
+            public Stats stats;
         }
 
+        //-----------------------------------------------------------------------------------------
+        private Stat m_maxMana;
+        private List<GameObject> m_summoned = new List<GameObject>();
+
+        //---------------------------------------------------------------------------------------
+        [SerializeField]
+        private References m_references = null;
+
+        [SerializeField]
+        private float m_currentMana = 100;
+
+        //---------------------------------------------------------------------------------------
+        public List<GameObject> Summoned { get { return m_summoned; } }
+
+        //---------------------------------------------------------------------------------------
+        public void Initialize()
+        {
+            m_maxMana = m_references.stats.GetStat(StatType.Mana);
+        }
+
+        //---------------------------------------------------------------------------------------
         public void Update()
         {
         }
 
-        internal void Cast(int v, CastParam castParam)
+        //---------------------------------------------------------------------------------------
+        public void Cast(int v, CastParam castParam)
         {
+            if (m_currentMana < 100)
+                return;
         }
     }
 }

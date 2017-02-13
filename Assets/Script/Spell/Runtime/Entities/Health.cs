@@ -6,6 +6,14 @@ namespace Spell
 {
     public class Health : MonoBehaviour
     {
+        //-----------------------------------------------------------------------------------------
+        [Serializable]
+        public class References
+        {
+            [AutoFind]
+            public Stats stats;
+        }
+
         //---------------------------------------------------------------------------------------
         public struct Modifier
         {
@@ -29,6 +37,12 @@ namespace Spell
         }
 
         //---------------------------------------------------------------------------------------
+        private Stat m_maxLife;
+
+        //---------------------------------------------------------------------------------------
+        [SerializeField]
+        private References m_references = null;
+
         [SerializeField]
         private bool m_isDead = false;
 
@@ -38,19 +52,17 @@ namespace Spell
         [SerializeField]
         private float m_currentLife = 100;
 
-        [SerializeField]
-        private float m_maxLife = 100;
-
         //---------------------------------------------------------------------------------------
         public float CurrentLife { get { return m_currentLife; } set { m_currentLife = value; } }
-        public float MaxLife { get { return m_maxLife; } set { m_maxLife = value; } }
+        public float MaxLife { get { return m_maxLife.Value; } }
         public bool IsInvincible { get { return m_isInvincible; } set { ChangeInvincible(value); } }
-        public float LifeRatio { get { return m_maxLife > 0 ? m_currentLife / (float)m_maxLife : 0; } }
+        public float LifeRatio { get { return m_maxLife.Value > 0 ? m_currentLife / m_maxLife.Value : 0; } }
         public bool IsDead { get { return m_isDead; } }
         
         //---------------------------------------------------------------------------------------
-        public void Awake()
+        public void Initialize()
         {
+            m_maxLife = m_references.stats.GetStat(StatType.Health);
         }
 
         //---------------------------------------------------------------------------------------
@@ -81,7 +93,7 @@ namespace Spell
 
             var previousLife = m_currentLife;
             m_currentLife += modifier.amount;
-            m_currentLife = Mathf.Clamp(m_currentLife, 0, m_maxLife);
+            m_currentLife = Mathf.Clamp(m_currentLife, 0, m_maxLife.Value);
             healthEvent.affectedAmount = m_currentLife - previousLife;
 
             healthEvent.target = gameObject;
@@ -114,7 +126,7 @@ namespace Spell
         {
             if ((value) && m_isDead)
             {
-                Modify(new Modifier { amount = m_maxLife, canResurrect = true, ability = null, source = null });
+                Modify(new Modifier { amount = m_maxLife.Value, canResurrect = true, ability = null, source = null });
             }
 
             m_isInvincible = value;
@@ -123,7 +135,7 @@ namespace Spell
         //---------------------------------------------------------------------------------------
         public bool CanBeHealed(bool canResurect = false)
         {
-            if (m_currentLife == m_maxLife)
+            if (m_currentLife == m_maxLife.Value)
                 return false;
 
             if (m_isDead && canResurect == false)

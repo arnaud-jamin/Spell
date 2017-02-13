@@ -13,12 +13,19 @@ namespace Spell.Graph
         {
             serializedObject.Update();
 
-            m_scroll = EditorGUILayout.BeginScrollView(m_scroll);
-
             var jsonProperty = serializedObject.FindProperty("m_json");
+
+            if (GUILayout.Button("Copy to clipboard"))
+            {
+                GUIUtility.systemCopyBuffer = jsonProperty.stringValue;
+            }
+
+            m_scroll = EditorGUILayout.BeginScrollView(m_scroll);
             jsonProperty.stringValue = EditorGUILayout.TextArea(jsonProperty.stringValue);
             EditorGUILayout.EndScrollView();
 
+
+            
             serializedObject.ApplyModifiedProperties();
         }
     }

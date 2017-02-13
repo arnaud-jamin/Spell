@@ -3,10 +3,30 @@ namespace Spell
 {
     public enum StatType
     {
-        Damage,
+        // Primary
+        Strength,
+        Agility,
+        Intelligence,
         Armor,
-        MovementSpeed,
-        Grip,
-        MaxLife,
+        MoveSpeed,
+        AttackRange,
+        AttackTime,
+        AttackPoint,
+        AttackBackswing,
+        TurnRate,
+        VisionRange,
+        CollisionSize,
+        HealthRegen,
+        ManaRegen,
+        SpellDamage,
+        MagicResistance,
+        ProjectileSpeed,
+
+        // Secondary
+        DamageMin,
+        DamageMax,
+        Health,
+        Mana,
+        AttackSpeed,
     }
 }

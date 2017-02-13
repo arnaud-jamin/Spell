@@ -31,9 +31,6 @@ namespace Spell
         //private Player m_playerPrefab = null;
 
         [SerializeField]
-        private Character m_characterPrefab = null;
-
-        [SerializeField]
         private Transform m_instancesRoot = null;
 
         [SerializeField]
@@ -53,7 +50,6 @@ namespace Spell
         public static Transform PlayersRoot { get { return Instance.m_playersRoot; } }
         public static Transform HeroesRoot { get { return Instance.m_heroesRoot; } }
         public static Transform CreaturesRoot { get { return Instance.m_creaturesRoot; } }
-        public static Character CharacterPrefab { get { return Instance.m_characterPrefab; } }
         public static Player ActivePlayer { get { return Instance.m_activePlayer; } }
 
         //-----------------------------------------------------------------------------------------

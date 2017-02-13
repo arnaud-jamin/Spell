@@ -26,23 +26,36 @@ MonoBehaviour:
     {\r\n                        \"x\": 0.0,\r\n                        \"y\": 0.0\r\n
     \                   },\r\n                    \"VariableName\": null,\r\n                    \"$type\":
     \"Spell.Graph.FloatValue\"\r\n                },\r\n                \"Actions\":
-    [\r\n                    {\r\n                        \"Shape\": {\r\n                            \"Radius\":
+    [\r\n                    {\r\n                        \"Shape\": {\r\n                            \"Width\":
     {\r\n                                \"Value\": 1.0,\r\n                                \"GraphPosition\":
     {\r\n                                    \"x\": 0.0,\r\n                                    \"y\":
     0.0\r\n                                },\r\n                                \"VariableName\":
     null,\r\n                                \"$type\": \"Spell.Graph.FloatValue\"\r\n
-    \                           },\r\n                            \"Position\": {\r\n
-    \                               \"Value\": {\r\n                                    \"x\":
-    0.0,\r\n                                    \"y\": 0.0,\r\n                                    \"z\":
-    0.0\r\n                                },\r\n                                \"GraphPosition\":
+    \                           },\r\n                            \"Height\": {\r\n
+    \                               \"Value\": 1.0,\r\n                                \"GraphPosition\":
     {\r\n                                    \"x\": 0.0,\r\n                                    \"y\":
     0.0\r\n                                },\r\n                                \"VariableName\":
-    null,\r\n                                \"$type\": \"Spell.Graph.Vector3Value\"\r\n
-    \                           },\r\n                            \"GraphPosition\":
-    {\r\n                                \"x\": 775.0,\r\n                                \"y\":
-    311.0\r\n                            },\r\n                            \"VariableName\":
-    null,\r\n                            \"$type\": \"Spell.Graph.Circle\",\r\n                            \"$id\":
-    \"10\"\r\n                        },\r\n                        \"Alliance\":
+    null,\r\n                                \"$type\": \"Spell.Graph.FloatValue\"\r\n
+    \                           },\r\n                            \"Rotation\": {\r\n
+    \                               \"Type\": \"CasterRotation\",\r\n                                \"GraphPosition\":
+    {\r\n                                    \"x\": 0.0,\r\n                                    \"y\":
+    0.0\r\n                                },\r\n                                \"VariableName\":
+    null,\r\n                                \"$type\": \"Spell.Graph.Rotation\"\r\n
+    \                           },\r\n                            \"Position\": {\r\n
+    \                               \"Type\": \"CasterPosition\",\r\n                                \"GraphPosition\":
+    {\r\n                                    \"x\": 0.0,\r\n                                    \"y\":
+    0.0\r\n                                },\r\n                                \"VariableName\":
+    null,\r\n                                \"$type\": \"Spell.Graph.Position\"\r\n
+    \                           },\r\n                            \"Curve\": {\r\n
+    \                               \"Value\": null,\r\n                                \"GraphPosition\":
+    {\r\n                                    \"x\": 0.0,\r\n                                    \"y\":
+    0.0\r\n                                },\r\n                                \"VariableName\":
+    null,\r\n                                \"$type\": \"Spell.Graph.ExpressionValue`1[[UnityEngine.AnimationCurve,
+    UnityEngine, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n                            },\r\n
+    \                           \"GraphPosition\": {\r\n                                \"x\":
+    663.0,\r\n                                \"y\": 269.0\r\n                            },\r\n
+    \                           \"VariableName\": null,\r\n                            \"$type\":
+    \"Spell.Graph.Box\"\r\n                        },\r\n                        \"Alliance\":
     {\r\n                            \"Value\": \"Allies,Enemies,Neutral\",\r\n                            \"GraphPosition\":
     {\r\n                                \"x\": 0.0,\r\n                                \"y\":
     0.0\r\n                            },\r\n                            \"VariableName\":
@@ -64,39 +77,34 @@ MonoBehaviour:
     null,\r\n                                    \"$type\": \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType,
     Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
     \                               },\r\n                                \"GraphPosition\":
-    {\r\n                                    \"x\": 774.0,\r\n                                    \"y\":
-    378.0\r\n                                },\r\n                                \"VariableName\":
-    null,\r\n                                \"$type\": \"Spell.Graph.Damage\",\r\n
-    \                               \"$id\": \"15\"\r\n                            }\r\n
-    \                       ],\r\n                        \"Iterator\": {\r\n                            \"Value\":
-    \"Iterator1\",\r\n                            \"GraphPosition\": {\r\n                                \"x\":
-    0.0,\r\n                                \"y\": 0.0\r\n                            },\r\n
-    \                           \"VariableName\": null\r\n                        },\r\n
-    \                       \"GraphPosition\": {\r\n                            \"x\":
-    544.0,\r\n                            \"y\": 324.0\r\n                        },\r\n
-    \                       \"VariableName\": null,\r\n                        \"$type\":
-    \"Spell.Graph.ForeachInArea\",\r\n                        \"$id\": \"9\"\r\n                    },\r\n
-    \                   {\r\n                        \"Buff\": null,\r\n                        \"Target\":
-    {\r\n                            \"Value\": \"Caster\",\r\n                            \"GraphPosition\":
+    {\r\n                                    \"x\": 527.0,\r\n                                    \"y\":
+    439.0\r\n                                },\r\n                                \"VariableName\":
+    null,\r\n                                \"$type\": \"Spell.Graph.Damage\"\r\n
+    \                           }\r\n                        ],\r\n                        \"Iterator\":
+    {\r\n                            \"Value\": \"Iterator1\",\r\n                            \"GraphPosition\":
     {\r\n                                \"x\": 0.0,\r\n                                \"y\":
     0.0\r\n                            },\r\n                            \"VariableName\":
-    null,\r\n                            \"$type\": \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType,
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \                       },\r\n                        \"GraphPosition\": {\r\n
-    \                           \"x\": 570.0,\r\n                            \"y\":
+    null\r\n                        },\r\n                        \"GraphPosition\":
+    {\r\n                            \"x\": 541.0,\r\n                            \"y\":
+    313.0\r\n                        },\r\n                        \"VariableName\":
+    null,\r\n                        \"$type\": \"Spell.Graph.ForeachInArea\"\r\n
+    \                   },\r\n                    {\r\n                        \"Buff\":
+    null,\r\n                        \"Target\": {\r\n                            \"Value\":
+    \"Caster\",\r\n                            \"GraphPosition\": {\r\n                                \"x\":
+    0.0,\r\n                                \"y\": 0.0\r\n                            },\r\n
+    \                           \"VariableName\": null,\r\n                            \"$type\":
+    \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType, Assembly-CSharp, Version=0.0.0.0,
+    Culture=neutral, PublicKeyToken=null]]\"\r\n                        },\r\n                        \"GraphPosition\":
+    {\r\n                            \"x\": 570.0,\r\n                            \"y\":
     326.0\r\n                        },\r\n                        \"VariableName\":
     null,\r\n                        \"$type\": \"Spell.Graph.AddBuff\"\r\n                    }\r\n
     \               ],\r\n                \"GraphPosition\": {\r\n                    \"x\":
     336.0,\r\n                    \"y\": 291.0\r\n                },\r\n                \"VariableName\":
-    null,\r\n                \"$type\": \"Spell.Graph.Tick\",\r\n                \"$id\":
-    \"6\"\r\n            }\r\n        ],\r\n        \"GraphPosition\": {\r\n            \"x\":
-    104.0,\r\n            \"y\": 219.0\r\n        },\r\n        \"VariableName\":
-    null,\r\n        \"$type\": \"Spell.Graph.Buff\",\r\n        \"$id\": \"1\"\r\n
-    \   },\r\n    \"m_nodes\": [\r\n        {\r\n            \"$ref\": \"1\"\r\n        },\r\n
-    \       {\r\n            \"$ref\": \"6\"\r\n        },\r\n        {\r\n            \"$ref\":
-    \"9\"\r\n        },\r\n        {\r\n            \"$ref\": \"10\"\r\n        },\r\n
-    \       {\r\n            \"$ref\": \"15\"\r\n        }\r\n    ],\r\n    \"m_viewOffset\":
-    {\r\n        \"x\": 0.0,\r\n        \"y\": 0.0\r\n    },\r\n    \"m_viewZoom\":
-    1.0\r\n}"
+    null,\r\n                \"$type\": \"Spell.Graph.Tick\"\r\n            }\r\n
+    \       ],\r\n        \"GraphPosition\": {\r\n            \"x\": 170.0,\r\n            \"y\":
+    221.0\r\n        },\r\n        \"VariableName\": null,\r\n        \"$type\": \"Spell.Graph.Buff\",\r\n
+    \       \"$id\": \"1\"\r\n    },\r\n    \"m_nodes\": [\r\n        {\r\n            \"$ref\":
+    \"1\"\r\n        }\r\n    ],\r\n    \"m_viewOffset\": {\r\n        \"x\": 0.0,\r\n
+    \       \"y\": 0.0\r\n    },\r\n    \"m_viewZoom\": 1.0\r\n}"
   m_viewOffset: {x: 0, y: 0}
   m_viewZoom: 1

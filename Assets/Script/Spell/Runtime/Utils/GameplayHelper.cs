@@ -5,9 +5,10 @@ namespace Spell
     public class GameplayHelper 
     {
         //-----------------------------------------------------------------------------------------
-        public static T Instantiate<T>(T original, Transform parent, Vector3 position, Quaternion rotation, bool worldPositionStay = false) where T : Object
+        public static T Instantiate<T>(string name, T original, Transform parent, Vector3 position, Quaternion rotation, bool worldPositionStay = false) where T : Object
         {
             var instance = MonoBehaviour.Instantiate(original, position, rotation) as T;
+            instance.name = name;
 
             Transform instanceTransform = null;
             if (instance is GameObject)
@@ -38,15 +39,12 @@ namespace Spell
         //    return player;
         //}
 
-        ////-----------------------------------------------------------------------------------------
-        //public static Character CreateCharacter(Transform parent, Caster caster, Vector3 position, float rotation)
-        //{
-        //    var character = Instantiate(GameManager.CharacterPrefab, parent.transform, position, Quaternion.AngleAxis(rotation, Vector3.up));
-        //    character.Model = Instantiate(caster.Model, character.transform, Vector3.zero, Quaternion.identity);
-        //    character.Caster = caster;
-        //    return character;
-        //}
-
-
+        //-----------------------------------------------------------------------------------------
+        public static Unit CreateCharacter(string name, Transform parent, Graph.Unit archetype, Vector3 position, float rotation)
+        {
+            var unit = Instantiate(name, GlobalSettings.General.UnitPrefab, parent.transform, position, Quaternion.AngleAxis(rotation, Vector3.up));
+            unit.Initialize(archetype);
+            return unit;
+        }
     }
 }

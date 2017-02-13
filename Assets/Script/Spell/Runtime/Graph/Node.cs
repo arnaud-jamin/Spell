@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
-    public abstract class Node : INode
+    public abstract class Node 
     {
         [fsIgnore]
         private GameManager m_gameManager;
@@ -26,30 +26,6 @@ namespace Spell.Graph
         {
             m_gameManager = gameManager;
             m_graph = graph;
-        }
-
-        public List<FieldInfo> GetFields()
-        {
-            var fields = new List<FieldInfo>();
-            var allFields = GetType().GetFields(BindingFlags.Instance | BindingFlags.Public);
-            for (int i = 0; i < allFields.Length; ++i)
-            {
-                var field = allFields[i];
-                if (typeof(INode).IsAssignableFrom(field.FieldType))
-                {
-                    fields.Add(field);
-                }
-                else if (field.FieldType.IsGenericType && field.FieldType.GetGenericTypeDefinition() == typeof(List<>))
-                {
-                    var listItemType = field.FieldType.GetGenericArguments()[0];
-                    if (typeof(INode).IsAssignableFrom(listItemType))
-                    {
-                        fields.Add(field);
-                    }
-                }
-            }
-
-            return fields;
         }
     }
 }

@@ -7,6 +7,6 @@ namespace Spell
 {
     public class Player : MonoBehaviour
     {
-        public Character Character { get; internal set; }
+        public Unit Unit { get; internal set; }
     }
 }
