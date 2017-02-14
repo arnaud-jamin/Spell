@@ -11,68 +11,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 750f7be003adb394aa6a5c656c3743f5, type: 3}
   m_Name: Ability1
   m_EditorClassIdentifier: 
-  m_json: "{\r\n    \"m_rootType\": \"Spell.Graph.Ability\",\r\n    \"m_root\": {\r\n
-    \       \"Name\": {\r\n            \"Value\": null,\r\n            \"GraphPosition\":
-    {\r\n                \"x\": 0.0,\r\n                \"y\": 0.0\r\n            },\r\n
-    \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.TextValue\"\r\n
-    \       },\r\n        \"Icon\": {\r\n            \"Value\": {\r\n\r\n            },\r\n
-    \           \"GraphPosition\": {\r\n                \"x\": 0.0,\r\n                \"y\":
-    0.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
-    \"Spell.Graph.SpriteValue\"\r\n        },\r\n        \"ManaCost\": {\r\n            \"Value\":
-    0.0,\r\n            \"GraphPosition\": {\r\n                \"x\": 0.0,\r\n                \"y\":
-    0.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
-    \"Spell.Graph.FloatValue\"\r\n        },\r\n        \"Cooldown\": {\r\n            \"Value\":
-    0.0,\r\n            \"GraphPosition\": {\r\n                \"x\": 0.0,\r\n                \"y\":
-    0.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
-    \"Spell.Graph.FloatValue\"\r\n        },\r\n        \"CastTargetType\": {\r\n
-    \           \"Value\": \"Target\",\r\n            \"GraphPosition\": {\r\n                \"x\":
-    0.0,\r\n                \"y\": 0.0\r\n            },\r\n            \"VariableName\":
-    null,\r\n            \"$type\": \"Spell.Graph.CastTargetTypeValue\"\r\n        },\r\n
-    \       \"Actions\": [],\r\n        \"GraphPosition\": {\r\n            \"x\":
-    363.0,\r\n            \"y\": 279.0\r\n        },\r\n        \"VariableName\":
-    null,\r\n        \"$type\": \"Spell.Graph.Ability\"\r\n    },\r\n    \"m_nodes\":
-    [\r\n        {\r\n            \"Name\": {\r\n                \"Value\": null,\r\n
-    \               \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n                    \"y\":
-    0.0\r\n                },\r\n                \"VariableName\": null,\r\n                \"$type\":
-    \"Spell.Graph.TextValue\"\r\n            },\r\n            \"Icon\": {\r\n                \"Value\":
-    null,\r\n                \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n
-    \                   \"y\": 0.0\r\n                },\r\n                \"VariableName\":
-    null,\r\n                \"$type\": \"Spell.Graph.SpriteValue\"\r\n            },\r\n
-    \           \"ManaCost\": {\r\n                \"Value\": 0.0,\r\n                \"GraphPosition\":
-    {\r\n                    \"x\": 0.0,\r\n                    \"y\": 0.0\r\n                },\r\n
-    \               \"VariableName\": null,\r\n                \"$type\": \"Spell.Graph.FloatValue\"\r\n
-    \           },\r\n            \"Cooldown\": {\r\n                \"Value\": 0.0,\r\n
-    \               \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n                    \"y\":
-    0.0\r\n                },\r\n                \"VariableName\": null,\r\n                \"$type\":
-    \"Spell.Graph.FloatValue\"\r\n            },\r\n            \"CastTargetType\":
-    {\r\n                \"Value\": \"Target\",\r\n                \"GraphPosition\":
-    {\r\n                    \"x\": 862.0,\r\n                    \"y\": 363.0\r\n
-    \               },\r\n                \"VariableName\": null,\r\n                \"$type\":
-    \"Spell.Graph.CastTargetTypeValue\"\r\n            },\r\n            \"Actions\":
-    [\r\n                {\r\n                    \"Buff\": null,\r\n                    \"Target\":
-    {\r\n                        \"Value\": \"Caster\",\r\n                        \"GraphPosition\":
-    {\r\n                            \"x\": 0.0,\r\n                            \"y\":
-    0.0\r\n                        },\r\n                        \"VariableName\":
-    null,\r\n                        \"$type\": \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType,
-    Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]]\"\r\n
-    \                   },\r\n                    \"GraphPosition\": {\r\n                        \"x\":
-    868.0,\r\n                        \"y\": 414.0\r\n                    },\r\n                    \"VariableName\":
-    null,\r\n                    \"$type\": \"Spell.Graph.AddBuff\",\r\n                    \"$id\":
-    \"17\"\r\n                },\r\n                {\r\n                    \"Buff\":
-    null,\r\n                    \"Target\": {\r\n                        \"Value\":
-    \"Caster\",\r\n                        \"GraphPosition\": {\r\n                            \"x\":
-    0.0,\r\n                            \"y\": 0.0\r\n                        },\r\n
-    \                       \"VariableName\": null,\r\n                        \"$type\":
-    \"Spell.Graph.ExpressionValue`1[[Spell.Graph.TargetType, Assembly-CSharp, Version=0.0.0.0,
-    Culture=neutral, PublicKeyToken=null]]\"\r\n                    },\r\n                    \"GraphPosition\":
-    {\r\n                        \"x\": 867.0,\r\n                        \"y\": 525.0\r\n
-    \                   },\r\n                    \"VariableName\": null,\r\n                    \"$type\":
-    \"Spell.Graph.AddBuff\",\r\n                    \"$id\": \"19\"\r\n                }\r\n
-    \           ],\r\n            \"GraphPosition\": {\r\n                \"x\": 426.0,\r\n
-    \               \"y\": 360.0\r\n            },\r\n            \"VariableName\":
-    null,\r\n            \"$type\": \"Spell.Graph.Ability\"\r\n        },\r\n        {\r\n
-    \           \"$ref\": \"17\"\r\n        },\r\n        {\r\n            \"$ref\":
-    \"19\"\r\n        }\r\n    ],\r\n    \"m_viewOffset\": {\r\n        \"x\": 216.0,\r\n
-    \       \"y\": 98.0\r\n    },\r\n    \"m_viewZoom\": 1.0\r\n}"
+  m_json: "{\r\n    \"m_rootType\": \"Spell.Graph.Ability\",\r\n    \"m_root\": null,\r\n
+    \   \"m_nodes\": [],\r\n    \"m_viewOffset\": {\r\n        \"x\": 216.0,\r\n        \"y\":
+    98.0\r\n    },\r\n    \"m_viewZoom\": 1.0\r\n}"
   m_viewOffset: {x: 216, y: 98}
   m_viewZoom: 1

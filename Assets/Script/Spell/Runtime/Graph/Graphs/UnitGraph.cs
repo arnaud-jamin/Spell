@@ -1,7 +1,7 @@
 ﻿
 namespace Spell.Graph
 {
-    public class CasterGraph : Graph 
+    public class UnitGraph : Graph 
     {
     }
 }

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 314b499b5a81de5498c06019026f9ac6, type: 3}
+  m_Name: AxeArchetype
+  m_EditorClassIdentifier: 
+  m_json: "{\r\n    \"m_rootType\": \"Spell.Graph.Unit\",\r\n    \"m_root\": {\r\n
+    \       \"Name\": \"Axe\",\r\n        \"Icon\": 10182,\r\n        \"Model\": 9816,\r\n
+    \       \"Abilities\": [],\r\n        \"PrimaryAttribute\": \"Strength\",\r\n
+    \       \"BaseStrength\": 20.0,\r\n        \"StrengthGain\": 2.0,\r\n        \"BaseHealth\":
+    200.0,\r\n        \"BaseHealthRegen\": 0.25,\r\n        \"BaseAgility\": 20.0,\r\n
+    \       \"AgilityGain\": 2.0,\r\n        \"BaseArmor\": 5.0,\r\n        \"BaseIntelligence\":
+    20.0,\r\n        \"IntelligenceGain\": 2.0,\r\n        \"BaseManaRegen\": 0.01,\r\n
+    \       \"BaseAttackDamageMin\": 50.0,\r\n        \"BaseAttackDamageMax\": 60.0,\r\n
+    \       \"AttackRange\": 500.0,\r\n        \"BaseAttackTime\": 1.5,\r\n        \"AttackPoint\":
+    0.5,\r\n        \"AttackBackswing\": 0.5,\r\n        \"MoveSpeed\": 300.0,\r\n
+    \       \"TurnRate\": 0.5,\r\n        \"VisionRange\": 1500.0,\r\n        \"CollisionSize\":
+    20.0,\r\n        \"ProjectileSpeed\": 20.0,\r\n        \"MagicResistance\": 0.25,\r\n
+    \       \"GraphPosition\": {\r\n            \"x\": 78.0,\r\n            \"y\":
+    78.0\r\n        },\r\n        \"VariableName\": null,\r\n        \"$type\": \"Spell.Graph.Unit\",\r\n
+    \       \"$id\": \"1\"\r\n    },\r\n    \"m_nodes\": [\r\n        {\r\n            \"$ref\":
+    \"1\"\r\n        }\r\n    ],\r\n    \"m_viewOffset\": {\r\n        \"x\": 0.0,\r\n
+    \       \"y\": 0.0\r\n    },\r\n    \"m_viewZoom\": 1.0\r\n}"
+  m_viewOffset: {x: 0, y: 0}
+  m_viewZoom: 1

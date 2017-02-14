@@ -29,22 +29,5 @@ namespace Spell
 
             return instance;
         }
-
-        ////-----------------------------------------------------------------------------------------
-        //public static Player CreatePlayer(Transform playerParent, Transform characterParent, Player playerPrefab, SpellBook spellBook, Vector3 position, float rotation)
-        //{
-        //    var player = Instantiate(playerPrefab, playerParent.transform, Vector3.zero, Quaternion.identity);
-        //    player.Initialize(spellBook);
-        //    player.PlayerCharacterController.Character = CreateCharacter(characterParent, spellBook.Caster, position, rotation);
-        //    return player;
-        //}
-
-        //-----------------------------------------------------------------------------------------
-        public static Unit CreateCharacter(string name, Transform parent, Graph.Unit archetype, Vector3 position, float rotation)
-        {
-            var unit = Instantiate(name, GlobalSettings.General.UnitPrefab, parent.transform, position, Quaternion.AngleAxis(rotation, Vector3.up));
-            unit.Initialize(archetype);
-            return unit;
-        }
     }
 }

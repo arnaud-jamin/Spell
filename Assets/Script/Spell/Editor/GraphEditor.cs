@@ -205,14 +205,14 @@ namespace Spell.Graph
             Draw();
             HandleEvents();
 
-            if (m_forceRepaint)
-            {
-                Repaint();
-            }
-
             if (Event.current.type == EventType.Repaint)
             {
                 m_forceRepaint = false;
+            }
+
+            if (m_forceRepaint)
+            {
+                Repaint();
             }
         }
 
@@ -280,7 +280,7 @@ namespace Spell.Graph
                 menu.AddItem(new GUIContent("Clear"), false, () => { ShowClear(); });
                 menu.AddItem(new GUIContent("New Graph/Ability"), false, () => { ScriptableObjectHelper.CreateGraph<AbilityGraph, Ability>(); });
                 menu.AddItem(new GUIContent("New Graph/Buff"), false, () => { ScriptableObjectHelper.CreateGraph<BuffGraph, Buff>(); });
-                menu.AddItem(new GUIContent("New Graph/Caster"), false, () => { ScriptableObjectHelper.CreateGraph<CasterGraph, Unit>(); });
+                menu.AddItem(new GUIContent("New Graph/Caster"), false, () => { ScriptableObjectHelper.CreateGraph<UnitGraph, Unit>(); });
                 if (ShowDebug)
                 {
                     menu.AddSeparator("");
@@ -485,15 +485,15 @@ namespace Spell.Graph
                 GUI.color = Color.white;
                 GUI.backgroundColor = Color.white;
             }
+            else if (fieldType == typeof(string))
+            {
+                GUI.SetNextControlName(s_fieldControlName);
+                var value = EditorGUI.TextField(rect, (string)fieldValue, new GUIStyle("NodeFieldValue"));
+                field.SetValue(fieldOwner, value);
+            }
             else if (fieldValue != null)
             {
-                if (fieldType == typeof(string))
-                {
-                    GUI.SetNextControlName(s_fieldControlName);
-                    var value = EditorGUI.TextField(rect, (string)fieldValue, new GUIStyle("NodeFieldValue"));
-                    field.SetValue(fieldOwner, value);
-                }
-                else if (fieldType == typeof(bool))
+                if (fieldType == typeof(bool))
                 {
                     var choices = new string[] { "False", "True" };
                     var value = (EditorGUI.Popup(rect, (bool)fieldValue ? 1 : 0, choices, "NodeFieldCombo") > 0);
@@ -982,7 +982,6 @@ namespace Spell.Graph
             if (graph != null)
             {
                 Graph = graph;
-
                 var lastEditor = focusedWindow;
                 ShowWindow();
                 if (lastEditor != null)
@@ -1542,7 +1541,7 @@ namespace Spell.Graph
             var menu = new GenericMenu();
             if (m_graph != null)
             {
-                if (m_graph.RootType.IsAssignableFrom(nodeInfo.node.GetType()))
+                if (m_graph.RootType != null && m_graph.RootType.IsAssignableFrom(nodeInfo.node.GetType()))
                 {
                     menu.AddItem(new GUIContent("Set as root"), false, () => { SetAsRoot(nodeInfo.node); });
                 }

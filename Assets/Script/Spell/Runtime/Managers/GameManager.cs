@@ -37,10 +37,7 @@ namespace Spell
         private Transform m_playersRoot = null;
 
         [SerializeField]
-        private Transform m_heroesRoot = null;
-
-        [SerializeField]
-        private Transform m_creaturesRoot = null;
+        private Transform m_unitsRoot = null;
 
         //-----------------------------------------------------------------------------------------
         public static CombatLogManager CombatLogManager { get { return Instance.m_combatLogManager; } }
@@ -48,8 +45,7 @@ namespace Spell
         public static Settings Settings { get { return Instance.m_settings; } }
         public static Transform InstancesRoot { get { return Instance.m_instancesRoot; } }
         public static Transform PlayersRoot { get { return Instance.m_playersRoot; } }
-        public static Transform HeroesRoot { get { return Instance.m_heroesRoot; } }
-        public static Transform CreaturesRoot { get { return Instance.m_creaturesRoot; } }
+        public static Transform UnitsRoot { get { return Instance.m_unitsRoot; } }
         public static Player ActivePlayer { get { return Instance.m_activePlayer; } }
 
         //-----------------------------------------------------------------------------------------
@@ -78,9 +74,22 @@ namespace Spell
         //-----------------------------------------------------------------------------------------
         void Start()
         {
-            //var spellBookInstance = null; // Instantiate(m_playerSpellBook);
-            //m_activePlayer = GameplayHelper.CreatePlayer(m_playersRoot, m_heroesRoot, m_playerPrefab, spellBookInstance, Vector3.zero, 0);
-            //m_players.Add(m_activePlayer);
+            for (var i = 0; i < GlobalSettings.General.Spawn.Length; ++i)
+            {
+                var unit = GlobalSettings.General.Spawn[i];
+                if (unit != null)
+                {
+                    CreateUnit(unit.Root as Graph.Unit, Vector3.zero, 0);
+                }
+            }
+        }
+
+        //-----------------------------------------------------------------------------------------
+        public Unit CreateUnit(Graph.Unit archetype, Vector3 position, float rotation)
+        {
+            var unit = GameplayHelper.Instantiate(archetype.Name, GlobalSettings.General.UnitPrefab, m_unitsRoot, position, Quaternion.AngleAxis(rotation, Vector3.up));
+            unit.Initialize(archetype);
+            return unit;
         }
 
         //-----------------------------------------------------------------------------------------
@@ -92,7 +101,10 @@ namespace Spell
         //-----------------------------------------------------------------------------------------
         void LateUpdate()
         {
-            CameraManager.ManagerUpdate();
+            if (CameraManager != null)
+            {
+                CameraManager.ManagerUpdate();
+            }
         }
 
         //-----------------------------------------------------------------------------------------

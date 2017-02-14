@@ -13,8 +13,6 @@ namespace Spell.Graph
         public Sprite Icon;
         public Model Model;
 
-        public GameObject Test;
-
         public List<Ability> Abilities = new List<Ability>();
 
         [Header("Stats")]

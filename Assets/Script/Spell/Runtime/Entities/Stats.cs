@@ -24,8 +24,9 @@ namespace Spell
         public int Experience { get { return m_experience; } }
 
         //---------------------------------------------------------------------------------------
-        public void Initialize(Graph.Unit unit)
+        public void Initialize(Graph.Unit archetype)
         {
+            m_archetype = archetype;
             CreateStats();
         }
 

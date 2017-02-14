@@ -35,8 +35,8 @@ namespace Spell.Graph
         public static void CreateAbilityGraph() { CreateGraph<AbilityGraph, Ability>(); }
 
         // ----------------------------------------------------------------------------------------
-        [MenuItem("Assets/Create/Spell/Caster")]
-        public static void CreateCasterGraph() { CreateGraph<CasterGraph, Unit>(); }
+        [MenuItem("Assets/Create/Spell/Unit")]
+        public static void CreateCasterGraph() { CreateGraph<UnitGraph, Unit>(); }
 
         // ----------------------------------------------------------------------------------------
         [MenuItem("Assets/Create/Spell/Buff")]

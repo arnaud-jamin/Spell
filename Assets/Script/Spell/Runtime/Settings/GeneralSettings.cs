@@ -7,5 +7,6 @@ namespace Spell
     public class GeneralSettings : ScriptableObject
     {
         public Unit UnitPrefab;
+        public Graph.UnitGraph[] Spawn;
     }
 }

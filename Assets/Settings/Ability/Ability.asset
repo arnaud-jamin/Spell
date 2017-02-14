@@ -23,13 +23,13 @@ MonoBehaviour:
     {\r\n                    \"x\": 0.0,\r\n                    \"y\": 0.0\r\n                },\r\n
     \               \"VariableName\": null,\r\n                \"$type\": \"Spell.Graph.FloatValue\"\r\n
     \           },\r\n            \"Actions\": [],\r\n            \"GraphPosition\":
-    {\r\n                \"x\": 616.0,\r\n                \"y\": 287.0\r\n            },\r\n
+    {\r\n                \"x\": 683.0,\r\n                \"y\": 303.0\r\n            },\r\n
     \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.Buff\"\r\n
     \       },\r\n        {\r\n            \"Name\": {\r\n                \"Value\":
     null,\r\n                \"GraphPosition\": {\r\n                    \"x\": 0.0,\r\n
     \                   \"y\": 0.0\r\n                },\r\n                \"VariableName\":
     null,\r\n                \"$type\": \"Spell.Graph.TextValue\"\r\n            },\r\n
-    \           \"Icon\": {\r\n                \"Value\": null,\r\n                \"GraphPosition\":
+    \           \"Icon\": {\r\n                \"Value\": 484,\r\n                \"GraphPosition\":
     {\r\n                    \"x\": 0.0,\r\n                    \"y\": 0.0\r\n                },\r\n
     \               \"VariableName\": null,\r\n                \"$type\": \"Spell.Graph.SpriteValue\"\r\n
     \           },\r\n            \"ManaCost\": {\r\n                \"Value\": 0.0,\r\n

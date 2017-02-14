@@ -27,12 +27,14 @@ namespace Spell
 
         //-----------------------------------------------------------------------------------------
         private Model m_model;
+        private Graph.Unit m_archetype;
         //private Stat m_movementSpeedStat;
+        private Stat m_collisionSize;
         private float m_rotation = 0;
 
         //-----------------------------------------------------------------------------------------
-        //[SerializeField]
-        //private References m_references = null;
+        [SerializeField]
+        private References m_references = null;
 
         [SerializeField]
         private MovementSettings m_movement = null;
@@ -48,8 +50,11 @@ namespace Spell
         //-----------------------------------------------------------------------------------------
         public void Initialize(Graph.Unit archetype)
         {
+            m_references.stats.Initialize(archetype);
+
+            m_archetype = archetype;
             m_rotation = transform.rotation.eulerAngles.y;
-            //m_movementSpeedStat = m_references.stats.GetStat(StatType.MoveSpeed);
+            m_collisionSize = m_references.stats.GetStat(StatType.CollisionSize);
 
             m_model = GameplayHelper.Instantiate("Model", archetype.Model, transform, Vector3.zero, Quaternion.identity);
         }
@@ -102,6 +107,16 @@ namespace Spell
 
             m_rotation = Mathf.MoveTowardsAngle(m_rotation, desiredRotation, m_movement.rotationSpeed * Time.deltaTime);
             transform.rotation = Quaternion.AngleAxis(m_rotation, Vector3.up);
+        }
+
+        //-----------------------------------------------------------------------------------------
+        protected void OnDrawGizmos()
+        {
+            if (m_archetype != null)
+            {
+                Gizmos.color = Color.white;
+                GizmosHelper.DrawCircle(transform.position, Quaternion.identity, m_collisionSize.Value * 0.5f, 20);
+            }
         }
     }
 }
