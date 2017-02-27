@@ -13,7 +13,7 @@ namespace Spell.Graph
         public Sprite Icon;
         public Model Model;
 
-        public List<Ability> Abilities = new List<Ability>();
+        public List<Expression<Ability>> Abilities = new List<Expression<Ability>>();
 
         [Header("Stats")]
         public PrimaryAttribute PrimaryAttribute;
@@ -34,7 +34,7 @@ namespace Spell.Graph
         public float AttackPoint = 0.5f;
         public float AttackBackswing = 0.5f;
         public float MoveSpeed = 300;
-        public float TurnRate = 0.5f;
+        public float TurnRate = 1000;
         public float VisionRange = 1500;
         public float CollisionSize = 20;
         public float ProjectileSpeed = 20;

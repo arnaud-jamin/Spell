@@ -20,11 +20,6 @@ namespace Spell
                 instanceTransform = (instance as Component).transform;
             }
 
-            if (parent == null)
-            {
-                parent = GameManager.InstancesRoot;
-            }
-
             instanceTransform.SetParent(parent, worldPositionStay);
 
             return instance;

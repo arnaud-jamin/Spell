@@ -7,8 +7,8 @@ namespace Spell
         public struct CastEvent
         {
             public Ability ability;
-            public GameObject source;
-            public GameObject target;
+            public Unit source;
+            public Unit target;
         }
 
         public void Initialize()

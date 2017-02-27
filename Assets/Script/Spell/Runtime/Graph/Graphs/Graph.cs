@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Spell.Graph
 {
-    public class Graph : ScriptableObject
+    public abstract class Graph : ScriptableObject
     {
         // ----------------------------------------------------------------------------------------
         [SerializeField]
@@ -31,10 +31,10 @@ namespace Spell.Graph
         private float m_viewZoom = 1.0f;
 
         // ----------------------------------------------------------------------------------------
-        public Node Root { get { return m_root; } set { m_root = value; } }
         public List<Node> Nodes { get { return m_nodes; } }
         public Vector2 ViewOffset { get { return m_viewOffset; } set { m_viewOffset = value; } }
         public float ViewZoom { get { return m_viewZoom; } set { m_viewZoom = value; } }
+        public Node RootNode { get { return m_root; } set { m_root = value; } }
         public virtual Type RootType { get { return m_rootType; } set { m_rootType = value; } }
 
         // ----------------------------------------------------------------------------------------
@@ -69,6 +69,9 @@ namespace Spell.Graph
 
             return new BaseTypeInfo() { color = new Color(0.2f, 0.2f, 0.2f), side = NodeSide.Right };
         }
+
+        // ----------------------------------------------------------------------------------------
+        public abstract Node CreateRoot();
 
         // ----------------------------------------------------------------------------------------
         public Node CreateNode(Type type)
@@ -152,10 +155,18 @@ namespace Spell.Graph
             if (typeof(Shape).IsAssignableFrom(type))               return new Color(0.2f, 0.5f, 0.2f);
             return new Color(0.2f, 0.2f, 0.2f);
         }
+    }
 
-        // ----------------------------------------------------------------------------------------
-        
+    public class Graph<T> : Graph where T : Node, new()
+    {
+        public T Root { get { return m_root as T; } set { m_root = value; } }
 
+        public override Type RootType { get { return typeof(T); } }
 
+        public override Node CreateRoot()
+        {
+            m_root = CreateNode(typeof(T));
+            return m_root;
+        }
     }
 }

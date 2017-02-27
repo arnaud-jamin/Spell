@@ -21,8 +21,8 @@ namespace Spell
                 EditorGUI.BeginProperty(rect, label, property);
                 var indent = EditorGUI.indentLevel;
                 EditorGUI.indentLevel = 0;
-                var propertyRect = new Rect(rect.x, rect.y, rect.width * 0.85f, rect.height);
-                var buttonRect = new Rect(rect.x + rect.width * 0.85f, rect.y, rect.width * 0.15f, rect.height);
+                var propertyRect = new Rect(rect.x, rect.y, rect.width - 40, rect.height);
+                var buttonRect = new Rect(rect.x + rect.width - 40, rect.y, 40, rect.height);
                 EditorGUI.PropertyField(propertyRect, property, label);
 
                 if (property.objectReferenceValue == null)
@@ -40,7 +40,7 @@ namespace Spell
                 {
                     var leftButtonRect = buttonRect;
                     leftButtonRect.width = buttonRect.width * 0.5f;
-                    if (GUI.Button(leftButtonRect, new GUIContent("↺", "Cycle through " + type.Name), EditorStyles.miniButtonLeft))
+                    if (GUI.Button(leftButtonRect, new GUIContent(">", "Cycle through " + type.Name), EditorStyles.miniButtonLeft))
                     {
                         var results = autoFind.searchInChildren ? target.GetComponentsInChildren(type, true) : target.GetComponents(type);
                         int index = 0;
@@ -63,7 +63,7 @@ namespace Spell
 
                     var rightButtonRect = leftButtonRect;
                     rightButtonRect.x = leftButtonRect.x + leftButtonRect.width;
-                    if (GUI.Button(rightButtonRect, new GUIContent("✖", "Set to null"), EditorStyles.miniButtonRight))
+                    if (GUI.Button(rightButtonRect, new GUIContent("x", "Clear"), EditorStyles.miniButtonRight))
                     {
                         property.objectReferenceValue = null;
                     }

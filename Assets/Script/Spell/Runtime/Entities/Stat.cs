@@ -12,51 +12,58 @@ namespace Spell
         public class ValueChangedEvent : UnityEvent { }
 
         //---------------------------------------------------------------------------------------------
+        [SerializeField]
+        private string m_name;
+
+        [SerializeField]
         private float m_value;
+
+        [SerializeField]
         private float m_baseValue;
+
+        [SerializeField]
         private float m_bonusValue;
+
+        [SerializeField]
         private float m_multiplierValue;
+
         private List<StatModifier> m_baseModifiers = new List<StatModifier>();
         private HashSet<StatModifier> m_bonusModifiers = new HashSet<StatModifier>();
         private HashSet<StatModifier> m_multiplierModifiers = new HashSet<StatModifier>();
 
         //---------------------------------------------------------------------------------------------
-        [SerializeField]
+        private StatType m_type;
         private float m_initialValue;
-
-        [SerializeField]
-        private float m_minValue;
-
-        [SerializeField]
-        private float m_maxValue;
+        private float m_minValue = float.MinValue;
+        private float m_maxValue = float.MaxValue;
 
         //---------------------------------------------------------------------------------------------
+        public string Name { get { return m_name; } }
+        public StatType Type { get { return m_type; } }
         public float InitialValue { get { return m_initialValue; } }
-
         public float BaseValue { get { return m_baseValue; }  }
-
         public float BonusValue  { get { return m_bonusValue; }  }
-
         public float MultiplierValue { get { return m_multiplierValue; }  }
-
         public float Value { get { return m_value; }  }
-
         public float MinValue { get { return m_minValue; }  set  { m_minValue = value; RefreshFinalValue(); }  }
-
         public float MaxValue { get { return m_maxValue; }  set  { m_maxValue = value; RefreshFinalValue(); }  }
 
         //---------------------------------------------------------------------------------------------
         public ValueChangedEvent ValueChanged = new ValueChangedEvent();
 
         //---------------------------------------------------------------------------------------------
-        public Stat()
+        public Stat(StatType type)
         {
+            m_name = type.ToString();
+            m_type = type;
             Refresh();
         }
 
         //---------------------------------------------------------------------------------------------
-        public Stat(float initialValue)
+        public Stat(StatType type, float initialValue)
         {
+            m_name = type.ToString();
+            m_type = type;
             SetInitialValue(initialValue);
             Refresh();
         }

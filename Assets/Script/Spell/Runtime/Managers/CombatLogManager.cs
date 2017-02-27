@@ -19,8 +19,8 @@ namespace Spell
     {
         public LogType logType;
         public float time;
-        public GameObject source;
-        public GameObject target;
+        public Unit source;
+        public Unit target;
         public Ability ability;
         public float oldValue;
         public float newValue;

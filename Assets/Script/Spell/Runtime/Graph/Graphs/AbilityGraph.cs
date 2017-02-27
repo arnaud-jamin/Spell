@@ -1,7 +1,7 @@
 ﻿
 namespace Spell.Graph
 {
-    public class AbilityGraph : Graph 
+    public class AbilityGraph : Graph<Ability>
     {
     }
 }

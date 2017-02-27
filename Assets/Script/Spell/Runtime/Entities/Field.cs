@@ -1,7 +1,7 @@
 ﻿using Spell.Graph;
 using UnityEngine;
 
-namespace Spell.Entities
+namespace Spell
 {
     public class Field : MonoBehaviour
     {

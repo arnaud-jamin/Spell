@@ -278,9 +278,9 @@ namespace Spell.Graph
             {
                 var menu = new GenericMenu();
                 menu.AddItem(new GUIContent("Clear"), false, () => { ShowClear(); });
-                menu.AddItem(new GUIContent("New Graph/Ability"), false, () => { ScriptableObjectHelper.CreateGraph<AbilityGraph, Ability>(); });
-                menu.AddItem(new GUIContent("New Graph/Buff"), false, () => { ScriptableObjectHelper.CreateGraph<BuffGraph, Buff>(); });
-                menu.AddItem(new GUIContent("New Graph/Caster"), false, () => { ScriptableObjectHelper.CreateGraph<UnitGraph, Unit>(); });
+                menu.AddItem(new GUIContent("New Graph/Ability"), false, () => { ScriptableObjectHelper.CreateGraph<AbilityGraph>(); });
+                menu.AddItem(new GUIContent("New Graph/Buff"), false, () => { ScriptableObjectHelper.CreateGraph<BuffGraph>(); });
+                menu.AddItem(new GUIContent("New Graph/Caster"), false, () => { ScriptableObjectHelper.CreateGraph<UnitGraph>(); });
                 if (ShowDebug)
                 {
                     menu.AddSeparator("");
@@ -362,7 +362,7 @@ namespace Spell.Graph
                 //--------------
                 // Root Text
                 //--------------
-                if (nodeInfo.node == m_graph.Root)
+                if (nodeInfo.node == m_graph.RootNode)
                 {
                     GUI.Box(new Rect(nodeInfo.rect.position.x, nodeInfo.rect.position.y - 20, nodeInfo.rect.size.x, 20), "Root", "RootNode");
                 }
@@ -1370,7 +1370,7 @@ namespace Spell.Graph
         // ----------------------------------------------------------------------------------------
         private void DeleteNode(NodeInfo nodeInfo)
         {
-            if (nodeInfo.node == m_graph.Root)
+            if (nodeInfo.node == m_graph.RootNode)
                 return;
 
             m_graph.Nodes.Remove(nodeInfo.node);
@@ -1451,7 +1451,7 @@ namespace Spell.Graph
         {
             if (m_graph.RootType != null && m_graph.RootType.IsAssignableFrom(node.GetType()))
             {
-                m_graph.Root = node;
+                m_graph.RootNode = node;
             }
             RecordAndSave("Set As Root");
         }

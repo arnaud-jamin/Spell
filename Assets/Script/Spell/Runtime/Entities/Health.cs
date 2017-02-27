@@ -17,7 +17,7 @@ namespace Spell
         //---------------------------------------------------------------------------------------
         public struct Modifier
         {
-            public GameObject source;
+            public Unit source;
             public Ability ability;
             public float amount;
             public bool canResurrect;
@@ -27,8 +27,8 @@ namespace Spell
         //---------------------------------------------------------------------------------------
         public struct HealthEvent
         {
-            public GameObject source;
-            public GameObject target;
+            public Unit source;
+            public Unit target;
             public Ability ability;
             public float amount;
             public float affectedAmount;
@@ -37,6 +37,7 @@ namespace Spell
         }
 
         //---------------------------------------------------------------------------------------
+        private Unit m_unit;
         private Stat m_maxLife;
 
         //---------------------------------------------------------------------------------------
@@ -60,8 +61,9 @@ namespace Spell
         public bool IsDead { get { return m_isDead; } }
         
         //---------------------------------------------------------------------------------------
-        public void Initialize()
+        public void Initialize(Unit unit)
         {
+            m_unit = unit;
             m_maxLife = m_references.stats.GetStat(StatType.Health);
         }
 
@@ -96,16 +98,16 @@ namespace Spell
             m_currentLife = Mathf.Clamp(m_currentLife, 0, m_maxLife.Value);
             healthEvent.affectedAmount = m_currentLife - previousLife;
 
-            healthEvent.target = gameObject;
+            healthEvent.target = m_unit;
             healthEvent.newHealth = m_currentLife;
 
             if (modifier.amount > 0)
             {
-                GameManager.CombatLogManager.Log(CombatLog.Heal(healthEvent));
+                GameManager.Instance.CombatLogManager.Log(CombatLog.Heal(healthEvent));
             }
             else
             {
-                GameManager.CombatLogManager.Log(CombatLog.Damage(healthEvent));
+                GameManager.Instance.CombatLogManager.Log(CombatLog.Damage(healthEvent));
             }
 
             if (m_currentLife == 0)
@@ -118,7 +120,7 @@ namespace Spell
         private void Die(HealthEvent healthEvent)
         {
             m_isDead = true;
-            GameManager.CombatLogManager.Log(CombatLog.Death(healthEvent));
+            GameManager.Instance.CombatLogManager.Log(CombatLog.Death(healthEvent));
         }
 
         //---------------------------------------------------------------------------------------
@@ -143,7 +145,5 @@ namespace Spell
 
             return true;
         }
-
-
     }
 }

@@ -9,59 +9,68 @@ namespace Spell
     {
         //-----------------------------------------------------------------------------------------
         [Serializable]
-        public class MovementSettings
-        {
-            public float rotationSpeed = 10;
-        }
-
-        //-----------------------------------------------------------------------------------------
-        [Serializable]
         public class References
         {
+            [AutoFind]
+            public Rigidbody rigidBody = null;
+
+            [AutoFind]
+            public CapsuleCollider collider = null;
+
             [AutoFind]
             public Stats stats = null;
 
             [AutoFind]
             public Caster caster = null;
+
+            [AutoFind]
+            public Projector selectionFeedback = null;
         }
 
         //-----------------------------------------------------------------------------------------
+        private GameManager m_gameManager;
         private Model m_model;
         private Graph.Unit m_archetype;
-        //private Stat m_movementSpeedStat;
+        private Stat m_moveSpeedStat;
         private Stat m_collisionSize;
+        private Stat m_turnRate;
         private float m_rotation = 0;
+        private bool m_isSelected = false;
+        private float m_desiredRotation = 0;
+        private Vector3 m_desiredPosition = Vector3.zero;
 
         //-----------------------------------------------------------------------------------------
         [SerializeField]
         private References m_references = null;
 
-        [SerializeField]
-        private MovementSettings m_movement = null;
-
-        [SerializeField]
-        private CharacterControls m_controls = null;
-
         //-----------------------------------------------------------------------------------------
-        public CharacterControls Controls { get { return m_controls; } }
+        public GameManager GameManager { get { return m_gameManager; } }
         public Model Model { get { return m_model; } set { m_model = value; } }
         public float Rotation { get { return m_rotation; } }
+        public bool IsSelected { get { return m_isSelected; } set { SetIsSelected(value); } }
 
         //-----------------------------------------------------------------------------------------
-        public void Initialize(Graph.Unit archetype)
+        public void Initialize(GameManager gameManager, Graph.Unit archetype)
         {
-            m_references.stats.Initialize(archetype);
+            m_gameManager = gameManager;
 
             m_archetype = archetype;
             m_rotation = transform.rotation.eulerAngles.y;
-            m_collisionSize = m_references.stats.GetStat(StatType.CollisionSize);
 
+            m_references.stats.Initialize(archetype);
+            m_moveSpeedStat = m_references.stats.GetStat(StatType.MoveSpeed);
+            m_collisionSize = m_references.stats.GetStat(StatType.CollisionSize);
+            m_turnRate = m_references.stats.GetStat(StatType.TurnRate);
+
+            m_references.selectionFeedback.gameObject.SetActive(false);
             m_model = GameplayHelper.Instantiate("Model", archetype.Model, transform, Vector3.zero, Quaternion.identity);
         }
 
         //-----------------------------------------------------------------------------------------
-        public void OnUpdate()
+        public void OnFixedUpdate()
         {
+            Move();
+
             var castParam = new CastParam();
             castParam.source = this;
             castParam.castPosition = transform.position;
@@ -87,26 +96,67 @@ namespace Spell
             //}
         }
 
+        bool m_isStopped = true;
+        Vector3 m_startPos = Vector3.zero;
+        float m_startTime = 0;
+
         //-----------------------------------------------------------------------------------------
         private void Move()
         {
-            var moveInput = new Vector3(m_controls.Move.Value.x, 0, m_controls.Move.Value.y);
+            m_references.rigidBody.velocity = Vector3.zero;
 
-            float desiredRotation;
-            if (moveInput.magnitude > 0)
+            var diff = m_desiredPosition - transform.position;
+            if (m_isStopped == false)
             {
-                var direction = moveInput / moveInput.magnitude;
-                moveInput = direction * moveInput.magnitude;
-                desiredRotation = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
-            }
-            else
-            {
-                moveInput = Vector3.zero;
-                desiredRotation = m_rotation;
+                if (diff.magnitude > 0.01f)
+                {
+                    var step = Mathf.Min(diff.magnitude, m_moveSpeedStat.Value * Time.fixedDeltaTime);
+                    var direction = diff.normalized;
+                    m_references.rigidBody.velocity = (step * direction) / Time.fixedDeltaTime;
+                }
+                else
+                {
+                    if (m_isStopped == false)
+                    {
+                        var distance = Vector3.Distance(transform.position, m_startPos);
+                        var time = Time.time - m_startTime;
+                        m_desiredPosition = transform.position;
+                        Debug.Log("Time:" + time + " Distance:" + distance + " Speed:" + distance / time);
+                    }
+                    m_isStopped = true;
+                }
             }
 
-            m_rotation = Mathf.MoveTowardsAngle(m_rotation, desiredRotation, m_movement.rotationSpeed * Time.deltaTime);
+            m_rotation = Mathf.MoveTowardsAngle(m_rotation, m_desiredRotation, m_turnRate.Value * Time.fixedDeltaTime);
             transform.rotation = Quaternion.AngleAxis(m_rotation, Vector3.up);
+        }
+
+        //-----------------------------------------------------------------------------------------
+        public void MoveTo(Vector3 destination)
+        {
+            m_isStopped = false;
+            m_startPos = transform.position;
+            m_startTime = Time.time;
+            m_desiredPosition = destination;
+
+            var diff = m_desiredPosition - transform.position;
+            if (diff.magnitude > 0.01f)
+            {
+                var direction = diff.normalized;
+                m_desiredRotation = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg;
+            }
+        }
+
+        //-----------------------------------------------------------------------------------------
+        public void Attack(Unit selection)
+        {
+        }
+
+        //-----------------------------------------------------------------------------------------
+        private void SetIsSelected(bool value)
+        {
+            m_isSelected = value;
+            m_references.selectionFeedback.gameObject.SetActive(m_isSelected);
         }
 
         //-----------------------------------------------------------------------------------------

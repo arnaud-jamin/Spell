@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: a9d1b97a4bfb896438c6ad6b7f523a58
+timeCreated: 1488069318
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Radiance-Semibold
+  fontNames:
+  - Radiance-Semibold
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

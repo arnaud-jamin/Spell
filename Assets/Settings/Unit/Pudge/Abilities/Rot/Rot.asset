@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4aa5024de3bd8964c822f015493349e9, type: 3}
+  m_Name: Rot
+  m_EditorClassIdentifier: 
+  m_json: "{\r\n    \"m_rootType\": null,\r\n    \"m_root\": {\r\n        \"Name\":
+    {\r\n            \"Value\": \"Rot\",\r\n            \"GraphPosition\": {\r\n                \"x\":
+    0.0,\r\n                \"y\": 0.0\r\n            },\r\n            \"VariableName\":
+    null,\r\n            \"$type\": \"Spell.Graph.TextValue\"\r\n        },\r\n        \"Icon\":
+    {\r\n            \"Value\": 22048,\r\n            \"GraphPosition\": {\r\n                \"x\":
+    0.0,\r\n                \"y\": 0.0\r\n            },\r\n            \"VariableName\":
+    null,\r\n            \"$type\": \"Spell.Graph.SpriteValue\"\r\n        },\r\n
+    \       \"ManaCost\": {\r\n            \"Value\": 0.0,\r\n            \"GraphPosition\":
+    {\r\n                \"x\": 0.0,\r\n                \"y\": 0.0\r\n            },\r\n
+    \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.FloatValue\"\r\n
+    \       },\r\n        \"Cooldown\": {\r\n            \"Value\": 0.0,\r\n            \"GraphPosition\":
+    {\r\n                \"x\": 0.0,\r\n                \"y\": 0.0\r\n            },\r\n
+    \           \"VariableName\": null,\r\n            \"$type\": \"Spell.Graph.FloatValue\"\r\n
+    \       },\r\n        \"CastTargetType\": {\r\n            \"Value\": \"Target\",\r\n
+    \           \"GraphPosition\": {\r\n                \"x\": 0.0,\r\n                \"y\":
+    0.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
+    \"Spell.Graph.CastTargetTypeValue\"\r\n        },\r\n        \"Actions\": [],\r\n
+    \       \"GraphPosition\": {\r\n            \"x\": 36.0,\r\n            \"y\":
+    34.0\r\n        },\r\n        \"VariableName\": null,\r\n        \"$type\": \"Spell.Graph.Ability\",\r\n
+    \       \"$id\": \"1\"\r\n    },\r\n    \"m_nodes\": [\r\n        {\r\n            \"$ref\":
+    \"1\"\r\n        }\r\n    ],\r\n    \"m_viewOffset\": {\r\n        \"x\": -37.0,\r\n
+    \       \"y\": -30.0\r\n    },\r\n    \"m_viewZoom\": 1.0\r\n}"
+  m_viewOffset: {x: -37, y: -30}
+  m_viewZoom: 1

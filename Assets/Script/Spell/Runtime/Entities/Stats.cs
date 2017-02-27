@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 namespace Spell
 {
@@ -13,12 +15,15 @@ namespace Spell
     {
         // ----------------------------------------------------------------------------------------
         private Graph.Unit m_archetype = null;
-        private Stat[] m_stats = null;
         private int m_level = 1;
         private int m_experience = 0;
         private Stat m_strength;
         private Stat m_agility;
         private Stat m_intelligence;
+
+        //---------------------------------------------------------------------------------------
+        [SerializeField]
+        private Stat[] m_stats = null;
 
         //---------------------------------------------------------------------------------------
         public int Experience { get { return m_experience; } }
@@ -74,7 +79,7 @@ namespace Spell
         // ----------------------------------------------------------------------------------------
         private Stat AddStat(StatType type, float value = 0)
         {
-            var stat = new Stat(value);
+            var stat = new Stat(type, value);
             m_stats[(int)type] = stat;
             return stat;
         }
@@ -90,40 +95,40 @@ namespace Spell
         // ----------------------------------------------------------------------------------------
         void OnStrengthChanged()
         {
-            GetStat(StatType.Health).SetInitialValue(m_archetype.BaseHealth + m_strength.Value * GlobalSettings.Stats.HealthPerStrength);
-            GetStat(StatType.HealthRegen).SetInitialValue(m_archetype.BaseHealthRegen + m_strength.Value * GlobalSettings.Stats.HealthRegenPerStrength);
+            GetStat(StatType.Health).SetInitialValue(m_archetype.BaseHealth + m_strength.Value * Settings.Stats.HealthPerStrength);
+            GetStat(StatType.HealthRegen).SetInitialValue(m_archetype.BaseHealthRegen + m_strength.Value * Settings.Stats.HealthRegenPerStrength);
 
             if (m_archetype.PrimaryAttribute == PrimaryAttribute.Strength)
             {
-                GetStat(StatType.DamageMin).SetInitialValue(m_archetype.BaseAttackDamageMin + m_strength.Value * GlobalSettings.Stats.DamagePerStrength);
-                GetStat(StatType.DamageMax).SetInitialValue(m_archetype.BaseAttackDamageMax + m_strength.Value * GlobalSettings.Stats.DamagePerStrength);
+                GetStat(StatType.DamageMin).SetInitialValue(m_archetype.BaseAttackDamageMin + m_strength.Value * Settings.Stats.DamagePerStrength);
+                GetStat(StatType.DamageMax).SetInitialValue(m_archetype.BaseAttackDamageMax + m_strength.Value * Settings.Stats.DamagePerStrength);
             }
         }
 
         // ----------------------------------------------------------------------------------------
         void OnAgilityChanged()
         {
-            GetStat(StatType.Armor).SetInitialValue(m_archetype.BaseArmor + m_agility.Value * GlobalSettings.Stats.ArmorPerAgility);
-            GetStat(StatType.AttackSpeed).SetInitialValue(m_agility.Value * GlobalSettings.Stats.AttackSpeedPerAgility);
+            GetStat(StatType.Armor).SetInitialValue(m_archetype.BaseArmor + m_agility.Value * Settings.Stats.ArmorPerAgility);
+            GetStat(StatType.AttackSpeed).SetInitialValue(m_agility.Value * Settings.Stats.AttackSpeedPerAgility);
 
             if (m_archetype.PrimaryAttribute == PrimaryAttribute.Agility)
             {
-                GetStat(StatType.DamageMin).SetInitialValue(m_archetype.BaseAttackDamageMin + m_agility.Value * GlobalSettings.Stats.DamagePerAgility);
-                GetStat(StatType.DamageMax).SetInitialValue(m_archetype.BaseAttackDamageMax + m_agility.Value * GlobalSettings.Stats.DamagePerAgility);
+                GetStat(StatType.DamageMin).SetInitialValue(m_archetype.BaseAttackDamageMin + m_agility.Value * Settings.Stats.DamagePerAgility);
+                GetStat(StatType.DamageMax).SetInitialValue(m_archetype.BaseAttackDamageMax + m_agility.Value * Settings.Stats.DamagePerAgility);
             }
         }
 
         // ----------------------------------------------------------------------------------------
         void OnIntelligenceChanged()
         {
-            GetStat(StatType.Mana).SetInitialValue(m_intelligence.Value * GlobalSettings.Stats.ManaPerIntelligence);
-            GetStat(StatType.ManaRegen).SetInitialValue(m_intelligence.Value * GlobalSettings.Stats.ManaRegenPerIntelligence);
-            GetStat(StatType.SpellDamage).SetInitialValue(m_intelligence.Value * GlobalSettings.Stats.SpellDamagePerIntelligence);
+            GetStat(StatType.Mana).SetInitialValue(m_intelligence.Value * Settings.Stats.ManaPerIntelligence);
+            GetStat(StatType.ManaRegen).SetInitialValue(m_intelligence.Value * Settings.Stats.ManaRegenPerIntelligence);
+            GetStat(StatType.SpellDamage).SetInitialValue(m_intelligence.Value * Settings.Stats.SpellDamagePerIntelligence);
 
             if (m_archetype.PrimaryAttribute == PrimaryAttribute.Intelligence)
             {
-                GetStat(StatType.DamageMin).SetInitialValue(m_archetype.BaseAttackDamageMin + m_intelligence.Value * GlobalSettings.Stats.DamagePerIntelligence);
-                GetStat(StatType.DamageMax).SetInitialValue(m_archetype.BaseAttackDamageMax + m_intelligence.Value * GlobalSettings.Stats.DamagePerIntelligence);
+                GetStat(StatType.DamageMin).SetInitialValue(m_archetype.BaseAttackDamageMin + m_intelligence.Value * Settings.Stats.DamagePerIntelligence);
+                GetStat(StatType.DamageMax).SetInitialValue(m_archetype.BaseAttackDamageMax + m_intelligence.Value * Settings.Stats.DamagePerIntelligence);
             }
         }
     }

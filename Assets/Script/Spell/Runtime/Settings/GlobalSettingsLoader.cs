@@ -7,9 +7,9 @@ namespace Spell
     public class GlobalSettingsLoader : ScriptableObject
     {
         [SerializeField]
-        private GlobalSettings globalSettings = null;
+        private Settings globalSettings = null;
 
-        public static GlobalSettings Load()
+        public static Settings Load()
         {
             var loader = Resources.Load<GlobalSettingsLoader>("Loader");
             return loader.globalSettings;

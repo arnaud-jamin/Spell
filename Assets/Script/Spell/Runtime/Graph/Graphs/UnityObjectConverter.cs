@@ -18,7 +18,7 @@ namespace Spell.Graph
         public override fsResult TryDeserialize(fsData data, ref object instance, Type storageType)
         {
             UnityEngine.Object obj;
-            GlobalSettings.AssetDatabase.TryGetAsset((int)data.AsInt64, out obj);
+            Settings.AssetDatabase.TryGetAsset((int)data.AsInt64, out obj);
             instance = obj;
             return fsResult.Success;
         }
@@ -28,10 +28,10 @@ namespace Spell.Graph
             var obj = instance as UnityEngine.Object;
             serialized = new fsData(obj.GetInstanceID());
 
-            if (GlobalSettings.AssetDatabase != null)
+            if (Settings.AssetDatabase != null)
             {
-                GlobalSettings.AssetDatabase.AddAsset(obj);
-                UnityEditor.EditorUtility.SetDirty(GlobalSettings.AssetDatabase);
+                Settings.AssetDatabase.AddAsset(obj);
+                UnityEditor.EditorUtility.SetDirty(Settings.AssetDatabase);
             }
             return fsResult.Success;
         }

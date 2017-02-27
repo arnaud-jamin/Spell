@@ -3,50 +3,41 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Spell.Graph;
+using UnityEngine.EventSystems;
 
 namespace Spell
 {
     public class GameManager : MonoBehaviour
     {
         //-----------------------------------------------------------------------------------------
+        [Serializable]
+        public class ReferenceSettings
+        {
+            [AutoFind]
+            public CombatLogManager combatLogManager = null;
+
+            [AutoFind]
+            public CameraManager cameraManager = null;
+
+            public Transform unitsRoot = null;
+        }
+
+        //-----------------------------------------------------------------------------------------
         public static GameManager Instance = null;
 
         //-----------------------------------------------------------------------------------------
-        private Dictionary<int, GameObject> m_prefabMap = new Dictionary<int, GameObject>();
-
-        //private List<Player> m_players = new List<Player>();
-        private Player m_activePlayer = null;
+        [SerializeField]
+        ReferenceSettings m_references = null;
 
         //-----------------------------------------------------------------------------------------
-        [SerializeField]
-        private Settings m_settings = null;
-
-        [SerializeField]
-        private CombatLogManager m_combatLogManager = null;
-
-        [SerializeField]
-        private CameraManager m_cameraManager = null;
-
-        //[SerializeField]
-        //private Player m_playerPrefab = null;
-
-        [SerializeField]
-        private Transform m_instancesRoot = null;
-
-        [SerializeField]
-        private Transform m_playersRoot = null;
-
-        [SerializeField]
-        private Transform m_unitsRoot = null;
+        private List<Unit> m_units = new List<Unit>();
+        private Unit m_currentUnit = null;
 
         //-----------------------------------------------------------------------------------------
-        public static CombatLogManager CombatLogManager { get { return Instance.m_combatLogManager; } }
-        public static CameraManager CameraManager { get { return Instance.m_cameraManager; } }
-        public static Settings Settings { get { return Instance.m_settings; } }
-        public static Transform InstancesRoot { get { return Instance.m_instancesRoot; } }
-        public static Transform PlayersRoot { get { return Instance.m_playersRoot; } }
-        public static Transform UnitsRoot { get { return Instance.m_unitsRoot; } }
-        public static Player ActivePlayer { get { return Instance.m_activePlayer; } }
+        public CombatLogManager CombatLogManager { get { return m_references.combatLogManager; } }
+        public CameraManager CameraManager { get { return m_references.cameraManager; } }
+        public Transform UnitsRoot { get { return m_references.unitsRoot; } }
+        public Unit CurrentUnit { get { return m_currentUnit; } }
 
         //-----------------------------------------------------------------------------------------
         void Awake()
@@ -63,6 +54,8 @@ namespace Spell
 
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            Initialize();
         }
 
         //-----------------------------------------------------------------------------------------
@@ -72,30 +65,83 @@ namespace Spell
         }
 
         //-----------------------------------------------------------------------------------------
-        void Start()
+        void Initialize()
         {
-            for (var i = 0; i < GlobalSettings.General.Spawn.Length; ++i)
+            //m_references.cameraManager.Initialize(this);
+        }
+
+        //-----------------------------------------------------------------------------------------
+        public Unit CreateUnit(Graph.Unit unit, Vector3 position, float rotation = 0)
+        {
+            var instance = GameplayHelper.Instantiate(unit.Name, Settings.General.UnitPrefab, m_references.unitsRoot, position, Quaternion.AngleAxis(rotation, Vector3.up));
+            instance.Initialize(this, unit);
+            m_units.Add(instance);
+            return instance;
+        }
+
+        //-----------------------------------------------------------------------------------------
+        public void DestroyAllUnits()
+        {
+            for (int i = 0; i < m_units.Count; ++i)
             {
-                var unit = GlobalSettings.General.Spawn[i];
-                if (unit != null)
+                Destroy(m_units[i].gameObject);
+            }
+            m_units.Clear();
+        }
+
+        //-----------------------------------------------------------------------------------------
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            Unit selection = null;
+            var ray = m_references.cameraManager.MainCamera.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(ray, out hit, Settings.General.SelectionRaycastLength, Settings.General.selectionRaycastMask))
+            {
+                selection = hit.collider.GetComponent<Unit>();
+            }
+
+            if (eventData.button == PointerEventData.InputButton.Left)
+            {
+                if (m_currentUnit != null)
                 {
-                    CreateUnit(unit.Root as Graph.Unit, Vector3.zero, 0);
+                    m_currentUnit.IsSelected = false;
+                }
+
+                m_currentUnit = selection;
+
+                if (m_currentUnit != null)
+                {
+                    m_currentUnit.IsSelected = true;
+                }
+            }
+            else if (eventData.button == PointerEventData.InputButton.Right)
+            {
+                if (m_currentUnit != null)
+                {
+                    if (selection == null)
+                    {
+                        m_currentUnit.MoveTo(hit.point);
+                    }
+                    else 
+                    {
+                        m_currentUnit.Attack(selection);
+                    }
                 }
             }
         }
 
         //-----------------------------------------------------------------------------------------
-        public Unit CreateUnit(Graph.Unit archetype, Vector3 position, float rotation)
+        void Update()
         {
-            var unit = GameplayHelper.Instantiate(archetype.Name, GlobalSettings.General.UnitPrefab, m_unitsRoot, position, Quaternion.AngleAxis(rotation, Vector3.up));
-            unit.Initialize(archetype);
-            return unit;
         }
 
         //-----------------------------------------------------------------------------------------
-        void Update()
+        void FixedUpdate()
         {
-            //InputManager.Update();
+            for (int i = 0; i < m_units.Count; ++i)
+            {
+                m_units[i].OnFixedUpdate();
+            }
         }
 
         //-----------------------------------------------------------------------------------------
@@ -103,31 +149,12 @@ namespace Spell
         {
             if (CameraManager != null)
             {
-                CameraManager.ManagerUpdate();
+                CameraManager.OnLateUpdate();
             }
         }
 
         //-----------------------------------------------------------------------------------------
-        public void BuildPrefabRegistery()
-        {
-            m_prefabMap.Clear();
-
-            foreach (var gameObject in Resources.FindObjectsOfTypeAll<GameObject>())
-            {
-                m_prefabMap[gameObject.GetInstanceID()] = gameObject;
-            }
-        }
-
-        //-----------------------------------------------------------------------------------------
-        public GameObject GetPrefabFromInstanceId(int instanceID)
-        {
-            GameObject gameObject = null;
-            m_prefabMap.TryGetValue(instanceID, out gameObject);
-            return gameObject;
-        }
-
-        //-----------------------------------------------------------------------------------------
-        public GameObject GetTarget(TargetType target)
+        public Unit GetTarget(TargetType target)
         {
             return null;
         }

@@ -19,15 +19,47 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4847314039655532}
+  - component: {fileID: 54961741595709246}
+  - component: {fileID: 136585206456442316}
   - component: {fileID: 114626701330955860}
+  - component: {fileID: 114051306467458838}
   - component: {fileID: 114472549724872264}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Unit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1991550108618342
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4112927956271938}
+  - component: {fileID: 119341919566336714}
+  m_Layer: 0
+  m_Name: SelectionFeedback
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4112927956271938
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1991550108618342}
+  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4847314039655532}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!4 &4847314039655532
 Transform:
   m_ObjectHideFlags: 1
@@ -37,10 +69,40 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 4112927956271938}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &54961741595709246
+Rigidbody:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1200717847080034}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 84
+  m_CollisionDetection: 0
+--- !u!114 &114051306467458838
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1200717847080034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdecfc787ca158b468c970c36c0ae899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_references:
+    stats: {fileID: 114472549724872264}
+  m_currentMana: 100
 --- !u!114 &114472549724872264
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -52,6 +114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5d64f96885ff494ebec875194cee9f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_stats: []
 --- !u!114 &114626701330955860
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -64,23 +127,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_references:
+    rigidBody: {fileID: 54961741595709246}
+    collider: {fileID: 136585206456442316}
     stats: {fileID: 114472549724872264}
-    caster: {fileID: 0}
-  m_movement:
-    rotationSpeed: 10
-  m_controls:
-    m_cast1:
-      m_override: 0
-      m_value: 0
-    m_cast2:
-      m_override: 0
-      m_value: 0
-    m_cast3:
-      m_override: 0
-      m_value: 0
-    m_cast4:
-      m_override: 0
-      m_value: 0
-    m_move:
-      m_override: 0
-      m_value: {x: 0, y: 0}
+    caster: {fileID: 114051306467458838}
+    selectionFeedback: {fileID: 119341919566336714}
+--- !u!119 &119341919566336714
+Projector:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1991550108618342}
+  m_Enabled: 1
+  serializedVersion: 2
+  m_NearClipPlane: 0
+  m_FarClipPlane: 3
+  m_FieldOfView: 60
+  m_AspectRatio: 1
+  m_Orthographic: 1
+  m_OrthographicSize: 0.8
+  m_Material: {fileID: 2100000, guid: e6b59fa655b04684bbc0301369072883, type: 2}
+  m_IgnoreLayers:
+    serializedVersion: 2
+    m_Bits: 512
+--- !u!136 &136585206456442316
+CapsuleCollider:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1200717847080034}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.25
+  m_Height: 2
+  m_Direction: 1
+  m_Center: {x: 0, y: 1, z: 0}
