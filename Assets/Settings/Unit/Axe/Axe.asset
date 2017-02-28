@@ -12,8 +12,20 @@ MonoBehaviour:
   m_Name: Axe
   m_EditorClassIdentifier: 
   m_json: "{\r\n    \"m_rootType\": \"Spell.Graph.Unit\",\r\n    \"m_root\": {\r\n
-    \       \"Name\": \"Axe\",\r\n        \"Icon\": null,\r\n        \"Model\": 10444,\r\n
-    \       \"Abilities\": [],\r\n        \"PrimaryAttribute\": \"Strength\",\r\n
+    \       \"Name\": \"Axe\",\r\n        \"Icon\": 9744,\r\n        \"Model\": 10456,\r\n
+    \       \"Abilities\": [\r\n            {\r\n                \"Name\": \"\",\r\n
+    \               \"Icon\": 9646,\r\n                \"ManaCost\": 0.0,\r\n                \"Cooldown\":
+    0.0,\r\n                \"TargetType\": \"Ground\",\r\n                \"Actions\":
+    [],\r\n                \"GraphPosition\": {\r\n                    \"x\": 425.0,\r\n
+    \                   \"y\": 167.0\r\n                },\r\n                \"VariableName\":
+    null,\r\n                \"$type\": \"Spell.Graph.Ability\",\r\n                \"$id\":
+    \"5\"\r\n            },\r\n            {\r\n                \"Name\": \"\",\r\n
+    \               \"Icon\": null,\r\n                \"ManaCost\": 0.0,\r\n                \"Cooldown\":
+    0.0,\r\n                \"TargetType\": \"Ground\",\r\n                \"Actions\":
+    [],\r\n                \"GraphPosition\": {\r\n                    \"x\": 424.0,\r\n
+    \                   \"y\": 309.0\r\n                },\r\n                \"VariableName\":
+    null,\r\n                \"$type\": \"Spell.Graph.Ability\",\r\n                \"$id\":
+    \"8\"\r\n            }\r\n        ],\r\n        \"PrimaryAttribute\": \"Strength\",\r\n
     \       \"BaseStrength\": 20.0,\r\n        \"StrengthGain\": 2.0,\r\n        \"BaseHealth\":
     200.0,\r\n        \"BaseHealthRegen\": 0.25,\r\n        \"BaseAgility\": 20.0,\r\n
     \       \"AgilityGain\": 2.0,\r\n        \"BaseArmor\": 5.0,\r\n        \"BaseIntelligence\":
@@ -23,10 +35,11 @@ MonoBehaviour:
     0.5,\r\n        \"AttackBackswing\": 0.5,\r\n        \"MoveSpeed\": 5.0,\r\n        \"TurnRate\":
     1800.0,\r\n        \"VisionRange\": 1500.0,\r\n        \"CollisionSize\": 20.0,\r\n
     \       \"ProjectileSpeed\": 20.0,\r\n        \"MagicResistance\": 0.25,\r\n        \"GraphPosition\":
-    {\r\n            \"x\": 54.0,\r\n            \"y\": 94.0\r\n        },\r\n        \"VariableName\":
+    {\r\n            \"x\": 56.0,\r\n            \"y\": 102.0\r\n        },\r\n        \"VariableName\":
     null,\r\n        \"$type\": \"Spell.Graph.Unit\",\r\n        \"$id\": \"1\"\r\n
-    \   },\r\n    \"m_nodes\": [\r\n        {\r\n            \"$ref\": \"1\"\r\n        }\r\n
-    \   ],\r\n    \"m_viewOffset\": {\r\n        \"x\": 0.0,\r\n        \"y\": 0.0\r\n
-    \   },\r\n    \"m_viewZoom\": 1.0\r\n}"
+    \   },\r\n    \"m_nodes\": [\r\n        {\r\n            \"$ref\": \"1\"\r\n        },\r\n
+    \       {\r\n            \"$ref\": \"5\"\r\n        },\r\n        {\r\n            \"$ref\":
+    \"8\"\r\n        }\r\n    ],\r\n    \"m_viewOffset\": {\r\n        \"x\": 0.0,\r\n
+    \       \"y\": 0.0\r\n    },\r\n    \"m_viewZoom\": 1.0\r\n}"
   m_viewOffset: {x: 0, y: 0}
   m_viewZoom: 1

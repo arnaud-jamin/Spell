@@ -17,13 +17,9 @@ namespace Spell.Graph
             if (summoner == null)
                 return;
 
-            var caster = summoner.GetComponent<Spell.Caster>();
-            if (caster == null)
-                return;
-
-            for (var i = 0; i < caster.Summoned.Count; ++i)
+            for (var i = 0; i < summoner.Summoned.Count; ++i)
             {
-                var summoned = caster.Summoned[i];
+                var summoned = summoner.Summoned[i];
                 Graph.SetIteratorValue(Iterator.Evaluate(), summoned);
 
                 for (int j = 0; j < Actions.Count; ++j)

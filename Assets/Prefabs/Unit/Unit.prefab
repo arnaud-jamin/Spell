@@ -22,8 +22,6 @@ GameObject:
   - component: {fileID: 54961741595709246}
   - component: {fileID: 136585206456442316}
   - component: {fileID: 114626701330955860}
-  - component: {fileID: 114051306467458838}
-  - component: {fileID: 114472549724872264}
   m_Layer: 9
   m_Name: Unit
   m_TagString: Untagged
@@ -89,32 +87,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 84
   m_CollisionDetection: 0
---- !u!114 &114051306467458838
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1200717847080034}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fdecfc787ca158b468c970c36c0ae899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_references:
-    stats: {fileID: 114472549724872264}
-  m_currentMana: 100
---- !u!114 &114472549724872264
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1200717847080034}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5d64f96885ff494ebec875194cee9f6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_stats: []
 --- !u!114 &114626701330955860
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -129,8 +101,6 @@ MonoBehaviour:
   m_references:
     rigidBody: {fileID: 54961741595709246}
     collider: {fileID: 136585206456442316}
-    stats: {fileID: 114472549724872264}
-    caster: {fileID: 114051306467458838}
     selectionFeedback: {fileID: 119341919566336714}
 --- !u!119 &119341919566336714
 Projector:

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Spell.Graph;
 using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 namespace Spell
 {
@@ -23,6 +24,9 @@ namespace Spell
         }
 
         //-----------------------------------------------------------------------------------------
+        public class UnitSelectionEvent : UnityEvent<Unit> { }
+
+        //-----------------------------------------------------------------------------------------
         public static GameManager Instance = null;
 
         //-----------------------------------------------------------------------------------------
@@ -38,6 +42,9 @@ namespace Spell
         public CameraManager CameraManager { get { return m_references.cameraManager; } }
         public Transform UnitsRoot { get { return m_references.unitsRoot; } }
         public Unit CurrentUnit { get { return m_currentUnit; } }
+
+        //-----------------------------------------------------------------------------------------
+        public UnitSelectionEvent UnitSelected = new UnitSelectionEvent();
 
         //-----------------------------------------------------------------------------------------
         void Awake()
@@ -102,17 +109,7 @@ namespace Spell
 
             if (eventData.button == PointerEventData.InputButton.Left)
             {
-                if (m_currentUnit != null)
-                {
-                    m_currentUnit.IsSelected = false;
-                }
-
-                m_currentUnit = selection;
-
-                if (m_currentUnit != null)
-                {
-                    m_currentUnit.IsSelected = true;
-                }
+                SelectUnit(selection);
             }
             else if (eventData.button == PointerEventData.InputButton.Right)
             {
@@ -128,6 +125,24 @@ namespace Spell
                     }
                 }
             }
+        }
+
+        //-----------------------------------------------------------------------------------------
+        void SelectUnit(Unit selection)
+        {
+            if (m_currentUnit != null)
+            {
+                m_currentUnit.IsSelected = false;
+            }
+
+            m_currentUnit = selection;
+
+            if (m_currentUnit != null)
+            {
+                m_currentUnit.IsSelected = true;
+            }
+
+            UnitSelected.Invoke(selection);
         }
 
         //-----------------------------------------------------------------------------------------

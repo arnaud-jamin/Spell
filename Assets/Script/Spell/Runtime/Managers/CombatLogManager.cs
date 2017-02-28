@@ -25,7 +25,20 @@ namespace Spell
         public float oldValue;
         public float newValue;
 
-        public static CombatLog Damage(Health.HealthEvent healthEvent)
+        public static CombatLog Cast(Ability.CastEventArgs castEvent)
+        {
+            CombatLog log;
+            log.time = Time.time;
+            log.logType = LogType.Cast;
+            log.source = castEvent.param.source;
+            log.target = castEvent.param.target;
+            log.ability = castEvent.ability;
+            log.oldValue = 0;
+            log.newValue = 0;
+            return log;
+        }
+
+        public static CombatLog Damage(Health.EventArgs healthEvent)
         {
             CombatLog log;
             log.time = Time.time;
@@ -33,25 +46,12 @@ namespace Spell
             log.source = healthEvent.source;
             log.target = healthEvent.target;
             log.ability = healthEvent.ability;
-            log.oldValue = healthEvent.oldHealth;
-            log.newValue = healthEvent.newHealth;
+            log.oldValue = healthEvent.oldValue;
+            log.newValue = healthEvent.newValue;
             return log;
         }
 
-        public static CombatLog Cast(Ability.CastEvent castEvent)
-        {
-            CombatLog log;
-            log.time = Time.time;
-            log.logType = LogType.Cast;
-            log.source = castEvent.source;
-            log.target = castEvent.target;
-            log.ability = castEvent.ability;
-            log.oldValue = 0;
-            log.newValue = 0;
-            return log;
-        }
-
-        public static CombatLog Heal(Health.HealthEvent healthEvent)
+        public static CombatLog Heal(Health.EventArgs healthEvent)
         {
             CombatLog log;
             log.time = Time.time;
@@ -59,12 +59,12 @@ namespace Spell
             log.source = healthEvent.source;
             log.target = healthEvent.target;
             log.ability = healthEvent.ability;
-            log.oldValue = healthEvent.oldHealth;
-            log.newValue = healthEvent.newHealth;
+            log.oldValue = healthEvent.oldValue;
+            log.newValue = healthEvent.newValue;
             return log;
         }
 
-        public static CombatLog Death(Health.HealthEvent deathEvent)
+        public static CombatLog Death(Health.EventArgs deathEvent)
         {
             CombatLog log;
             log.time = Time.time;
@@ -72,8 +72,8 @@ namespace Spell
             log.source = deathEvent.source;
             log.target = deathEvent.target;
             log.ability = deathEvent.ability;
-            log.oldValue = deathEvent.oldHealth;
-            log.newValue = deathEvent.newHealth;
+            log.oldValue = deathEvent.oldValue;
+            log.newValue = deathEvent.newValue;
             return log;
         }
     }

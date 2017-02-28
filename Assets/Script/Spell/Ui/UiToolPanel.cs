@@ -28,14 +28,17 @@ namespace Spell.Ui
             public Button levelUpButton;
         }
 
+        //-----------------------------------------------------------------------------------------
         [SerializeField]
         private ElementSettings m_elements = null;
 
         //-----------------------------------------------------------------------------------------
-        public void Awake()
+        public void Start()
         {
             m_elements.spawnDropDown.ClearOptions();
-            var options = Settings.General.Units.Array.Select(u => new Dropdown.OptionData { text = u.Root.Name }).ToList();
+            var options = Settings.General.Units.Array.Where(u => u.Root != null)
+                                                      .Select(u => new Dropdown.OptionData { text = u.Root.Name })
+                                                      .ToList();
             m_elements.spawnDropDown.AddOptions(options);
         }
 

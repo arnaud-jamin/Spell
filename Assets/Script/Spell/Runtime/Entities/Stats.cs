@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Spell.Graph;
 using UnityEngine;
 
 namespace Spell
@@ -11,7 +12,7 @@ namespace Spell
         Intelligence
     }
 
-    public class Stats : MonoBehaviour
+    public class Stats
     {
         // ----------------------------------------------------------------------------------------
         private Graph.Unit m_archetype = null;
@@ -20,16 +21,13 @@ namespace Spell
         private Stat m_strength;
         private Stat m_agility;
         private Stat m_intelligence;
-
-        //---------------------------------------------------------------------------------------
-        [SerializeField]
-        private Stat[] m_stats = null;
+        private Stat[] m_stats;
 
         //---------------------------------------------------------------------------------------
         public int Experience { get { return m_experience; } }
 
         //---------------------------------------------------------------------------------------
-        public void Initialize(Graph.Unit archetype)
+        public Stats(Graph.Unit archetype)
         {
             m_archetype = archetype;
             CreateStats();

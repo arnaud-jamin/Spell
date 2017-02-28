@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Spell
 {
-    public class Health 
+    public class Mana 
     {
         //---------------------------------------------------------------------------------------
         public struct Modifier
@@ -43,7 +43,7 @@ namespace Spell
         public bool IsDead { get { return m_isDead; } }
         
         //---------------------------------------------------------------------------------------
-        public Health(Unit unit)
+        public Mana(Unit unit)
         {
             m_unit = unit;
             m_maxValue = unit.Stats.GetStat(StatType.Health);
@@ -84,15 +84,6 @@ namespace Spell
             eventArgs.target = m_unit;
             eventArgs.newValue = m_currentValue;
 
-            if (modifier.amount > 0)
-            {
-                GameManager.Instance.CombatLogManager.Log(CombatLog.Heal(eventArgs));
-            }
-            else
-            {
-                GameManager.Instance.CombatLogManager.Log(CombatLog.Damage(eventArgs));
-            }
-
             if (m_currentValue == 0)
             {
                 Die(eventArgs);
@@ -103,7 +94,6 @@ namespace Spell
         private void Die(EventArgs args)
         {
             m_isDead = true;
-            GameManager.Instance.CombatLogManager.Log(CombatLog.Death(args));
         }
 
         //---------------------------------------------------------------------------------------

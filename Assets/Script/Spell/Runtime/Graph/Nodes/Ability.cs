@@ -6,11 +6,11 @@ namespace Spell.Graph
 {
     public class Ability : Expression<Ability>
     {
-        public Expression<string> Name = new TextValue();
-        public Expression<Sprite> Icon = new SpriteValue();
-        public Expression<float> ManaCost = new FloatValue();
-        public Expression<float> Cooldown = new FloatValue();
-        public Expression<CastTargetType> CastTargetType = new CastTargetTypeValue();
+        public string Name = string.Empty;
+        public Sprite Icon = null;
+        public float ManaCost = 0;
+        public float Cooldown = 0;
+        public CastTargetType TargetType = CastTargetType.Ground;
         public List<Action> Actions = new List<Action>();
 
         public override Ability Evaluate()
