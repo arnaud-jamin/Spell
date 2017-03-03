@@ -117,7 +117,8 @@ namespace Spell
             {
                 if (diff.magnitude > 0.01f)
                 {
-                    var step = Mathf.Min(diff.magnitude, m_moveSpeedStat.Value * Time.fixedDeltaTime);
+                    var moveSpeed = GameplayHelper.ConvertMoveSpeed(m_moveSpeedStat.Value);
+                    var step = Mathf.Min(diff.magnitude, moveSpeed * Time.fixedDeltaTime);
                     var direction = diff.normalized;
                     m_references.rigidBody.velocity = (step * direction) / Time.fixedDeltaTime;
                 }
@@ -134,7 +135,8 @@ namespace Spell
                 }
             }
 
-            m_rotation = Mathf.MoveTowardsAngle(m_rotation, m_desiredRotation, m_turnRate.Value * Time.fixedDeltaTime);
+            var turnRate = GameplayHelper.ConvertTurnRate(m_turnRate.Value);
+            m_rotation = Mathf.MoveTowardsAngle(m_rotation, m_desiredRotation, turnRate * Time.fixedDeltaTime);
             transform.rotation = Quaternion.AngleAxis(m_rotation, Vector3.up);
         }
 

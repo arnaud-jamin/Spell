@@ -11,38 +11,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 314b499b5a81de5498c06019026f9ac6, type: 3}
   m_Name: Windranger
   m_EditorClassIdentifier: 
-  m_json: "{\r\n    \"m_rootType\": \"Spell.Graph.Unit\",\r\n    \"m_root\": null,\r\n
-    \   \"m_nodes\": [\r\n        {\r\n            \"Name\": \"Windranger\",\r\n            \"Icon\":
-    9752,\r\n            \"Model\": 10460,\r\n            \"Abilities\": [\r\n                {\r\n
-    \                   \"Name\": \"test\",\r\n                    \"Icon\": null,\r\n
-    \                   \"ManaCost\": 0.0,\r\n                    \"Cooldown\": 0.0,\r\n
-    \                   \"TargetType\": \"Ground\",\r\n                    \"Actions\":
-    [],\r\n                    \"GraphPosition\": {\r\n                        \"x\":
-    494.0,\r\n                        \"y\": 243.0\r\n                    },\r\n                    \"VariableName\":
-    null,\r\n                    \"$type\": \"Spell.Graph.Ability\",\r\n                    \"$id\":
-    \"6\"\r\n                },\r\n                {\r\n                    \"Name\":
-    \"test\",\r\n                    \"Icon\": null,\r\n                    \"ManaCost\":
-    0.0,\r\n                    \"Cooldown\": 0.0,\r\n                    \"TargetType\":
-    \"Ground\",\r\n                    \"Actions\": [],\r\n                    \"GraphPosition\":
-    {\r\n                        \"x\": 484.0,\r\n                        \"y\": 425.0\r\n
-    \                   },\r\n                    \"VariableName\": null,\r\n                    \"$type\":
-    \"Spell.Graph.Ability\",\r\n                    \"$id\": \"8\"\r\n                }\r\n
-    \           ],\r\n            \"PrimaryAttribute\": \"Strength\",\r\n            \"BaseStrength\":
-    20.0,\r\n            \"StrengthGain\": 2.0,\r\n            \"BaseHealth\": 200.0,\r\n
-    \           \"BaseHealthRegen\": 0.25,\r\n            \"BaseAgility\": 20.0,\r\n
-    \           \"AgilityGain\": 2.0,\r\n            \"BaseArmor\": 5.0,\r\n            \"BaseIntelligence\":
-    20.0,\r\n            \"IntelligenceGain\": 2.0,\r\n            \"BaseManaRegen\":
-    0.01,\r\n            \"BaseAttackDamageMin\": 50.0,\r\n            \"BaseAttackDamageMax\":
-    60.0,\r\n            \"AttackRange\": 500.0,\r\n            \"BaseAttackTime\":
-    1.5,\r\n            \"AttackPoint\": 0.5,\r\n            \"AttackBackswing\":
-    0.5,\r\n            \"MoveSpeed\": 300.0,\r\n            \"TurnRate\": 1000.0,\r\n
-    \           \"VisionRange\": 1500.0,\r\n            \"CollisionSize\": 20.0,\r\n
-    \           \"ProjectileSpeed\": 20.0,\r\n            \"MagicResistance\": 0.25,\r\n
-    \           \"GraphPosition\": {\r\n                \"x\": 100.0,\r\n                \"y\":
-    169.0\r\n            },\r\n            \"VariableName\": null,\r\n            \"$type\":
-    \"Spell.Graph.Unit\"\r\n        },\r\n        {\r\n            \"$ref\": \"6\"\r\n
-    \       },\r\n        {\r\n            \"$ref\": \"8\"\r\n        }\r\n    ],\r\n
-    \   \"m_viewOffset\": {\r\n        \"x\": -36.0,\r\n        \"y\": 72.0\r\n    },\r\n
-    \   \"m_viewZoom\": 1.0\r\n}"
+  m_json: "{\r\n    \"m_rootType\": \"Spell.Graph.Unit\",\r\n    \"m_root\": {\r\n
+    \       \"Name\": \"Windranger\",\r\n        \"Icon\": \"8cc7e190-5c3c-4392-9663-83fe6385a794\",\r\n
+    \       \"Model\": \"c5dc3443-8796-4872-8deb-54f2234207fc\",\r\n        \"Abilities\":
+    [],\r\n        \"PrimaryAttribute\": \"Strength\",\r\n        \"BaseStrength\":
+    20.0,\r\n        \"StrengthGain\": 2.0,\r\n        \"BaseHealth\": 200.0,\r\n
+    \       \"BaseHealthRegen\": 0.25,\r\n        \"BaseAgility\": 20.0,\r\n        \"AgilityGain\":
+    2.0,\r\n        \"BaseArmor\": 5.0,\r\n        \"BaseIntelligence\": 20.0,\r\n
+    \       \"IntelligenceGain\": 2.0,\r\n        \"BaseManaRegen\": 0.01,\r\n        \"BaseAttackDamageMin\":
+    50.0,\r\n        \"BaseAttackDamageMax\": 60.0,\r\n        \"AttackRange\": 500.0,\r\n
+    \       \"BaseAttackTime\": 1.5,\r\n        \"AttackPoint\": 0.5,\r\n        \"AttackBackswing\":
+    0.5,\r\n        \"MoveSpeed\": 300.0,\r\n        \"TurnRate\": 0.5,\r\n        \"VisionRange\":
+    1500.0,\r\n        \"CollisionSize\": 20.0,\r\n        \"ProjectileSpeed\": 20.0,\r\n
+    \       \"MagicResistance\": 0.25,\r\n        \"GraphPosition\": {\r\n            \"x\":
+    73.0,\r\n            \"y\": 120.0\r\n        },\r\n        \"VariableName\": null,\r\n
+    \       \"$type\": \"Spell.Graph.Unit\",\r\n        \"$id\": \"1\"\r\n    },\r\n
+    \   \"m_nodes\": [\r\n        {\r\n            \"$ref\": \"1\"\r\n        }\r\n
+    \   ],\r\n    \"m_viewOffset\": {\r\n        \"x\": -36.0,\r\n        \"y\": 72.0\r\n
+    \   },\r\n    \"m_viewZoom\": 1.0\r\n}"
   m_viewOffset: {x: -36, y: 72}
   m_viewZoom: 1

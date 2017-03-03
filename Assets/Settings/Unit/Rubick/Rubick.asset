@@ -12,21 +12,22 @@ MonoBehaviour:
   m_Name: Rubick
   m_EditorClassIdentifier: 
   m_json: "{\r\n    \"m_rootType\": \"Spell.Graph.Unit\",\r\n    \"m_root\": {\r\n
-    \       \"Name\": null,\r\n        \"Icon\": 9796,\r\n        \"Model\": 10474,\r\n
-    \       \"Abilities\": [],\r\n        \"PrimaryAttribute\": \"Strength\",\r\n
-    \       \"BaseStrength\": 20.0,\r\n        \"StrengthGain\": 2.0,\r\n        \"BaseHealth\":
-    200.0,\r\n        \"BaseHealthRegen\": 0.25,\r\n        \"BaseAgility\": 20.0,\r\n
-    \       \"AgilityGain\": 2.0,\r\n        \"BaseArmor\": 5.0,\r\n        \"BaseIntelligence\":
-    20.0,\r\n        \"IntelligenceGain\": 2.0,\r\n        \"BaseManaRegen\": 0.01,\r\n
-    \       \"BaseAttackDamageMin\": 50.0,\r\n        \"BaseAttackDamageMax\": 60.0,\r\n
-    \       \"AttackRange\": 500.0,\r\n        \"BaseAttackTime\": 1.5,\r\n        \"AttackPoint\":
-    0.5,\r\n        \"AttackBackswing\": 0.5,\r\n        \"MoveSpeed\": 300.0,\r\n
-    \       \"TurnRate\": 1000.0,\r\n        \"VisionRange\": 1500.0,\r\n        \"CollisionSize\":
-    20.0,\r\n        \"ProjectileSpeed\": 20.0,\r\n        \"MagicResistance\": 0.25,\r\n
-    \       \"GraphPosition\": {\r\n            \"x\": 101.0,\r\n            \"y\":
-    105.0\r\n        },\r\n        \"VariableName\": null,\r\n        \"$type\": \"Spell.Graph.Unit\",\r\n
-    \       \"$id\": \"1\"\r\n    },\r\n    \"m_nodes\": [\r\n        {\r\n            \"$ref\":
-    \"1\"\r\n        }\r\n    ],\r\n    \"m_viewOffset\": {\r\n        \"x\": 31.0,\r\n
-    \       \"y\": 18.0\r\n    },\r\n    \"m_viewZoom\": 0.6999999\r\n}"
-  m_viewOffset: {x: 31, y: 18}
-  m_viewZoom: 0.6999999
+    \       \"Name\": \"Rubick\",\r\n        \"Icon\": \"34358aea-17aa-43db-9cfb-afddb1dfa414\",\r\n
+    \       \"Model\": \"50e9e382-21b8-46f9-8505-585a605c510c\",\r\n        \"Abilities\":
+    [],\r\n        \"PrimaryAttribute\": \"Strength\",\r\n        \"BaseStrength\":
+    20.0,\r\n        \"StrengthGain\": 2.0,\r\n        \"BaseHealth\": 200.0,\r\n
+    \       \"BaseHealthRegen\": 0.25,\r\n        \"BaseAgility\": 20.0,\r\n        \"AgilityGain\":
+    2.0,\r\n        \"BaseArmor\": 5.0,\r\n        \"BaseIntelligence\": 20.0,\r\n
+    \       \"IntelligenceGain\": 2.0,\r\n        \"BaseManaRegen\": 0.01,\r\n        \"BaseAttackDamageMin\":
+    50.0,\r\n        \"BaseAttackDamageMax\": 60.0,\r\n        \"AttackRange\": 500.0,\r\n
+    \       \"BaseAttackTime\": 1.5,\r\n        \"AttackPoint\": 0.5,\r\n        \"AttackBackswing\":
+    0.5,\r\n        \"MoveSpeed\": 300.0,\r\n        \"TurnRate\": 0.5,\r\n        \"VisionRange\":
+    1500.0,\r\n        \"CollisionSize\": 20.0,\r\n        \"ProjectileSpeed\": 20.0,\r\n
+    \       \"MagicResistance\": 0.25,\r\n        \"GraphPosition\": {\r\n            \"x\":
+    140.0,\r\n            \"y\": 75.0\r\n        },\r\n        \"VariableName\": null,\r\n
+    \       \"$type\": \"Spell.Graph.Unit\",\r\n        \"$id\": \"1\"\r\n    },\r\n
+    \   \"m_nodes\": [\r\n        {\r\n            \"$ref\": \"1\"\r\n        }\r\n
+    \   ],\r\n    \"m_viewOffset\": {\r\n        \"x\": 0.0,\r\n        \"y\": 0.0\r\n
+    \   },\r\n    \"m_viewZoom\": 1.0\r\n}"
+  m_viewOffset: {x: 0, y: 0}
+  m_viewZoom: 1

@@ -6,37 +6,56 @@ namespace Spell
     [CreateAssetMenu(fileName = "AssetDatabase", menuName = "Spell/AssetDatabase")]
     public class AssetDatabase : ScriptableObject
     {
-        private Dictionary<int, Object> m_database;
+        // ----------------------------------------------------------------------------------------
+        [System.Serializable]
+        public class Entry
+        {
+            public Object asset;
+            public string guid;
+        }
 
-        public List<Object> Objects;
+        // ----------------------------------------------------------------------------------------
+        private Dictionary<string, Object> m_database;
 
+        [SerializeField]
+        private List<Entry> m_objects = null;
+
+        // ----------------------------------------------------------------------------------------
         public void Initialize()
         {
-            m_database = new Dictionary<int, Object>();
-            for (int i = 0; i < Objects.Count; ++i)
+            m_database = new Dictionary<string, Object>();
+            for (int i = 0; i < m_objects.Count; ++i)
             {
-                m_database[Objects[i].GetInstanceID()] = Objects[i];
+                var obj = m_objects[i];
+                m_database[obj.guid] = obj.asset;
             }
         }
 
-        public bool TryGetAsset(int instanceId, out Object obj)
+        // ----------------------------------------------------------------------------------------
+        public bool TryGetAsset(string guid, out Object obj)
         {
-            return m_database.TryGetValue(instanceId, out obj);
+            return m_database.TryGetValue(guid, out obj);
         }
 
-        public void AddAsset(Object asset)
+#if UNITY_EDITOR
+        // ----------------------------------------------------------------------------------------
+        public Entry AddAsset(Object asset)
         {
-            if (Objects.Contains(asset))
-                return;
+            var entry = m_objects.Find(e => e.asset == asset);
+            if (entry != null)
+                return entry;
 
-            Objects.Add(asset);
-            m_database[asset.GetInstanceID()] = asset;
-        }
+            entry = new Entry { asset = asset, guid = System.Guid.NewGuid().ToString() };
 
-        public void RemoveAsset(Object asset)
-        {
-            Objects.Remove(asset);
-            m_database.Remove(asset.GetInstanceID());
+            Debug.Log("Adding asset " + asset.name + " " + entry.guid);
+
+            m_objects.Add(entry);
+            m_database[entry.guid] = asset;
+
+            UnityEditor.EditorUtility.SetDirty(Settings.AssetDatabase);
+
+            return entry;
         }
+#endif //UNITY_EDITOR
     }
 }

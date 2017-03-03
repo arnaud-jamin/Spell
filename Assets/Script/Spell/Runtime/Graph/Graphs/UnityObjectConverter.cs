@@ -6,36 +6,34 @@ namespace Spell.Graph
 {
     public class UnityObjectConverter : fsConverter
     {
+        // ----------------------------------------------------------------------------------------
         public override bool CanProcess(Type type)
         {
-            if (typeof(MonoBehaviour).IsAssignableFrom(type)
-                || type == typeof(Sprite))
+            if (typeof(MonoBehaviour).IsAssignableFrom(type) || type == typeof(Sprite))
                 return true;
 
             return false;
         }
 
+        // ----------------------------------------------------------------------------------------
         public override fsResult TryDeserialize(fsData data, ref object instance, Type storageType)
         {
-            UnityEngine.Object obj;
-            Settings.AssetDatabase.TryGetAsset((int)data.AsInt64, out obj);
+            UnityEngine.Object obj = null;
+            Settings.AssetDatabase.TryGetAsset(data.AsString, out obj);
             instance = obj;
             return fsResult.Success;
         }
 
+        // ----------------------------------------------------------------------------------------
         public override fsResult TrySerialize(object instance, out fsData serialized, Type storageType)
         {
             var obj = instance as UnityEngine.Object;
-            serialized = new fsData(obj.GetInstanceID());
-
-            if (Settings.AssetDatabase != null)
-            {
-                Settings.AssetDatabase.AddAsset(obj);
-                UnityEditor.EditorUtility.SetDirty(Settings.AssetDatabase);
-            }
+            var entry = Settings.AssetDatabase.AddAsset(obj);
+            serialized = new fsData(entry.guid);
             return fsResult.Success;
         }
 
+        // ----------------------------------------------------------------------------------------
         public override object CreateInstance(fsData data, Type storageType)
         {
             return -1;
